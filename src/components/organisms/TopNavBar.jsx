@@ -23,37 +23,58 @@ export default function TopNavBar({ activeSection = 'Cotizaciones', showBack = f
     >
       <Toolbar sx={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          {showBack && (
-            <IconButton aria-label="Volver" onClick={onBack} size="small">
-              <ArrowBackIcon />
-            </IconButton>
-          )}
+  {showBack && (
+    <IconButton aria-label="Volver" onClick={onBack} size="small">
+      <ArrowBackIcon />
+    </IconButton>
+  )}
 
-          {showBack ? (
-            <Typography fontWeight={600}>Cotizaciones</Typography>
-          ) : (
-            <Tabs value={activeSection} TabIndicatorProps={{ style: { display: 'none' } }}>
-              {SECTIONS.map((s) => (
-                <Tab
-                  key={s.label}
-                  value={s.label}
-                  label={s.label}
-                  onClick={() => navigate(s.path)}
-                  sx={{
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    minHeight: 36,
-                    ...(s.label === activeSection && {
-                      bgcolor: 'primary.main',
-                      color: 'primary.contrastText',
-                      borderRadius: 999,
-                    }),
-                  }}
-                />
-              ))}
-            </Tabs>
-          )}
-        </Box>
+  {/* AQUÍ VA EL LOGO */}
+  <Box
+    component="img"
+    src="/logo.png"
+    alt="Logo de Laguito Libre"
+    sx={{
+      width: 36,
+      height: 36,
+      objectFit: 'contain',
+      display: 'block',
+      flexShrink: 0,
+    }}
+  />
+
+  {showBack ? (
+    <Typography sx={{ fontWeight: 600 }}>
+      Cotizaciones
+    </Typography>
+  ) : (
+    <Tabs
+      value={activeSection}
+      slotProps={{
+        indicator: { sx: { display: 'none' } },
+      }}
+    >
+      {SECTIONS.map((s) => (
+        <Tab
+          key={s.label}
+          value={s.label}
+          label={s.label}
+          onClick={() => navigate(s.path)}
+          sx={{
+            textTransform: 'none',
+            fontWeight: 600,
+            minHeight: 36,
+            ...(s.label === activeSection && {
+              bgcolor: 'primary.main',
+              color: 'primary.contrastText',
+              borderRadius: 999,
+            }),
+          }}
+        />
+      ))}
+    </Tabs>
+  )}
+</Box>
 
         <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
           <Button startIcon={<AccountCircleOutlinedIcon />} color="inherit" sx={{ textTransform: 'none' }}>

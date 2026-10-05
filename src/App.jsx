@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useRef, useState } from 'react'
 import {
   Navigate,
@@ -715,3 +716,12 @@ export default function App() {
     </Routes>
   )
 }
+=======
+import LoginScreen from "./pages/Login/LoginScreen.jsx";
+
+function App() {
+    return <LoginScreen />;
+}
+
+export default App;
+>>>>>>> de10e782cc4329856504810b538cbf15b211a0a4
