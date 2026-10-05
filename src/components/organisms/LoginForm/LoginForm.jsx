@@ -27,7 +27,7 @@ function LoginForm() {
       </Typography>
 
       <LoginField
-        placeholder="Usuario o correo electrónico"
+        placeholder="RUN"
       />
 
       <Box sx={{ height: "9px" }} />
