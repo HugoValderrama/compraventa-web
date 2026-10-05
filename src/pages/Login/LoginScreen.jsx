@@ -9,7 +9,7 @@ function LoginScreen() {
       sx={{
         minHeight: "100vh",
         width: "100%",
-        backgroundColor: "#3026A6",
+        backgroundColor: "#75a626",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
