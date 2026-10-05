@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
 import LoginTemplate from "../../components/templates/LoginTemplate/LoginTemplate";
+import logo from "../../assets/logo.png";
 
 function LoginScreen() {
   return (
@@ -9,7 +10,7 @@ function LoginScreen() {
       sx={{
         minHeight: "100vh",
         width: "100%",
-        backgroundColor: "#3026A6",
+        backgroundColor: "#3026a6",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -39,6 +40,9 @@ function LoginScreen() {
 
         {/* Aquí irá el logo PNG */}
         <Box
+            component="img"
+            src={logo}
+            alt="Logo"
           sx={{
             width: "70px",
             height: "70px",
