@@ -1,26 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import CotizacionesListPage from './pages/CotizacionesListPage'
-import CotizacionDetallePage from './pages/CotizacionDetallePage'
-
-// Temporal: reemplazar por la página real de Marco (Solicitar cotización)
-// si
-const NuevaCotizacionPlaceholder = () => <div>Solicitar cotización (pendiente)</div>
-
-/*
-function App() {
-  return (
-    <Routes>
-       <Route path="/" element={<Navigate to="/cotizaciones" replace />} />
-       <Route path="/cotizaciones" element={<CotizacionesListPage />} />
-
-      <Route path="/cotizaciones/nueva" element={<NuevaCotizacionPlaceholder />} />
-      <Route path="/cotizaciones/:id" element={<CotizacionDetallePage />} />
-      <Route path="*" element={<Navigate to="/cotizaciones" replace />} />
-    </Routes>
-  )
-}
-
-*/
+import LoginScreen from "./pages/Login/LoginScreen.jsx";
 
 function App() {
     return <LoginScreen />;
