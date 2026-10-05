@@ -6,13 +6,13 @@ import CotizacionDetallePage from './pages/CotizacionDetallePage'
 // si
 const NuevaCotizacionPlaceholder = () => <div>Solicitar cotización (pendiente)</div>
 
-
+/*
 function App() {
   return (
     <Routes>
        <Route path="/" element={<Navigate to="/cotizaciones" replace />} />
        <Route path="/cotizaciones" element={<CotizacionesListPage />} />
-      {/* "nueva" va antes que ":id" para que no se interprete como un id */}
+
       <Route path="/cotizaciones/nueva" element={<NuevaCotizacionPlaceholder />} />
       <Route path="/cotizaciones/:id" element={<CotizacionDetallePage />} />
       <Route path="*" element={<Navigate to="/cotizaciones" replace />} />
@@ -20,4 +20,10 @@ function App() {
   )
 }
 
-export default App
+*/
+
+function App() {
+    return <LoginScreen />;
+}
+
+export default App;
