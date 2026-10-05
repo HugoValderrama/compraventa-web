@@ -1,0 +1,65 @@
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+
+import LoginTemplate from "../../components/templates/LoginTemplate/LoginTemplate";
+
+function LoginScreen() {
+  return (
+    <Box
+      sx={{
+        minHeight: "100vh",
+        width: "100%",
+        backgroundColor: "#3026A6",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        boxSizing: "border-box",
+        paddingTop: "55px",
+      }}
+    >
+      {/* Nombre y logo de Laguito Libre */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "20px",
+          marginBottom: "30px",
+        }}
+      >
+        <Typography
+          sx={{
+            color: "black",
+            fontSize: "30px",
+            fontWeight: "bold",
+          }}
+        >
+          LAGUITO
+        </Typography>
+
+        {/* Aquí irá el logo PNG */}
+        <Box
+          sx={{
+            width: "70px",
+            height: "70px",
+          }}
+        />
+
+        <Typography
+          sx={{
+            color: "black",
+            fontSize: "30px",
+            fontWeight: "bold",
+          }}
+        >
+          LIBRE
+        </Typography>
+      </Box>
+
+      {/* Formulario */}
+      <LoginTemplate />
+    </Box>
+  );
+}
+
+export default LoginScreen;
