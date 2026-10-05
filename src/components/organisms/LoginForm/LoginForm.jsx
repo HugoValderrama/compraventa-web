@@ -40,7 +40,7 @@ function LoginForm() {
       <Box
         sx={{
           display: "flex",
-          justifyContent: "center",
+          justifyContent: "flex-start",
           marginTop: "4px",
           marginBottom: "4px",
         }}
