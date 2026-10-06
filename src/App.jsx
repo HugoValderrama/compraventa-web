@@ -1,8 +1,12 @@
-import { useLocation } from 'react-router-dom'
-import CotizacionesPage from './pages/cotizacion.jsx'
-import ProductosPage from './pages/Productos.jsx'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
+import Login from "./pages/Login/LoginScreen.jsx";
 
-export default function App() {
-  const { pathname } = useLocation()
-  return pathname.startsWith('/productos') ? <ProductosPage /> : <CotizacionesPage />
+function App() {
+  return (
+      <Router>
+        <Route path="/" component={Login} />
+      </Router>
+  )
 }
+
+export default App;
