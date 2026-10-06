@@ -5,8 +5,11 @@ import Button from "@mui/material/Button";
 import RegisterField from "../../molecules/RegisterField/RegisterField";
 import BirthDate from "../../molecules/BirthDate/BirthDate";
 import TermsCheckbox from "../../molecules/TerminosCheck/TerminosCheck";
+import { useNavigate } from "react-router-dom";
 
 function RegisterForm() {
+  const navigate = useNavigate();
+
   return (
     <Box sx={{ width: "100%" }}>
       {/* Formulario en dos columnas */}
@@ -113,18 +116,19 @@ function RegisterForm() {
       </Button>
 
       {/* Volver al login */}
-      <Typography
-        sx={{
-          color: "#62A7F5",
-          textAlign: "center",
-          fontSize: "14px",
-          fontWeight: "bold",
-          marginTop: "15px",
-          cursor: "pointer",
-        }}
-      >
-        Iniciar sesión
-      </Typography>
+     <Typography
+  onClick={() => navigate("/")}
+  sx={{
+    color: "#62A7F5",
+    textAlign: "center",
+    fontSize: "14px",
+    fontWeight: "bold",
+    marginTop: "15px",
+    cursor: "pointer",
+  }}
+>
+  Iniciar sesión
+</Typography>
     </Box>
   );
 }
