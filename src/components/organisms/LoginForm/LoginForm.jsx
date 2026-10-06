@@ -1,11 +1,14 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import { useNavigate } from "react-router-dom";
 
 import CustomButton from "../../atoms/Button/CustomButton";
 import LoginField from "../../molecules/LoginField/LoginField";
 import RememberUser from "../../molecules/RememberUser/RememberUser";
 
 function LoginForm() {
+  const navigate = useNavigate();
+
   return (
     <Box
       sx={{
@@ -26,9 +29,7 @@ function LoginForm() {
         Iniciar sesión
       </Typography>
 
-      <LoginField
-        placeholder="RUN"
-      />
+      <LoginField placeholder="RUN" />
 
       <Box sx={{ height: "9px" }} />
 
@@ -53,6 +54,7 @@ function LoginForm() {
       </CustomButton>
 
       <Typography
+        onClick={() => navigate("/registro")}
         sx={{
           color: "#FFFFFF",
           fontSize: "17px",
