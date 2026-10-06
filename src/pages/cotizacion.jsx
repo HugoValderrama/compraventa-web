@@ -677,42 +677,26 @@ export default function CotizacionesPage() {
   }
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={<Navigate to="/cotizaciones" replace />}
-      />
+  <Routes>
+    <Route index element={<Lista {...datos} />} />
 
-      <Route
-        path="/cotizaciones"
-        element={<Lista {...datos} />}
-      />
+    <Route
+      path="nueva"
+      element={<Solicitud onCrear={crear} errorLectura={datos.error} />}
+    />
 
-      <Route
-        path="/cotizaciones/nueva"
-        element={
-          <Solicitud
-            onCrear={crear}
-            errorLectura={datos.error}
-          />
-        }
-      />
+    <Route
+      path=":id"
+      element={
+        <DetalleRuta
+          cotizaciones={datos.cotizaciones}
+          onActualizar={actualizar}
+          errorLectura={datos.error}
+        />
+      }
+    />
 
-      <Route
-        path="/cotizaciones/:id"
-        element={
-          <DetalleRuta
-            cotizaciones={datos.cotizaciones}
-            onActualizar={actualizar}
-            errorLectura={datos.error}
-          />
-        }
-      />
-
-      <Route
-        path="*"
-        element={<Navigate to="/cotizaciones" replace />}
-      />
-    </Routes>
-  )
+    <Route path="*" element={<Navigate to="/cotizaciones" replace />} />
+  </Routes>
+)
 }
