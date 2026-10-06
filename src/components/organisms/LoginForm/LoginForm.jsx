@@ -1,4 +1,5 @@
 import Box from "@mui/material/Box";
+import Button from '@mui/material/Button';
 import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router-dom";
 
@@ -49,9 +50,12 @@ function LoginForm() {
         <RememberUser />
       </Box>
 
-      <CustomButton type="submit">
+      <Button
+          type="submit"
+          onClick={() => navigate("/perfil")}
+      >
         Iniciar sesión
-      </CustomButton>
+      </Button>
 
       <Typography
         onClick={() => navigate("/registro")}
