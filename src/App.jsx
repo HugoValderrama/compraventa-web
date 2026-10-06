@@ -1,11 +1,13 @@
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom';
 import LoginScreen from "./pages/Login/LoginScreen.jsx";
 
 function App() {
   return (
-      <Router>
-        <Route path="/" exact component={LoginScreen} />
-      </Router>
+        <div className="App">
+            <Routes>
+                <Route path="/" element={<LoginScreen />} />
+            </Routes>
+        </div>
   )
 }
 
