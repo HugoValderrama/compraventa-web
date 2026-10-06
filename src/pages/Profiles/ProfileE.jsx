@@ -160,7 +160,7 @@ export default function ProfileE() {
 
                     <Button
                         variant="contained"
-                        onClick={() => navigate("/ventas")}
+                        onClick={() => navigate("/productos")}
                     >
                         Mis ventas
                     </Button>

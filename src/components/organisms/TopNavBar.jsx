@@ -12,6 +12,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const SECTIONS = [
   { label: 'Cotizaciones', path: '/cotizaciones' },
   { label: 'Perfil', path: '/perfilE' },
+  { label: 'Productos', path: '/productos'}
 ];
 
 export default function TopNavBar({ showBack = false, onBack }) {
