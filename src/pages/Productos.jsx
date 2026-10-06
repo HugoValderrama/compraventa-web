@@ -32,7 +32,7 @@ import TopNavBar from '../components/organisms/TopNavBar'
 /* ------------------------------------------------------------------ */
 
 const CLAVE = 'laguito-libre.productos.v1'
-const AZUL = '#0A84FF'
+const AZUL = '#62A7F5'
 
 const INICIALES = [
   {
@@ -206,7 +206,7 @@ function Imagen({ producto, sx }) {
     aspectRatio: '1 / 1',
     borderRadius: 2,
     objectFit: 'cover',
-    bgcolor: '#E9E4F7',
+    bgcolor: '#FFFFFF',
     ...sx,
   }
 
@@ -225,7 +225,7 @@ function Imagen({ producto, sx }) {
         ...base,
         display: 'grid',
         placeItems: 'center',
-        color: '#6B5FC7',
+        color: '#62A7F5',
         textAlign: 'center',
         p: 1,
       }}
