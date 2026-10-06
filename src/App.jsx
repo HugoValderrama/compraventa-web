@@ -11,12 +11,6 @@ function App() {
     <div className="App">
       <Routes>
         <Route path="/" element={<LoginScreen />} />
-        <Route path="/perfil" element={<ProfileClient />} />
-        <Route path="/perfilE" element={<ProfileE />} />
-        <Route path="/cotizaciones/*" element={<CotizacionesPage />} />
-        <Route path="/productos/*" element={<ProductosPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-
         <Route
           path="/registro"
           element={<RegistroScreen />}
@@ -33,7 +27,7 @@ function App() {
         />
 
         <Route
-          path="/cotizaciones"
+          path="/cotizaciones/*"
           element={<CotizacionesPage />}
         />
 
@@ -41,6 +35,7 @@ function App() {
           path="/productos/*"
           element={<ProductosPage />}
         />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );
