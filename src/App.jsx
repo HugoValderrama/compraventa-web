@@ -4,7 +4,7 @@ import LoginScreen from "./pages/Login/LoginScreen.jsx";
 function App() {
   return (
       <Router>
-        <Route path="/" component={LoginScreen} />
+        <Route path="/" exact component={LoginScreen} />
       </Router>
   )
 }
