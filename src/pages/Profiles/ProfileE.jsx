@@ -22,13 +22,13 @@ function Pantalla({ children }) {
     );
 }
 
-export default function ProfileClient() {
+export default function ProfileE() {
     const navigate = useNavigate();
 
     return (
         <Pantalla>
             <Typography variant="h5" sx={{ color: "white", mb: 3 }}>
-                Mi perfil
+                Mi perfil emprendedor
             </Typography>
 
             <Paper sx={{ p: 3, mb: 6 }}>
@@ -37,6 +37,7 @@ export default function ProfileClient() {
                     spacing={3}
                     alignItems={{ xs: "center", sm: "flex-start" }}
                 >
+
                     <Avatar
                         variant="rounded"
                         sx={{
@@ -48,6 +49,7 @@ export default function ProfileClient() {
                     >
                     </Avatar>
 
+
                     <Stack spacing={1} sx={{ flex: 1, width: "100%" }}>
                         <Stack
                             direction={{ xs: "column", md: "row" }}
@@ -58,20 +60,20 @@ export default function ProfileClient() {
                             </Typography>
 
                             <Typography sx={{ fontWeight: 600 }}>
-                                Birthday:
-                            </Typography>
-
-                            <Typography sx={{ fontWeight: 600 }}>
                                 Registro:
                             </Typography>
                         </Stack>
 
                         <Typography variant="h6">
-                            Name1, Name2, LastName1, LastName2
+                            Nombre del emprendimiento
                         </Typography>
 
                         <Typography>
-                            <strong>Email:</strong> correo@ejemplo.cl
+                            <strong>Propietario:</strong> Name1 LastName1
+                        </Typography>
+
+                        <Typography>
+                            <strong>Correo:</strong> correo@ejemplo.cl
                         </Typography>
 
                         <Typography>
@@ -99,7 +101,7 @@ export default function ProfileClient() {
                 >
                     <Button
                         variant="contained"
-                        onClick={() => navigate("/perfil/editar")}
+                        onClick={() => navigate("/perfil-emprendedor/editar")}
                     >
                         Editar perfil
                     </Button>
@@ -136,9 +138,11 @@ export default function ProfileClient() {
                             xs: "1fr",
                             sm: "1fr 1fr",
                         },
-                        gap: 3,
+                        columnGap: 3,
+                        rowGap: 3,
                     }}
                 >
+
                     <Button
                         variant="contained"
                         onClick={() => navigate("/compras")}
@@ -153,6 +157,22 @@ export default function ProfileClient() {
                         Mensajería
                     </Button>
 
+
+                    <Button
+                        variant="contained"
+                        onClick={() => navigate("/ventas")}
+                    >
+                        Mis ventas
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        onClick={() => navigate("/preguntas")}
+                    >
+                        Mis preguntas
+                    </Button>
+
+
                     <Button
                         variant="contained"
                         onClick={() => navigate("/cotizaciones")}
@@ -162,9 +182,9 @@ export default function ProfileClient() {
 
                     <Button
                         variant="contained"
-                        onClick={() => navigate("/preguntas")}
+                        onClick={() => navigate("/resenas")}
                     >
-                        Mis preguntas
+                        Mis reseñas
                     </Button>
                 </Box>
             </Paper>
