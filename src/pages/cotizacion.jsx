@@ -634,7 +634,7 @@ export default function CotizacionesPage() {
       throw new Error('El total supera el límite permitido.')
     }
 
-    const nueva = {
+      const nueva = {
       id: crypto.randomUUID(),
       estado: 'Pendiente',
       fechaSolicitud: new Date().toISOString(),
@@ -645,6 +645,7 @@ export default function CotizacionesPage() {
       })),
     }
 
+    console.log('[Cotizaciones] Crear solicitud:', nueva)
     guardar([nueva, ...datos.cotizaciones])
     return nueva
   }
@@ -662,6 +663,11 @@ export default function CotizacionesPage() {
         'Este cambio de estado no está permitido.'
       )
     }
+      console.log('[Cotizaciones] Actualizar estado:', {
+      id,
+      estadoAnterior: seleccionada.estado,
+      estadoNuevo: estado,
+    })
 
     guardar(
       datos.cotizaciones.map((c) =>
