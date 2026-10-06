@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
@@ -6,6 +8,8 @@ import Divider from "@mui/material/Divider";
 import RegisterForm from "../../organisms/RegisterForm/RegisterForm";
 
 function RegisterTemplate() {
+  const [tipoUsuario, setTipoUsuario] = useState("cliente");
+
   return (
     <Box
       sx={{
@@ -44,16 +48,36 @@ function RegisterTemplate() {
           }}
         >
           <Button
-            variant="contained"
+            onClick={() => setTipoUsuario("cliente")}
+            variant={
+              tipoUsuario === "cliente"
+                ? "contained"
+                : "outlined"
+            }
             sx={{
-              backgroundColor: "#62A7F5",
-              color: "#FFFFFF",
+              backgroundColor:
+                tipoUsuario === "cliente"
+                  ? "#62A7F5"
+                  : "#FFFFFF",
+
+              color:
+                tipoUsuario === "cliente"
+                  ? "#FFFFFF"
+                  : "#62A7F5",
+
+              borderColor: "#62A7F5",
               textTransform: "none",
               boxShadow: "none",
               borderRadius: "8px",
               padding: "8px 22px",
+
               "&:hover": {
-                backgroundColor: "#62A7F5",
+                backgroundColor:
+                  tipoUsuario === "cliente"
+                    ? "#62A7F5"
+                    : "#FFFFFF",
+
+                borderColor: "#62A7F5",
                 boxShadow: "none",
               },
             }}
@@ -62,15 +86,37 @@ function RegisterTemplate() {
           </Button>
 
           <Button
-            variant="outlined"
+            onClick={() => setTipoUsuario("emprendedor")}
+            variant={
+              tipoUsuario === "emprendedor"
+                ? "contained"
+                : "outlined"
+            }
             sx={{
+              backgroundColor:
+                tipoUsuario === "emprendedor"
+                  ? "#62A7F5"
+                  : "#FFFFFF",
+
+              color:
+                tipoUsuario === "emprendedor"
+                  ? "#FFFFFF"
+                  : "#62A7F5",
+
               borderColor: "#62A7F5",
-              color: "#62A7F5",
               textTransform: "none",
+              boxShadow: "none",
               borderRadius: "8px",
               padding: "8px 22px",
+
               "&:hover": {
+                backgroundColor:
+                  tipoUsuario === "emprendedor"
+                    ? "#62A7F5"
+                    : "#FFFFFF",
+
                 borderColor: "#62A7F5",
+                boxShadow: "none",
               },
             }}
           >
