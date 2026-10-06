@@ -750,17 +750,15 @@ export default function ProductosPage() {
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/productos" replace />} />
-
-      <Route path="/productos" element={<Lista {...datos} />} />
+      <Route index element={<Lista {...datos} />} />
 
       <Route
-        path="/productos/nuevo"
+        path="nuevo"
         element={<Nuevo onCrear={crear} errorLectura={datos.error} />}
       />
 
       <Route
-        path="/productos/:id"
+        path=":id"
         element={
           <DetalleRutaConMensaje
             productos={datos.productos}
@@ -771,7 +769,7 @@ export default function ProductosPage() {
       />
 
       <Route
-        path="/productos/:id/editar"
+        path=":id/editar"
         element={
           <EditarRuta
             productos={datos.productos}
