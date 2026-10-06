@@ -722,9 +722,10 @@ export default function ProductosPage() {
     setDatos({ productos, error: '' })
   }
 
-  // CREATE
+   // CREATE
   const crear = (form) => {
     const nuevo = { id: crypto.randomUUID(), ...normalizar(form) }
+    console.log('[Productos] Crear producto:', nuevo)
     guardar([nuevo, ...datos.productos])
     return nuevo
   }
@@ -736,6 +737,7 @@ export default function ProductosPage() {
     }
 
     const cambios = normalizar(form)
+    console.log('[Productos] Actualizar producto:', { id, ...cambios })
     guardar(datos.productos.map((p) => (p.id === id ? { ...p, ...cambios } : p)))
   }
 
@@ -745,6 +747,7 @@ export default function ProductosPage() {
       throw new Error('El producto ya no existe.')
     }
 
+    console.log('[Productos] Eliminar producto:', { id })
     guardar(datos.productos.filter((p) => p.id !== id))
   }
 
