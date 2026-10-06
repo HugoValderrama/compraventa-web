@@ -53,6 +53,7 @@ function LoginForm() {
       <Button
           type="submit"
           onClick={() => navigate("/perfil")}
+          
       >
         Iniciar sesión
       </Button>
