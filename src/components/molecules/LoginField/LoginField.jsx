@@ -13,12 +13,20 @@ function LoginField({
     let nuevoValor = event.target.value;
 
     if (isRun) {
-      // Solo permite números y guion
-      nuevoValor = nuevoValor.replace(/[^0-9-]/g, "");
+  // Elimina todo lo que no sea número
+  nuevoValor = nuevoValor.replace(/\D/g, "");
 
-      // Máximo 10 caracteres: 12345678-9
-      nuevoValor = nuevoValor.slice(0, 10);
-    }
+  // Máximo 9 números
+  nuevoValor = nuevoValor.slice(0, 9);
+
+  // Al ingresar el noveno número, agrega el guion automáticamente
+  if (nuevoValor.length === 9) {
+    nuevoValor =
+      nuevoValor.slice(0, 8) +
+      "-" +
+      nuevoValor.slice(8);
+  }
+}
 
     if (onChange) {
       onChange(nuevoValor);

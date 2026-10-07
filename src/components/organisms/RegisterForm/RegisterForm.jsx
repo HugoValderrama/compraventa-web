@@ -1,14 +1,21 @@
+import { useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import { useNavigate } from "react-router-dom";
+import { validarRun } from "../../../utils/validarRun.js";
 
 import RegisterField from "../../molecules/RegisterField/RegisterField";
 import BirthDate from "../../molecules/BirthDate/BirthDate";
 import TermsCheckbox from "../../molecules/TerminosCheck/TerminosCheck";
-import { useNavigate } from "react-router-dom";
 
 function RegisterForm() {
   const navigate = useNavigate();
+
+  const [run, setRun] = useState("");
+
+  // Formato esperado: 12345678-9
+  const runValido = validarRun(run);
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -31,12 +38,14 @@ function RegisterForm() {
             gap: "22px",
           }}
         >
+          {/* RUN */}
           <Box>
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                marginBottom: "8px",
               }}
             >
               <Typography
@@ -49,22 +58,33 @@ function RegisterForm() {
                 RUN
               </Typography>
 
-              <Typography
-                sx={{
-                  color: "green",
-                  fontSize: "13px",
-                }}
-              >
-                RUN válido ✓
-              </Typography>
+              {runValido && (
+                <Typography
+                  sx={{
+                    color: "green",
+                    fontSize: "13px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  RUN válido ✓
+                </Typography>
+              )}
             </Box>
 
-            <RegisterField helperText="Ej: 12.345.678-9" />
+            <RegisterField
+              value={run}
+              onChange={setRun}
+              isRun={true}
+              helperText="Ej: 12.345.678-9"
+            />
           </Box>
 
           <RegisterField label="Nombre completo" />
 
-          <RegisterField label="Email" type="email" />
+          <RegisterField
+            label="Email"
+            type="email"
+          />
         </Box>
 
         {/* Columna derecha */}
@@ -77,7 +97,10 @@ function RegisterForm() {
         >
           <BirthDate />
 
-          <RegisterField label="Contraseña" type="password" />
+          <RegisterField
+            label="Contraseña"
+            type="password"
+          />
 
           <RegisterField
             label="Confirmar contraseña"
@@ -91,7 +114,7 @@ function RegisterForm() {
         <TermsCheckbox />
       </Box>
 
-      {/* Botón crear cuenta */}
+      {/* Crear cuenta */}
       <Button
         variant="contained"
         fullWidth
@@ -115,20 +138,20 @@ function RegisterForm() {
         Crear cuenta →
       </Button>
 
-      {/* Volver al login */}
-     <Typography
-  onClick={() => navigate("/")}
-  sx={{
-    color: "#62A7F5",
-    textAlign: "center",
-    fontSize: "14px",
-    fontWeight: "bold",
-    marginTop: "15px",
-    cursor: "pointer",
-  }}
->
-  Iniciar sesión
-</Typography>
+      {/* Volver al Login */}
+      <Typography
+        onClick={() => navigate("/")}
+        sx={{
+          color: "#62A7F5",
+          textAlign: "center",
+          fontSize: "14px",
+          fontWeight: "bold",
+          marginTop: "15px",
+          cursor: "pointer",
+        }}
+      >
+        Iniciar sesión
+      </Typography>
     </Box>
   );
 }
