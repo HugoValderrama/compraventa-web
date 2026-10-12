@@ -8,14 +8,31 @@ import { validarRun } from "../../../utils/validarRun.js";
 import RegisterField from "../../molecules/RegisterField/RegisterField";
 import BirthDate from "../../molecules/BirthDate/BirthDate";
 import TermsCheckbox from "../../molecules/TerminosCheck/TerminosCheck";
+import EmailField from "../../molecules/EmailField/EmailField";
+import NameField from "../../molecules/NameField/NameField";
+import PasswordFields from "../../molecules/PasswordFields/PasswordFields";
+import EntrepreneurFields from "../../molecules/EntrepreneurFields/EntrepreneurFields";
 
-function RegisterForm() {
+function RegisterForm({ tipoUsuario }) {
   const navigate = useNavigate();
 
   const [run, setRun] = useState("");
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
+  const [nombreValido, setNombreValido] = useState(false);
+  const [emailValido, setEmailValido] = useState(false);
+  const [edadValida, setEdadValida] = useState(false);
+  const [passwordsValidas, setPasswordsValidas] = useState(false);
 
   // Formato esperado: 12345678-9
   const runValido = validarRun(run);
+  const runCompleto = run.length === 10;
+  const formularioValido =
+  runValido &&
+  nombreValido &&
+  emailValido &&
+  edadValida &&
+  passwordsValidas &&
+  aceptaTerminos;
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -58,17 +75,17 @@ function RegisterForm() {
                 RUN
               </Typography>
 
-              {runValido && (
-                <Typography
-                  sx={{
-                    color: "green",
-                    fontSize: "13px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  RUN válido ✓
-                </Typography>
-              )}
+              {runCompleto && (
+  <Typography
+    sx={{
+      color: runValido ? "green" : "#FF0000",
+      fontSize: "13px",
+      fontWeight: "bold",
+    }}
+  >
+    {runValido ? "RUN válido ✓" : "RUN inválido X"}
+  </Typography>
+)}
             </Box>
 
             <RegisterField
@@ -79,12 +96,9 @@ function RegisterForm() {
             />
           </Box>
 
-          <RegisterField label="Nombre completo" />
+          <NameField onValidityChange={setNombreValido} />
 
-          <RegisterField
-            label="Email"
-            type="email"
-          />
+          <EmailField onValidityChange={setEmailValido} />
         </Box>
 
         {/* Columna derecha */}
@@ -95,30 +109,33 @@ function RegisterForm() {
             gap: "22px",
           }}
         >
-          <BirthDate />
+          <BirthDate onValidityChange={setEdadValida} />
 
-          <RegisterField
-            label="Contraseña"
-            type="password"
-          />
-
-          <RegisterField
-            label="Confirmar contraseña"
-            type="password"
-          />
+          <PasswordFields onValidityChange={setPasswordsValidas} />
         </Box>
       </Box>
+      {/* Campos adicionales del emprendedor */}
+{tipoUsuario === "emprendedor" && (
+  <EntrepreneurFields />
+)}
 
       {/* Términos */}
       <Box sx={{ marginTop: "25px" }}>
-        <TermsCheckbox />
+        <TermsCheckbox
+      checked={aceptaTerminos}
+      onChange={setAceptaTerminos}
+      />
       </Box>
 
       {/* Crear cuenta */}
       <Button
         variant="contained"
         fullWidth
-        sx={{
+        disabled={!formularioValido}
+        sx={{"&.Mui-disabled": {
+  backgroundColor: "#B5B0B0",
+  color: "#FFFFFF",
+},
           marginTop: "20px",
           height: "50px",
           backgroundColor: "#62A7F5",

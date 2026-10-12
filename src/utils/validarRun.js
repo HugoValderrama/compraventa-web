@@ -11,12 +11,16 @@ export function validarRun(run) {
     .toUpperCase();
 
   // Debe tener al menos cuerpo + dígito verificador
-  if (runLimpio.length < 2) {
-    return false;
-  }
+  // Debe tener exactamente 8 números + 1 dígito verificador
+if (runLimpio.length !== 9) {
+  return false;
+}
 
   const cuerpo = runLimpio.slice(0, -1);
   const digitoIngresado = runLimpio.slice(-1);
+  if (!/^\d{8}$/.test(cuerpo)) {
+  return false;
+}
 
   // El cuerpo debe contener solamente números
   if (!/^\d+$/.test(cuerpo)) {

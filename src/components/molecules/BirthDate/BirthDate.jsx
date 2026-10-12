@@ -1,21 +1,91 @@
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 
-function BirthDate() {
+function BirthDate({ onValidityChange }) {
+  const [dia, setDia] = useState("01");
+  const [mes, setMes] = useState(1);
+  const [anio, setAnio] = useState(2000);
+
+  // Cantidad correcta de días según mes y año
+  const diasDelMes = new Date(anio, mes, 0).getDate();
+
+  // Si cambia el mes y el día deja de existir
+  const diaSeleccionado = Math.min(Number(dia), diasDelMes);
+
+  // Calcular edad real
+  const calcularEdad = () => {
+    const hoy = new Date();
+
+    let edad = hoy.getFullYear() - anio;
+
+    const aunNoCumple =
+      hoy.getMonth() + 1 < mes ||
+      (hoy.getMonth() + 1 === mes &&
+        hoy.getDate() < diaSeleccionado);
+
+    if (aunNoCumple) {
+      edad--;
+    }
+
+    return edad;
+  };
+
+  const edad = calcularEdad();
+  const edadValida = edad >= 18;
+  useEffect(() => {
+  if (onValidityChange) {
+    onValidityChange(edadValida);
+  }
+}, [edadValida, onValidityChange]);
+
+  const meses = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+
   return (
     <Box sx={{ width: "100%" }}>
-      <Typography
+      <Box
         sx={{
-          color: "#808080",
-          fontSize: "14px",
-          fontWeight: "bold",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginBottom: "8px",
         }}
       >
-        Fecha de nacimiento
-      </Typography>
+        <Typography
+          sx={{
+            color: "#808080",
+            fontSize: "14px",
+            fontWeight: "bold",
+          }}
+        >
+          Fecha de nacimiento
+        </Typography>
+
+        <Typography
+          sx={{
+            color: edadValida ? "green" : "#FF0000",
+            fontSize: "13px",
+            fontWeight: "bold",
+          }}
+        >
+          {edadValida ? "Edad válida ✓" : "Menor de 18 años"}
+        </Typography>
+      </Box>
 
       <Box
         sx={{
@@ -25,7 +95,8 @@ function BirthDate() {
       >
         {/* Día */}
         <Select
-          defaultValue="01"
+          value={String(diaSeleccionado).padStart(2, "0")}
+          onChange={(event) => setDia(event.target.value)}
           sx={{
             width: "90px",
             height: "50px",
@@ -33,7 +104,7 @@ function BirthDate() {
             borderRadius: "8px",
           }}
         >
-          {Array.from({ length: 31 }, (_, i) => {
+          {Array.from({ length: diasDelMes }, (_, i) => {
             const day = String(i + 1).padStart(2, "0");
 
             return (
@@ -46,7 +117,8 @@ function BirthDate() {
 
         {/* Mes */}
         <Select
-          defaultValue="Enero"
+          value={mes}
+          onChange={(event) => setMes(Number(event.target.value))}
           sx={{
             flex: 1,
             height: "50px",
@@ -54,23 +126,17 @@ function BirthDate() {
             borderRadius: "8px",
           }}
         >
-          <MenuItem value="Enero">Enero</MenuItem>
-          <MenuItem value="Febrero">Febrero</MenuItem>
-          <MenuItem value="Marzo">Marzo</MenuItem>
-          <MenuItem value="Abril">Abril</MenuItem>
-          <MenuItem value="Mayo">Mayo</MenuItem>
-          <MenuItem value="Junio">Junio</MenuItem>
-          <MenuItem value="Julio">Julio</MenuItem>
-          <MenuItem value="Agosto">Agosto</MenuItem>
-          <MenuItem value="Septiembre">Septiembre</MenuItem>
-          <MenuItem value="Octubre">Octubre</MenuItem>
-          <MenuItem value="Noviembre">Noviembre</MenuItem>
-          <MenuItem value="Diciembre">Diciembre</MenuItem>
+          {meses.map((nombreMes, index) => (
+            <MenuItem key={nombreMes} value={index + 1}>
+              {nombreMes}
+            </MenuItem>
+          ))}
         </Select>
 
         {/* Año */}
         <Select
-          defaultValue={2000}
+          value={anio}
+          onChange={(event) => setAnio(Number(event.target.value))}
           sx={{
             width: "110px",
             height: "50px",
@@ -78,8 +144,8 @@ function BirthDate() {
             borderRadius: "8px",
           }}
         >
-          {Array.from({ length: 87 }, (_, i) => {
-            const year = 2008 - i;
+          {Array.from({ length: 100 }, (_, i) => {
+            const year = new Date().getFullYear() - i;
 
             return (
               <MenuItem key={year} value={year}>
@@ -92,12 +158,12 @@ function BirthDate() {
 
       <Typography
         sx={{
-          color: "#808080",
+          color: edadValida ? "#808080" : "#FF0000",
           fontSize: "13px",
           marginTop: "6px",
         }}
       >
-        Debes ser mayor de 18 años para registrarte
+        Debes tener 18 años o más para registrarte
       </Typography>
     </Box>
   );

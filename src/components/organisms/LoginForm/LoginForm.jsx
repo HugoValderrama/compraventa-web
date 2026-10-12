@@ -14,22 +14,31 @@ function LoginForm() {
   const [run, setRun] = useState("");
   const [password, setPassword] = useState("");
   const [errorRun, setErrorRun] = useState("");
+  const [errorPassword, setErrorPassword] = useState("");
 
-  const iniciarSesion = () => {
-    // Formato: 8 números + guion + dígito
-    const formatoRun = /^\d{8}-\d$/;
+ const iniciarSesion = () => {
+  let hayError = false;
 
-    if (!validarRun(run)) {
-  setErrorRun("RUN inválido");
-  return;
-}
-
+  if (!validarRun(run)) {
+    setErrorRun("RUN inválido");
+    hayError = true;
+  } else {
     setErrorRun("");
+  }
 
-    // Si el RUN tiene el formato correcto, entra al perfil
-    navigate("/perfil");
-  };
+  if (password.trim() === "") {
+    setErrorPassword("Debes ingresar tu contraseña");
+    hayError = true;
+  } else {
+    setErrorPassword("");
+  }
 
+  if (hayError) {
+    return;
+  }
+
+  navigate("/perfil");
+};
   return (
     <Box
       sx={{
@@ -77,6 +86,17 @@ function LoginForm() {
         value={password}
         onChange={setPassword}
       />
+      {errorPassword && (
+  <Typography
+    sx={{
+      color: "#FF6B6B",
+      fontSize: "13px",
+      marginTop: "5px",
+    }}
+  >
+    {errorPassword}
+  </Typography>
+)}
 
       <Box
         sx={{

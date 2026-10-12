@@ -136,7 +136,7 @@ function RegisterTemplate() {
           },
         }}
       >
-        <RegisterForm />
+        <RegisterForm tipoUsuario={tipoUsuario} />
       </Box>
     </Box>
   );

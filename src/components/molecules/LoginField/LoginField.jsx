@@ -13,18 +13,33 @@ function LoginField({
     let nuevoValor = event.target.value;
 
     if (isRun) {
-  // Elimina todo lo que no sea número
-  nuevoValor = nuevoValor.replace(/\D/g, "");
+  // Convertir K minúscula a mayúscula
+  nuevoValor = nuevoValor.toUpperCase();
 
-  // Máximo 9 números
-  nuevoValor = nuevoValor.slice(0, 9);
+  // Quitar el guion para procesar el RUN
+  nuevoValor = nuevoValor.replace(/-/g, "");
 
-  // Al ingresar el noveno número, agrega el guion automáticamente
-  if (nuevoValor.length === 9) {
-    nuevoValor =
-      nuevoValor.slice(0, 8) +
-      "-" +
-      nuevoValor.slice(8);
+  // Los primeros 8 caracteres solamente pueden ser números
+  const cuerpo = nuevoValor
+    .slice(0, 8)
+    .replace(/\D/g, "");
+
+  // El noveno carácter puede ser un número o K
+  let digitoVerificador = "";
+
+  if (nuevoValor.length > 8) {
+    const ultimo = nuevoValor.charAt(8);
+
+    if (/^[0-9K]$/.test(ultimo)) {
+      digitoVerificador = ultimo;
+    }
+  }
+
+  // Construir el RUN
+  nuevoValor = cuerpo;
+
+  if (cuerpo.length === 8 && digitoVerificador) {
+    nuevoValor = cuerpo + "-" + digitoVerificador;
   }
 }
 

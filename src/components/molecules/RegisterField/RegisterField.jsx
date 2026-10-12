@@ -14,18 +14,33 @@ function RegisterField({
     let nuevoValor = event.target.value;
 
     if (isRun) {
-      // Deja solamente números
-      nuevoValor = nuevoValor.replace(/\D/g, "");
+      // Convertir K minúscula a mayúscula
+      nuevoValor = nuevoValor.toUpperCase();
 
-      // Máximo 9 números
-      nuevoValor = nuevoValor.slice(0, 9);
+      // Quitar el guion para procesar el RUN
+      nuevoValor = nuevoValor.replace(/-/g, "");
 
-      // Agrega el guion automáticamente
-      if (nuevoValor.length === 9) {
-        nuevoValor =
-          nuevoValor.slice(0, 8) +
-          "-" +
-          nuevoValor.slice(8);
+      // Los primeros 8 caracteres solamente pueden ser números
+      const cuerpo = nuevoValor
+        .slice(0, 8)
+        .replace(/\D/g, "");
+
+      // El noveno carácter puede ser número o K
+      let digitoVerificador = "";
+
+      if (nuevoValor.length > 8) {
+        const ultimo = nuevoValor.charAt(8);
+
+        if (/^[0-9K]$/.test(ultimo)) {
+          digitoVerificador = ultimo;
+        }
+      }
+
+      // Construir el RUN
+      nuevoValor = cuerpo;
+
+      if (cuerpo.length === 8 && digitoVerificador) {
+        nuevoValor = cuerpo + "-" + digitoVerificador;
       }
     }
 
@@ -58,7 +73,6 @@ function RegisterField({
         slotProps={{
           htmlInput: {
             maxLength: isRun ? 10 : undefined,
-            inputMode: isRun ? "numeric" : undefined,
           },
         }}
         sx={{

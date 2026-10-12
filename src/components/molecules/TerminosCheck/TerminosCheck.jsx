@@ -1,11 +1,13 @@
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 
-function TermsCheckbox() {
+function TermsCheckbox({ checked, onChange }) {
   return (
     <FormControlLabel
       control={
         <Checkbox
+          checked={checked}
+          onChange={(event) => onChange(event.target.checked)}
           sx={{
             color: "#808080",
             "&.Mui-checked": {
