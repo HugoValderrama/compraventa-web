@@ -5,6 +5,7 @@ import ProfileClient from "./pages/Profiles/ProfileClient";
 import ProfileE from "./pages/Profiles/ProfileE";
 import CotizacionesPage from "./pages/cotizacion.jsx";
 import ProductosPage from "./pages/Productos.jsx";
+import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx"
 
 function App() {
   return (
@@ -35,6 +36,12 @@ function App() {
           path="/productos/*"
           element={<ProductosPage />}
         />
+
+        <Route
+          path="/servicios/*"
+          element={<ServiciosPage />}
+        />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
