@@ -71,28 +71,6 @@ function Campo({
   );
 }
 
-  return (
-    <Box>
-      <Typography
-        sx={{
-          color: "#808080",
-          fontSize: "14px",
-          fontWeight: "bold",
-          marginBottom: "8px",
-        }}
-      >
-        {titulo}
-      </Typography>
-
-      <TextField
-        fullWidth
-        placeholder={placeholder}
-        sx={estiloCampo}
-      />
-    </Box>
-  );
-
-
 function CampoRut({ rutEmpresa, setRutEmpresa }) {
   const numeroRut = Number(rutEmpresa.split("-")[0]);
 
