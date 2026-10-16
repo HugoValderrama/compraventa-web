@@ -13,15 +13,16 @@ const clp = new Intl.NumberFormat('es-CL', {
 })
 
 const ICONOS = {
-  Talleres: BrushOutlinedIcon,
-  Esmaltado: BrushOutlinedIcon,
+  'Talleres y clases': BrushOutlinedIcon,
+  'Esmaltado y cocción': BrushOutlinedIcon,
   'Cerámica a medida': PaletteOutlinedIcon,
 }
 
-const precioTexto = (s) =>
-  s.unidadCobro === 'persona'
-    ? `${clp.format(s.precio)} / persona`
-    : `Desde ${clp.format(s.precio)}`
+const precioTexto = (s) => {
+  if (s.unidadCobro === 'persona') return `${clp.format(s.precio)} / persona`
+  if (s.unidadCobro === 'hora') return `${clp.format(s.precio)} / hora`
+  return `Desde ${clp.format(s.precio)}`
+}
 
 // Primera línea: modalidad · ubicación · duración (lo que exista).
 const detalleTexto = (s) =>
@@ -61,9 +62,9 @@ export default function ServicioCard({ servicio, onEditar, onCambiarEstado }) {
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {detalleTexto(servicio)}
           </Typography>
-          {servicio.descripcion && (
+          {servicio.diasHorario && (
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {servicio.descripcion}
+              {servicio.diasHorario}
             </Typography>
           )}
         </Stack>

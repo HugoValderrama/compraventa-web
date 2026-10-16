@@ -2,63 +2,87 @@
 
 const LATENCIA_MS = 400
 
-export const MODALIDADES = ['Presencial', 'Online', 'A domicilio', 'A pedido']
+export const CATEGORIAS = [
+  'Talleres y clases',
+  'Cerámica a medida',
+  'Esmaltado y cocción',
+  'Reparación y restauración',
+  'Otros',
+]
+
+export const MODALIDADES = ['Presencial', 'Online', 'Mixto']
 
 export const UNIDADES_COBRO = [
   { valor: 'persona', etiqueta: 'Por persona' },
-  { valor: 'pedido', etiqueta: 'A pedido (precio desde)' },
+  { valor: 'hora', etiqueta: 'Por hora' },
+  { valor: 'servicio', etiqueta: 'Por servicio' },
 ]
 
-export const RESTRICCIONES_EDAD = [
-  'Todas las edades',
-  'Mayores de 12 años',
-  'Mayores de 18 años',
-]
+export const RESTRICCIONES_EDAD = ['Ninguna', 'Solo mayores de 18 años']
 
 let siguienteId = 4
 
+// Fechas en formato dd-mm-aaaa. "foto" guarda la imagen como texto (data URL).
 let servicios = [
   {
     id: '1',
     nombre: 'Taller de cerámica inicial',
-    categoria: 'Talleres',
-    descripcion: 'Sábados · 6 cupos por sesión',
+    categoria: 'Talleres y clases',
+    descripcion:
+      'Aprende modelado a mano y crea una pieza de gres. Incluye arcilla, herramientas, esmalte y dos cocciones.',
     modalidad: 'Presencial',
-    ubicacion: 'Valparaíso',
+    ubicacion: 'Taller Tierra, Valparaíso',
     duracion: '2 horas',
     cupos: 6,
     precio: 35000,
     unidadCobro: 'persona',
     estado: 'Activo',
-    restriccionEdad: 'Mayores de 12 años',
+    restriccionEdad: 'Ninguna',
+    diasHorario: 'Sábados · 10:00 a 12:00',
+    proximaFecha: '17-10-2026',
+    permiteCotizacion: true,
+    foto: '',
+    condiciones: 'Reserva con 50%. Cambios hasta 48 h antes.',
   },
   {
     id: '2',
     nombre: 'Cerámica personalizada',
     categoria: 'Cerámica a medida',
-    descripcion: 'Entrega en 10 días · Requiere cotización',
-    modalidad: 'A pedido',
+    descripcion:
+      'Piezas únicas hechas a pedido, según tus medidas, colores y diseño.',
+    modalidad: 'Mixto',
     ubicacion: 'Valparaíso y envíos a Chile',
-    duracion: '',
-    cupos: null,
+    duracion: '10 días',
+    cupos: 5,
     precio: 25000,
-    unidadCobro: 'pedido',
+    unidadCobro: 'servicio',
     estado: 'Activo',
-    restriccionEdad: 'Todas las edades',
+    restriccionEdad: 'Ninguna',
+    diasHorario: 'Entrega en 10 días · Requiere cotización',
+    proximaFecha: '',
+    permiteCotizacion: true,
+    foto: '',
+    condiciones: 'Anticipo del 50% al aprobar la cotización.',
   },
   {
     id: '3',
     nombre: 'Esmaltado de piezas',
-    categoria: 'Esmaltado',
-    descripcion: 'Sin disponibilidad por el momento',
+    categoria: 'Esmaltado y cocción',
+    descripcion:
+      'Esmaltado y cocción de piezas que ya tienes, con distintos acabados.',
     modalidad: 'Presencial',
     ubicacion: 'Taller Tierra',
-    duracion: '',
-    cupos: null,
+    duracion: '1 semana',
+    cupos: 4,
     precio: 12000,
-    unidadCobro: 'pedido',
+    unidadCobro: 'servicio',
     estado: 'Pausado',
-    restriccionEdad: 'Todas las edades',
+    restriccionEdad: 'Ninguna',
+    diasHorario: 'Sin disponibilidad por el momento',
+    proximaFecha: '',
+    permiteCotizacion: false,
+    foto: '',
+    condiciones: 'Pago al recibir las piezas.',
   },
 ]
 

@@ -2,10 +2,8 @@ import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import {
   Alert,
-  Breadcrumbs,
   Button,
   CircularProgress,
-  Link,
   Paper,
   Snackbar,
   Stack,
@@ -20,15 +18,13 @@ import ConfirmarDialog from '../../components/molecules/ConfirmarDialog'
 import Pantalla from './Pantalla'
 import { cambiarEstadoServicio, obtenerServicios } from '../../mocks/servicios'
 import { AZUL } from '../../constants/colores'
+import EncabezadoPagina from '../../components/molecules/EncabezadoPagina'
 
 const FILTROS = [
   { valor: 'todos', etiqueta: 'Todos', coincide: () => true },
   { valor: 'activos', etiqueta: 'Activos', coincide: (s) => s.estado === 'Activo' },
   { valor: 'pausados', etiqueta: 'Pausados', coincide: (s) => s.estado === 'Pausado' },
 ]
-
-// TODO: conectar API (nombre del taller del emprendedor autenticado)
-const NOMBRE_TALLER = 'Taller Tierra'
 
 const ERROR_CARGA = 'No se pudieron cargar los servicios. Inténtalo nuevamente.'
 
@@ -120,34 +116,18 @@ export default function ServiciosList() {
         spacing={2}
         sx={{ justifyContent: 'space-between', alignItems: { sm: 'flex-end' }, mb: 3 }}
       >
-        <Stack spacing={0.5}>
-          <Breadcrumbs
-            separator="/"
-            aria-label="Ruta de navegación"
-            sx={{ color: 'white', fontSize: 12 }}
+      <EncabezadoPagina
+        titulo="Mis Servicios"
+        accion={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/servicios/nuevo')}
           >
-            <Link
-              component="button"
-              type="button"
-              underline="hover"
-              color="inherit"
-              sx={{ fontSize: 12 }}
-              onClick={() => navigate('/perfilE')}
-            >
-              Mi perfil
-            </Link>
-            <Typography color="inherit" sx={{ fontSize: 12 }}>
-              {NOMBRE_TALLER}
-            </Typography>
-            <Typography color="inherit" sx={{ fontSize: 12 }}>
-              Emprendedor
-            </Typography>
-          </Breadcrumbs>
-
-          <Typography variant="h5" sx={{ color: 'white' }}>
-            Mis Servicios
-          </Typography>
-        </Stack>
+            Crear servicio
+          </Button>
+        }
+      />
 
         <Button
           variant="contained"
