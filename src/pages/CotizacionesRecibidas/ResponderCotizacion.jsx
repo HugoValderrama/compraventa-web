@@ -109,6 +109,11 @@ function Formulario({ solicitud, onRespondida }) {
     setErrores(encontrados)
     if (Object.keys(encontrados).length) return
 
+    console.log('[CotizacionesRecibidas] Formulario capturado:', {
+      solicitudId: solicitud.id,
+      ...valores,
+    })
+
     setEnviando(true)
     setErrorEnvio('')
 
