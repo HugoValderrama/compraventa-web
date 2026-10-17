@@ -21,18 +21,26 @@ function RegisterForm({ tipoUsuario }) {
   const [nombreValido, setNombreValido] = useState(false);
   const [emailValido, setEmailValido] = useState(false);
   const [edadValida, setEdadValida] = useState(false);
-  const [passwordsValidas, setPasswordsValidas] = useState(false);
+  
+const [passwordsValidas, setPasswordsValidas] = useState(false);
+const [emprendedorValido, setEmprendedorValido] = useState(true);
 
-  // Formato esperado: 12345678-9
-  const runValido = validarRun(run);
-  const runCompleto = run.length === 10;
-  const formularioValido =
+// Validar RUN del usuario
+const runValido = validarRun(run);
+
+// Verificar si el RUN está completo
+const runCompleto = run.length === 10;
+
+// Validar formulario completo
+const formularioValido =
   runValido &&
   nombreValido &&
   emailValido &&
   edadValida &&
   passwordsValidas &&
-  aceptaTerminos;
+  aceptaTerminos &&
+  (tipoUsuario !== "emprendedor" || emprendedorValido);
+
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -116,7 +124,9 @@ function RegisterForm({ tipoUsuario }) {
       </Box>
       {/* Campos adicionales del emprendedor */}
 {tipoUsuario === "emprendedor" && (
-  <EntrepreneurFields />
+  <EntrepreneurFields
+    onValidityChange={setEmprendedorValido}
+  />
 )}
 
       {/* Términos */}

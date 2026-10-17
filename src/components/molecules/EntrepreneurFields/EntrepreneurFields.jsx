@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
@@ -25,18 +25,16 @@ const estiloCampo = {
   },
 };
 
-
-
 function Campo({
   titulo,
   placeholder,
+  valor,
+  onChange,
   obligatorio = false,
   maxLength = 50,
 }) {
-  const [valor, setValor] = useState("");
-
-  const campoInvalido =
-    obligatorio && valor.trim().length === 0;
+  const [tocado, setTocado] = useState(false);
+  const invalido = obligatorio && !valor.trim();
 
   return (
     <Box>
@@ -54,11 +52,12 @@ function Campo({
       <TextField
         fullWidth
         value={valor}
-        onChange={(event) => setValor(event.target.value)}
+        onChange={(event) => onChange(event.target.value)}
+        onBlur={() => setTocado(true)}
         placeholder={placeholder}
-        error={obligatorio && valor.length > 0 && campoInvalido}
+        error={tocado && invalido}
         helperText={
-          obligatorio && valor.length > 0 && campoInvalido
+          tocado && invalido
             ? "Este campo es obligatorio"
             : ""
         }
@@ -71,32 +70,11 @@ function Campo({
   );
 }
 
-  return (
-    <Box>
-      <Typography
-        sx={{
-          color: "#808080",
-          fontSize: "14px",
-          fontWeight: "bold",
-          marginBottom: "8px",
-        }}
-      >
-        {titulo}
-      </Typography>
-
-      <TextField
-        fullWidth
-        placeholder={placeholder}
-        sx={estiloCampo}
-      />
-    </Box>
-  );
-
-
 function CampoRut({ rutEmpresa, setRutEmpresa }) {
   const numeroRut = Number(rutEmpresa.split("-")[0]);
 
   const rutValido =
+    rutEmpresa.length === 10 &&
     validarRun(rutEmpresa) &&
     numeroRut >= 50000000;
 
@@ -139,9 +117,7 @@ function CampoRut({ rutEmpresa, setRutEmpresa }) {
             : "Debe ser igual o superior a 50.000.000"
         }
         slotProps={{
-          htmlInput: {
-            maxLength: 10,
-          },
+          htmlInput: { maxLength: 10 },
         }}
         sx={estiloCampo}
       />
@@ -149,9 +125,37 @@ function CampoRut({ rutEmpresa, setRutEmpresa }) {
   );
 }
 
-function EntrepreneurFields() {
+function EntrepreneurFields({ onValidityChange }) {
   const [opcionEmpresa, setOpcionEmpresa] = useState("ninguna");
   const [rutEmpresa, setRutEmpresa] = useState("");
+
+  const [paginaEmprendimiento, setPaginaEmprendimiento] =
+    useState("");
+  const [razonSocial, setRazonSocial] = useState("");
+  const [giroComercial, setGiroComercial] = useState("");
+  const [paginaEmpresa, setPaginaEmpresa] = useState("");
+  const [direccionLocal, setDireccionLocal] = useState("");
+
+  const numeroRut = Number(rutEmpresa.split("-")[0]);
+
+  const rutValido =
+    rutEmpresa.length === 10 &&
+    validarRun(rutEmpresa) &&
+    numeroRut >= 50000000;
+
+  const datosEmpresaValidos =
+    rutValido &&
+    razonSocial.trim().length > 0 &&
+    giroComercial.trim().length > 0;
+
+  const emprendedorValido =
+    opcionEmpresa === "ninguna" ||
+    (opcionEmpresa === "existente" && rutValido) ||
+    (opcionEmpresa === "nueva" && datosEmpresaValidos);
+
+  useEffect(() => {
+    onValidityChange?.(emprendedorValido);
+  }, [emprendedorValido, onValidityChange]);
 
   return (
     <Box
@@ -175,6 +179,9 @@ function EntrepreneurFields() {
       <Campo
         titulo="Página web del emprendimiento (opcional)"
         placeholder="https://miemprendimiento.cl"
+        valor={paginaEmprendimiento}
+        onChange={setPaginaEmprendimiento}
+        maxLength={30}
       />
 
       <Box>
@@ -230,25 +237,37 @@ function EntrepreneurFields() {
           />
 
           <Campo
-  titulo="Razón social"
-  placeholder="Ej: Comercial Los Lagos SpA"
-  obligatorio
-/>
+            titulo="Razón social"
+            placeholder="Ej: Comercial Los Lagos SpA"
+            valor={razonSocial}
+            onChange={setRazonSocial}
+            obligatorio
+            maxLength={50}
+          />
 
-<Campo
-  titulo="Giro comercial"
-  placeholder="Ej: Venta de productos"
-  obligatorio
-/>
+          <Campo
+            titulo="Giro comercial"
+            placeholder="Ej: Venta de productos"
+            valor={giroComercial}
+            onChange={setGiroComercial}
+            obligatorio
+            maxLength={50}
+          />
 
           <Campo
             titulo="Página web de la empresa (opcional)"
             placeholder="https://miempresa.cl"
+            valor={paginaEmpresa}
+            onChange={setPaginaEmpresa}
+            maxLength={30}
           />
 
           <Campo
             titulo="Dirección del local (opcional)"
             placeholder="Ej: Osorno, Los Lagos"
+            valor={direccionLocal}
+            onChange={setDireccionLocal}
+            maxLength={30}
           />
         </>
       )}

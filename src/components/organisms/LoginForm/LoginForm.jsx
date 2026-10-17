@@ -98,16 +98,43 @@ function LoginForm() {
   </Typography>
 )}
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-start",
-          marginTop: "4px",
-          marginBottom: "4px",
-        }}
-      >
-        <RememberUser />
-      </Box>
+      
+<Box
+  sx={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "8px",
+    marginTop: "4px",
+    marginBottom: "8px",
+    width: "100%",
+  }}
+>
+  <RememberUser />
+
+  <Typography
+    component="button"
+    type="button"
+    onClick={() => navigate("/recuperar-password")}
+    sx={{
+      background: "none",
+      border: "none",
+      padding: 0,
+      color: "#62A7F5",
+      fontSize: "12px",
+      fontWeight: "bold",
+      whiteSpace: "nowrap",
+      cursor: "pointer",
+      textAlign: "right",
+      "&:hover": {
+        textDecoration: "underline",
+      },
+    }}
+  >
+    ¿Olvidaste tu contraseña?
+  </Typography>
+</Box>
+
 
       <Button
         type="button"
