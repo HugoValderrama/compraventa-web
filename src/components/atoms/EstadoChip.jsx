@@ -1,26 +1,32 @@
 import { Chip } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 
-const COLORES_COTIZACION = {
+const COLORES = {
+  // Cotizaciones
   'Pendiente de respuesta': 'warning',
   Respondida: 'info',
   Aceptada: 'success',
   Cancelada: 'error',
+  // Pedidos
+  Pagado: 'success',
+  Recibido: 'warning',
+  'En preparación': 'info',
+  Enviado: 'success',
+  Entregado: 'success',
 }
 
-// El dato guarda el estado completo, pero en pantalla se muestra abreviado.
 const ETIQUETAS = {
   'Pendiente de respuesta': 'Pendiente',
 }
 
-export default function EstadoChip({ estado }) {
+export default function EstadoChip({ estado, etiqueta }) {
   const activo = estado === 'Activo'
 
   return (
     <Chip
-      label={ETIQUETAS[estado] ?? estado}
+      label={etiqueta ?? ETIQUETAS[estado] ?? estado}
       size="small"
-      color={COLORES_COTIZACION[estado]}
+      color={COLORES[estado]}
       sx={
         activo
           ? (t) => ({

@@ -7,6 +7,7 @@ import CotizacionesPage from "./pages/cotizacion.jsx";
 import ProductosPage from "./pages/Productos.jsx";
 import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx"
 import CotizacionesRecibidasPage from "./pages/CotizacionesRecibidas/CotizacionesRecibidasPage.jsx";
+import PedidosPage from "./pages/Pedidos/PedidosPage.jsx";
 
 function App() {
   return (
@@ -46,6 +47,11 @@ function App() {
         <Route
           path='/cotizaciones-recibidas/*'
           element={<CotizacionesRecibidasPage/>}
+        />
+
+        <Route
+          path='/pedidos/*'
+          element={<PedidosPage/>}
         />
 
         <Route path="*" element={<Navigate to="/" replace />} />
