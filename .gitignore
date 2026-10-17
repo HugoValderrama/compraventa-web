@@ -7,18 +7,28 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Frontend (Vite / Node)
 node_modules
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# Backend (.NET)
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+# Secretos y configuración local (cada quien tiene la suya)
+.env
+appsettings.Development.json
+
+# Editores y sistema
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
-*.suo
 *.ntvs*
 *.njsproj
-*.sln
 *.sw?
