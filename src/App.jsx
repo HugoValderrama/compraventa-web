@@ -6,6 +6,7 @@ import ProfileE from "./pages/Profiles/ProfileE";
 import CotizacionesPage from "./pages/cotizacion.jsx";
 import ProductosPage from "./pages/Productos.jsx";
 import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx"
+import CotizacionesRecibidasPage from "./pages/CotizacionesRecibidas/CotizacionesRecibidasPage.jsx";
 
 function App() {
   return (
@@ -40,6 +41,11 @@ function App() {
         <Route
           path="/servicios/*"
           element={<ServiciosPage />}
+        />
+
+        <Route
+          path='/cotizaciones-recibidas/*'
+          element={<CotizacionesRecibidasPage/>}
         />
 
         <Route path="*" element={<Navigate to="/" replace />} />
