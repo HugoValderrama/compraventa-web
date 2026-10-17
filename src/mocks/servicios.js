@@ -1,3 +1,4 @@
+// Datos de ejemplo y API simulada para "Mis servicios".
 // Cada función async imita una llamada al backend (.NET).
 
 const LATENCIA_MS = 400
@@ -20,9 +21,10 @@ export const UNIDADES_COBRO = [
 
 export const RESTRICCIONES_EDAD = ['Ninguna', 'Solo mayores de 18 años']
 
-let siguienteId = 4
+let siguienteId = 5
 
-// Fechas en formato dd-mm-aaaa. "foto" guarda la imagen como texto (data URL).
+// Fechas guardadas como aaaa-mm-dd (se muestran con formatearFecha).
+// "foto" guarda la imagen como texto (data URL).
 let servicios = [
   {
     id: '1',
@@ -39,10 +41,11 @@ let servicios = [
     estado: 'Activo',
     restriccionEdad: 'Ninguna',
     diasHorario: 'Sábados · 10:00 a 12:00',
-    proximaFecha: '17-10-2026',
+    proximaFecha: '2026-10-17',
     permiteCotizacion: true,
     foto: '',
     condiciones: 'Reserva con 50%. Cambios hasta 48 h antes.',
+    incluye: 'Arcilla, herramientas, esmalte y dos cocciones',
   },
   {
     id: '2',
@@ -63,6 +66,7 @@ let servicios = [
     permiteCotizacion: true,
     foto: '',
     condiciones: 'Anticipo del 50% al aprobar la cotización.',
+    incluye: 'Diseño, materiales y cocción',
   },
   {
     id: '3',
@@ -83,6 +87,75 @@ let servicios = [
     permiteCotizacion: false,
     foto: '',
     condiciones: 'Pago al recibir las piezas.',
+    incluye: 'Esmalte y cocción',
+  },
+]
+
+// Proveedor por defecto de los servicios propios (Taller Tierra).
+const PROVEEDOR_PROPIO = { nombre: 'Taller Tierra', calificacion: null, totalResenas: 0 }
+
+// Servicios de otros proveedores: solo se ven en la vista pública (detalle).
+const serviciosExternos = [
+  {
+    id: '4',
+    nombre: 'Curso de Pilotaje de Drones',
+    categoria: 'Tecnología',
+    descripcion:
+      'Curso práctico de pilotaje: normativa básica, maniobras y vuelo en terreno con instructor.',
+    modalidad: 'Presencial',
+    ubicacion: 'Santiago Centro',
+    duracion: '2 horas',
+    cupos: 8,
+    precio: 45000,
+    unidadCobro: 'hora',
+    estado: 'Activo',
+    restriccionEdad: 'Solo mayores de 18 años',
+    diasHorario: 'Sábados · 09:00 a 11:00',
+    proximaFecha: '2026-10-24',
+    permiteCotizacion: true,
+    foto: '',
+    condiciones: 'Reserva con 50%. Cambios hasta 48 h antes.',
+    incluye: 'Materiales y drone',
+    proveedor: { nombre: 'Academia Drone-X', calificacion: 4.9, totalResenas: 28 },
+    preguntas: [
+      {
+        id: 'p1',
+        pregunta: '¿El curso incluye préstamo de equipo para practicar?',
+        respuesta:
+          'Sí, contamos con drones de última generación para todas las clases prácticas.',
+        autor: 'Carlos M.',
+      },
+      {
+        id: 'p2',
+        pregunta: '¿Se entrega certificación al finalizar?',
+        respuesta:
+          'Entregamos un diploma de participación y preparación para examen DGAC.',
+        autor: 'Valentina P.',
+      },
+    ],
+    resenas: [
+      {
+        id: 'r1',
+        autor: 'Matías R.',
+        estrellas: 5,
+        comentario: 'Muy buen instructor, aprendí a volar con seguridad desde la primera clase.',
+        fecha: '2026-10-02',
+      },
+      {
+        id: 'r2',
+        autor: 'Camila S.',
+        estrellas: 5,
+        comentario: 'Las clases prácticas son lo mejor. Totalmente recomendado.',
+        fecha: '2026-09-25',
+      },
+      {
+        id: 'r3',
+        autor: 'Felipe A.',
+        estrellas: 4,
+        comentario: 'Buen contenido, me habría gustado más tiempo de vuelo.',
+        fecha: '2026-09-18',
+      },
+    ],
   },
 ]
 
@@ -111,7 +184,18 @@ export async function obtenerServicios() {
 
 export async function obtenerServicio(id) {
   // TODO: conectar API (GET /api/servicios/:id)
-  return simular(() => ({ ...buscar(id) }))
+  return simular(() => {
+    const servicio = [...servicios, ...serviciosExternos].find((s) => s.id === id)
+    if (!servicio) throw new Error('Servicio no encontrado.')
+
+    return {
+      incluye: '',
+      proveedor: PROVEEDOR_PROPIO,
+      preguntas: [],
+      resenas: [],
+      ...servicio,
+    }
+  })
 }
 
 export async function crearServicio(datos) {
@@ -139,5 +223,14 @@ export async function cambiarEstadoServicio(id, estado) {
     const actualizado = { ...buscar(id), estado }
     servicios = servicios.map((s) => (s.id === id ? actualizado : s))
     return { ...actualizado }
+  })
+}
+
+export async function eliminarServicio(id) {
+  // TODO: conectar API (DELETE /api/servicios/:id)
+  return simular(() => {
+    buscar(id)
+    servicios = servicios.filter((s) => s.id !== id)
+    return { id }
   })
 }

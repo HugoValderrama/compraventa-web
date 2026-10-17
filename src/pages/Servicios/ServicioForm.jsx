@@ -27,16 +27,11 @@ import {
   RESTRICCIONES_EDAD,
   UNIDADES_COBRO,
 } from '../../mocks/servicios'
+import { pesos } from '../../utils/formatos'
 
 /* ------------------------------------------------------------------ */
 /* Utilidades                                                          */
 /* ------------------------------------------------------------------ */
-
-const clp = new Intl.NumberFormat('es-CL', {
-  style: 'currency',
-  currency: 'CLP',
-  maximumFractionDigits: 0,
-})
 
 const FORM_VACIO = {
   nombre: '',
@@ -71,20 +66,6 @@ const aFormulario = (s) => ({
 const entero = (texto) =>
   String(texto).trim() === '' ? NaN : Number(texto)
 
-function fechaValida(texto) {
-  const partes = /^(\d{2})-(\d{2})-(\d{4})$/.exec(texto)
-  if (!partes) return false
-
-  const [, dia, mes, anio] = partes.map(Number)
-  const fecha = new Date(anio, mes - 1, dia)
-
-  return (
-    fecha.getFullYear() === anio &&
-    fecha.getMonth() === mes - 1 &&
-    fecha.getDate() === dia
-  )
-}
-
 // Devuelve { campo: mensaje } con los errores encontrados.
 function validar(f) {
   const errores = {}
@@ -118,8 +99,8 @@ function validar(f) {
   }
   if (!f.diasHorario.trim()) errores.diasHorario = 'Indica los días y el horario.'
 
-  if (f.proximaFecha.trim() && !fechaValida(f.proximaFecha.trim())) {
-    errores.proximaFecha = 'Usa una fecha válida con formato dd-mm-aaaa.'
+  if (f.proximaFecha && Number.isNaN(new Date(f.proximaFecha).getTime())) {
+    errores.proximaFecha = 'Elige una fecha válida.'
   }
 
   if (!f.restriccionEdad) errores.restriccionEdad = 'Elige una restricción de edad.'
@@ -259,7 +240,7 @@ function Formulario({ id, inicial }) {
               helperText:
                 errores.precio ??
                 (Number.isSafeInteger(precio) && precio > 0
-                  ? clp.format(precio)
+                  ? pesos (precio)
                   : undefined),
             })}
             {lista('unidadCobro', 'Unidad de cobro', UNIDADES_COBRO.map((u) => ({
@@ -296,8 +277,9 @@ function Formulario({ id, inicial }) {
 
           {campo('proximaFecha', 'Próxima fecha disponible', {
             required: false,
-            placeholder: 'dd-mm-aaaa',
-            helperText: errores.proximaFecha ?? 'Opcional. Formato dd-mm-aaaa.',
+            type: 'date',
+            slotProps: { inputLabel: { shrink: true } },
+            helperText: errores.proximaFecha ?? 'Opcional.',
           })}
 
           {lista(

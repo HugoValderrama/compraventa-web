@@ -36,3 +36,11 @@ export function sumarDias(dias) {
   f.setDate(f.getDate() + dias)
   return aISO(f)
 }
+
+export function precioServicio(servicio) {
+  const precio = pesos(servicio.precio)
+
+  if (servicio.unidadCobro === 'persona') return `${precio} / persona`
+  if (servicio.unidadCobro === 'hora') return `${precio} / hora`
+  return `Desde ${precio}`
+}

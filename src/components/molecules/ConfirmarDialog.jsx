@@ -15,6 +15,7 @@ export default function ConfirmarDialog({
   cargando = false,
   onConfirmar,
   onCancelar,
+  colorConfirmar = 'primary',
 }) {
   return (
     <Dialog

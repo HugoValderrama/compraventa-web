@@ -5,6 +5,7 @@ import HandymanOutlinedIcon from '@mui/icons-material/HandymanOutlined'
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined'
 import EstadoChip from '../atoms/EstadoChip'
 import { AZUL } from '../../constants/colores'
+import { precioServicio } from '../../utils/formatos'
 
 const clp = new Intl.NumberFormat('es-CL', {
   style: 'currency',
@@ -73,7 +74,7 @@ export default function ServicioCard({ servicio, onEditar, onCambiarEstado }) {
           <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
             <EstadoChip estado={servicio.estado} />
             <Typography sx={{ color: AZUL, fontWeight: 800 }}>
-              {precioTexto(servicio)}
+              {precioServicio(servicio)}
             </Typography>
           </Stack>
 
