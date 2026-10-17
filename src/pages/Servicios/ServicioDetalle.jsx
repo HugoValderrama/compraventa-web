@@ -131,11 +131,11 @@ function Detalle({ servicio, onContactar }) {
               size="large"
               fullWidth
               disabled={pausado}
-              onClick={() =>
-                navigate('/cotizaciones/nueva', {
-                  state: { servicio: paraCotizacion(servicio) },
-                })
-              }
+              onClick={() => {
+                const datos = paraCotizacion(servicio)
+                console.log('[Servicios] Solicitar servicio', datos)
+                navigate('/cotizaciones/nueva', { state: { servicio: datos } })
+              }}
             >
               Solicitar servicio
             </Button>
@@ -200,7 +200,16 @@ function Contenido({ id }) {
       )}
 
       {carga.servicio && (
-        <Detalle servicio={carga.servicio} onContactar={() => setAviso(true)} />
+        <Detalle
+          servicio={carga.servicio}
+          onContactar={() => {
+            console.log('[Servicios] Contactar proveedor', {
+              servicioId: carga.servicio.id,
+              proveedor: carga.servicio.proveedor?.nombre,
+            })
+            setAviso(true)
+          }}
+        />
       )}
 
       <Snackbar

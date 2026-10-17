@@ -15,10 +15,14 @@ import AddIcon from '@mui/icons-material/Add'
 import HandymanOutlinedIcon from '@mui/icons-material/HandymanOutlined'
 import ServicioCard from '../../components/molecules/ServicioCard'
 import ConfirmarDialog from '../../components/molecules/ConfirmarDialog'
-import Pantalla from './Pantalla'
-import { cambiarEstadoServicio, obtenerServicios } from '../../mocks/servicios'
-import { AZUL } from '../../constants/colores'
 import EncabezadoPagina from '../../components/molecules/EncabezadoPagina'
+import Pantalla from './Pantalla'
+import {
+  cambiarEstadoServicio,
+  eliminarServicio,
+  obtenerServicios,
+} from '../../mocks/servicios'
+import { AZUL } from '../../constants/colores'
 
 const FILTROS = [
   { valor: 'todos', etiqueta: 'Todos', coincide: () => true },
@@ -27,6 +31,35 @@ const FILTROS = [
 ]
 
 const ERROR_CARGA = 'No se pudieron cargar los servicios. Inténtalo nuevamente.'
+
+// Textos del cuadro de confirmación según la acción pendiente.
+function textosDialogo(pendiente) {
+  if (!pendiente) return { titulo: '', mensaje: '', confirmar: '' }
+
+  const { servicio, tipo } = pendiente
+
+  if (tipo === 'eliminar') {
+    return {
+      titulo: `¿Eliminar “${servicio.nombre}”?`,
+      mensaje: 'Esta acción no se puede deshacer.',
+      confirmar: 'Eliminar servicio',
+    }
+  }
+
+  if (servicio.estado === 'Activo') {
+    return {
+      titulo: `¿Pausar “${servicio.nombre}”?`,
+      mensaje: 'El servicio dejará de estar disponible hasta que lo actives de nuevo.',
+      confirmar: 'Pausar servicio',
+    }
+  }
+
+  return {
+    titulo: `¿Activar “${servicio.nombre}”?`,
+    mensaje: 'El servicio volverá a estar disponible para otras personas.',
+    confirmar: 'Activar servicio',
+  }
+}
 
 export default function ServiciosList() {
   const navigate = useNavigate()
@@ -39,6 +72,7 @@ export default function ServiciosList() {
   const [intento, setIntento] = useState(0)
   const [filtro, setFiltro] = useState('todos')
 
+  // pendiente = { servicio, tipo: 'estado' | 'eliminar' }
   const [pendiente, setPendiente] = useState(null)
   const [dialogo, setDialogo] = useState(false)
   const [procesando, setProcesando] = useState(false)
@@ -54,10 +88,14 @@ export default function ServiciosList() {
 
     obtenerServicios()
       .then((datos) => {
-        if (vigente) setServicios(datos)
+        if (!vigente) return
+        console.log('[Servicios] Listado cargado:', datos.length, 'servicios')
+        setServicios(datos)
       })
       .catch(() => {
-        if (vigente) setError(ERROR_CARGA)
+        if (!vigente) return
+        console.log('[Servicios] Error al cargar el listado')
+        setError(ERROR_CARGA)
       })
       .finally(() => {
         if (vigente) setCargando(false)
@@ -77,27 +115,49 @@ export default function ServiciosList() {
   const mostrarAviso = (severidad, mensaje) =>
     setAviso({ abierto: true, severidad, mensaje })
 
-  const pedirConfirmacion = (servicio) => {
-    setPendiente(servicio)
+  const pedirConfirmacion = (servicio, tipo) => {
+    setPendiente({ servicio, tipo })
     setDialogo(true)
   }
 
   const confirmar = async () => {
     if (!pendiente) return
 
-    const nuevoEstado = pendiente.estado === 'Activo' ? 'Pausado' : 'Activo'
+    const { servicio, tipo } = pendiente
     setProcesando(true)
 
     try {
-      const actualizado = await cambiarEstadoServicio(pendiente.id, nuevoEstado)
-      setServicios((lista) =>
-        lista.map((s) => (s.id === actualizado.id ? actualizado : s))
-      )
-      mostrarAviso(
-        'success',
-        nuevoEstado === 'Pausado' ? 'Servicio pausado.' : 'Servicio activado.'
-      )
+      if (tipo === 'eliminar') {
+        console.log('[Servicios] Eliminando servicio', {
+          id: servicio.id,
+          nombre: servicio.nombre,
+        })
+        await eliminarServicio(servicio.id)
+        setServicios((lista) => lista.filter((s) => s.id !== servicio.id))
+        console.log('[Servicios] Servicio eliminado', { id: servicio.id })
+        mostrarAviso('success', 'Servicio eliminado.')
+      } else {
+        const nuevoEstado = servicio.estado === 'Activo' ? 'Pausado' : 'Activo'
+        console.log('[Servicios] Cambiando estado', {
+          id: servicio.id,
+          de: servicio.estado,
+          a: nuevoEstado,
+        })
+        const actualizado = await cambiarEstadoServicio(servicio.id, nuevoEstado)
+        setServicios((lista) =>
+          lista.map((s) => (s.id === actualizado.id ? actualizado : s))
+        )
+        console.log('[Servicios] Estado actualizado', {
+          id: actualizado.id,
+          estado: actualizado.estado,
+        })
+        mostrarAviso(
+          'success',
+          nuevoEstado === 'Pausado' ? 'Servicio pausado.' : 'Servicio activado.'
+        )
+      }
     } catch (err) {
+      console.log('[Servicios] Error en la operación:', err.message)
       mostrarAviso('error', err.message)
     } finally {
       setProcesando(false)
@@ -107,15 +167,10 @@ export default function ServiciosList() {
 
   const filtroActual = FILTROS.find((f) => f.valor === filtro)
   const visibles = servicios.filter(filtroActual.coincide)
-  const pausando = pendiente?.estado === 'Activo'
+  const textos = textosDialogo(pendiente)
 
   return (
     <Pantalla>
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        spacing={2}
-        sx={{ justifyContent: 'space-between', alignItems: { sm: 'flex-end' }, mb: 3 }}
-      >
       <EncabezadoPagina
         titulo="Mis Servicios"
         accion={
@@ -128,15 +183,6 @@ export default function ServiciosList() {
           </Button>
         }
       />
-
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => navigate('/servicios/nuevo')}
-        >
-          Crear servicio
-        </Button>
-      </Stack>
 
       {cargando && (
         <Stack spacing={2} role="status" sx={{ alignItems: 'center', py: 6 }}>
@@ -212,8 +258,10 @@ export default function ServiciosList() {
             <ServicioCard
               key={s.id}
               servicio={s}
+              onVer={(servicio) => navigate(`/servicios/${servicio.id}`)}
               onEditar={(servicio) => navigate(`/servicios/${servicio.id}/editar`)}
-              onCambiarEstado={pedirConfirmacion}
+              onCambiarEstado={(servicio) => pedirConfirmacion(servicio, 'estado')}
+              onEliminar={(servicio) => pedirConfirmacion(servicio, 'eliminar')}
             />
           ))}
 
@@ -233,13 +281,10 @@ export default function ServiciosList() {
 
       <ConfirmarDialog
         abierto={dialogo}
-        titulo={`¿${pausando ? 'Pausar' : 'Activar'} “${pendiente?.nombre ?? ''}”?`}
-        mensaje={
-          pausando
-            ? 'El servicio dejará de estar disponible hasta que lo actives de nuevo.'
-            : 'El servicio volverá a estar disponible para otras personas.'
-        }
-        textoConfirmar={pausando ? 'Pausar servicio' : 'Activar servicio'}
+        titulo={textos.titulo}
+        mensaje={textos.mensaje}
+        textoConfirmar={textos.confirmar}
+        colorConfirmar={pendiente?.tipo === 'eliminar' ? 'error' : 'primary'}
         cargando={procesando}
         onConfirmar={confirmar}
         onCancelar={() => setDialogo(false)}

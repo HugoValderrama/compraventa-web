@@ -12,10 +12,10 @@ export default function ConfirmarDialog({
   titulo,
   mensaje,
   textoConfirmar,
+  colorConfirmar = 'primary',
   cargando = false,
   onConfirmar,
   onCancelar,
-  colorConfirmar = 'primary',
 }) {
   return (
     <Dialog
@@ -31,7 +31,12 @@ export default function ConfirmarDialog({
         <Button onClick={onCancelar} disabled={cargando}>
           Cancelar
         </Button>
-        <Button variant="contained" onClick={onConfirmar} disabled={cargando}>
+        <Button
+          variant="contained"
+          color={colorConfirmar}
+          onClick={onConfirmar}
+          disabled={cargando}
+        >
           {cargando ? 'Guardando…' : textoConfirmar}
         </Button>
       </DialogActions>

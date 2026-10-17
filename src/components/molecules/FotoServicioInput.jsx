@@ -26,6 +26,10 @@ export default function FotoServicioInput({ valor, onChange, disabled = false })
     const lector = new FileReader()
     lector.onload = () => {
       setError('')
+      console.log('[Servicios] Foto seleccionada', {
+        nombre: archivo.name,
+        tamanoKB: Math.round(archivo.size / 1024),
+      })
       onChange(String(lector.result))
     }
     lector.onerror = () => setError('No se pudo leer la imagen. Prueba con otra.')
@@ -62,7 +66,11 @@ export default function FotoServicioInput({ valor, onChange, disabled = false })
         </Button>
 
         {valor && (
-          <Button color="error" disabled={disabled} onClick={() => onChange('')}>
+          <Button color="error" disabled={disabled} onClick={() => {
+              console.log('[Servicios] Foto quitada')
+              onChange('')
+            }}
+          >
             Quitar foto
           </Button>
         )}

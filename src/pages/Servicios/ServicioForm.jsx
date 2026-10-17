@@ -63,6 +63,12 @@ const aFormulario = (s) => ({
   cupos: s.cupos == null ? '' : String(s.cupos),
 })
 
+// La foto es un data URL enorme: en el log solo se indica si hay imagen.
+const resumenParaLog = (datos) => ({
+  ...datos,
+  foto: datos.foto ? '[imagen adjunta]' : '',
+})
+
 const entero = (texto) =>
   String(texto).trim() === '' ? NaN : Number(texto)
 
@@ -153,6 +159,7 @@ function Formulario({ id, inicial }) {
     setErrores(encontrados)
 
     if (Object.keys(encontrados).length > 0) {
+      console.log('[Servicios] Formulario con errores en:', Object.keys(encontrados))
       setErrorEnvio('Revisa los campos marcados en rojo antes de publicar.')
       return
     }
@@ -162,8 +169,18 @@ function Formulario({ id, inicial }) {
 
     try {
       const datos = normalizar(form)
-      if (editando) await actualizarServicio(id, datos)
-      else await crearServicio(datos)
+      console.log(
+        `[Servicios] ${editando ? 'Actualizando' : 'Creando'} servicio`,
+        resumenParaLog(datos)
+      )
+
+      const guardado = editando
+        ? await actualizarServicio(id, datos)
+        : await crearServicio(datos)
+      console.log('[Servicios] Servicio guardado', {
+        id: guardado.id,
+        modo: editando ? 'editar' : 'crear',
+      })
 
       navigate('/servicios', {
         replace: true,
@@ -174,9 +191,15 @@ function Formulario({ id, inicial }) {
         },
       })
     } catch (err) {
+      console.log('[Servicios] Error al guardar el servicio:', err.message)
       setErrorEnvio(err.message)
       setGuardando(false)
     }
+  }
+
+  const cancelar = () => {
+    console.log('[Servicios] Formulario cancelado')
+    navigate('/servicios')
   }
 
   const campo = (name, label, extra = {}) => (
@@ -240,7 +263,7 @@ function Formulario({ id, inicial }) {
               helperText:
                 errores.precio ??
                 (Number.isSafeInteger(precio) && precio > 0
-                  ? pesos (precio)
+                  ? pesos(precio)
                   : undefined),
             })}
             {lista('unidadCobro', 'Unidad de cobro', UNIDADES_COBRO.map((u) => ({
@@ -333,7 +356,7 @@ function Formulario({ id, inicial }) {
           <Button
             variant="outlined"
             disabled={guardando}
-            onClick={() => navigate('/servicios')}
+            onClick={cancelar}
           >
             Cancelar
           </Button>

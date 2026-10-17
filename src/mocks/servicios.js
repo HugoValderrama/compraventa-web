@@ -217,20 +217,20 @@ export async function actualizarServicio(id, datos) {
   })
 }
 
-export async function cambiarEstadoServicio(id, estado) {
-  // TODO: conectar API (PATCH /api/servicios/:id/estado)
-  return simular(() => {
-    const actualizado = { ...buscar(id), estado }
-    servicios = servicios.map((s) => (s.id === id ? actualizado : s))
-    return { ...actualizado }
-  })
-}
-
 export async function eliminarServicio(id) {
   // TODO: conectar API (DELETE /api/servicios/:id)
   return simular(() => {
     buscar(id)
     servicios = servicios.filter((s) => s.id !== id)
     return { id }
+  })
+}
+
+export async function cambiarEstadoServicio(id, estado) {
+  // TODO: conectar API (PATCH /api/servicios/:id/estado)
+  return simular(() => {
+    const actualizado = { ...buscar(id), estado }
+    servicios = servicios.map((s) => (s.id === id ? actualizado : s))
+    return { ...actualizado }
   })
 }

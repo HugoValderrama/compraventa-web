@@ -1,17 +1,12 @@
-import { Box, Button, Paper, Stack, Typography } from '@mui/material'
+import { Box, Button, IconButton, Link, Paper, Stack, Typography } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import BrushOutlinedIcon from '@mui/icons-material/BrushOutlined'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined'
 import HandymanOutlinedIcon from '@mui/icons-material/HandymanOutlined'
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined'
 import EstadoChip from '../atoms/EstadoChip'
 import { AZUL } from '../../constants/colores'
 import { precioServicio } from '../../utils/formatos'
-
-const clp = new Intl.NumberFormat('es-CL', {
-  style: 'currency',
-  currency: 'CLP',
-  maximumFractionDigits: 0,
-})
 
 const ICONOS = {
   'Talleres y clases': BrushOutlinedIcon,
@@ -19,17 +14,17 @@ const ICONOS = {
   'Cerámica a medida': PaletteOutlinedIcon,
 }
 
-const precioTexto = (s) => {
-  if (s.unidadCobro === 'persona') return `${clp.format(s.precio)} / persona`
-  if (s.unidadCobro === 'hora') return `${clp.format(s.precio)} / hora`
-  return `Desde ${clp.format(s.precio)}`
-}
-
 // Primera línea: modalidad · ubicación · duración (lo que exista).
 const detalleTexto = (s) =>
   [s.modalidad, s.ubicacion, s.duracion].filter(Boolean).join(' · ')
 
-export default function ServicioCard({ servicio, onEditar, onCambiarEstado }) {
+export default function ServicioCard({
+  servicio,
+  onVer,
+  onEditar,
+  onCambiarEstado,
+  onEliminar,
+}) {
   const Icono = ICONOS[servicio.categoria] ?? HandymanOutlinedIcon
   const pausar = servicio.estado === 'Activo'
 
@@ -56,10 +51,18 @@ export default function ServicioCard({ servicio, onEditar, onCambiarEstado }) {
           <Icono fontSize="large" />
         </Box>
 
-        <Stack spacing={0.25} sx={{ flex: 1, minWidth: 0 }}>
-          <Typography sx={{ fontWeight: 600, fontSize: 18 }}>
+        <Stack spacing={0.25} sx={{ flex: 1, minWidth: 0, alignItems: 'flex-start' }}>
+          <Link
+            component="button"
+            type="button"
+            underline="hover"
+            color="inherit"
+            aria-label={`Ver detalle de ${servicio.nombre}`}
+            onClick={() => onVer(servicio)}
+            sx={{ fontWeight: 600, fontSize: 18, textAlign: 'left' }}
+          >
             {servicio.nombre}
-          </Typography>
+          </Link>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {detalleTexto(servicio)}
           </Typography>
@@ -78,13 +81,20 @@ export default function ServicioCard({ servicio, onEditar, onCambiarEstado }) {
             </Typography>
           </Stack>
 
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <Button variant="outlined" onClick={() => onEditar(servicio)}>
               Editar
             </Button>
             <Button variant="contained" onClick={() => onCambiarEstado(servicio)}>
               {pausar ? 'Pausar' : 'Activar'}
             </Button>
+            <IconButton
+              color="error"
+              aria-label={`Eliminar ${servicio.nombre}`}
+              onClick={() => onEliminar(servicio)}
+            >
+              <DeleteOutlineIcon />
+            </IconButton>
           </Stack>
         </Stack>
       </Stack>
