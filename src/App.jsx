@@ -8,6 +8,7 @@ import ProductosPage from "./pages/Productos.jsx";
 import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx"
 import CotizacionesRecibidasPage from "./pages/CotizacionesRecibidas/CotizacionesRecibidasPage.jsx";
 import PedidosPage from "./pages/Pedidos/PedidosPage.jsx";
+import ComprasPage from "./pages/Compras/ComprasPage.jsx";
 
 function App() {
   return (
@@ -52,6 +53,11 @@ function App() {
         <Route
           path='/pedidos/*'
           element={<PedidosPage/>}
+        />
+
+        <Route
+          path='/compras/*'
+          element={<ComprasPage />}
         />
 
         <Route path="*" element={<Navigate to="/" replace />} />
