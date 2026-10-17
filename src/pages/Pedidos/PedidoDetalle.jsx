@@ -130,6 +130,8 @@ export default function PedidoDetalle({ id }) {
     setErrores(encontrados)
     if (Object.keys(encontrados).length) return
 
+    console.log('[Pedidos] Formulario de despacho capturado:', { pedidoId: pedido.id, ...valores })
+
     await ejecutar(
       () =>
         marcarEnviado(pedido.id, {
@@ -407,6 +409,10 @@ export default function PedidoDetalle({ id }) {
               variant="outlined"
               sx={{ alignSelf: 'flex-start' }}
               onClick={() => setAviso({ tipo: 'info', mensaje: 'Próximamente' })}
+              onClick={() => {
+                console.log('[Pedidos] Contactar cliente (pendiente):', { pedidoId: pedido.id })
+                setAviso({ tipo: 'info', mensaje: 'Próximamente' })
+              }}
             >
               Contactar a {nombreCorto}
             </Button>

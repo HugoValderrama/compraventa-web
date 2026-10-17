@@ -149,6 +149,10 @@ export default function PedidosList() {
               color: 'text.primary',
               '&:hover': { bgcolor: 'grey.200' },
             }}
+            onClick={() => {
+              console.log('[Pedidos] Descargar listado (pendiente)')
+              setAviso('Próximamente')
+            }}
           >
             Descargar listado
           </Button>

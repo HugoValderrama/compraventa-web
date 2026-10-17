@@ -249,6 +249,7 @@ export async function obtenerPedido(id) {
 }
 
 export async function comenzarPreparacion(id) {
+  console.log('[Pedidos] Comenzar preparación:', { id })
   // TODO: conectar API
   await delay(400)
   const pedido = buscar(id)
@@ -258,6 +259,7 @@ export async function comenzarPreparacion(id) {
 }
 
 export async function marcarEnviado(id, { empresaTransporte, numeroSeguimiento }) {
+  console.log('[Pedidos] Marcar como enviado:', { id, empresaTransporte, numeroSeguimiento })
   // TODO: conectar API
   await delay(600)
   const pedido = buscar(id)
@@ -273,6 +275,7 @@ export async function marcarEnviado(id, { empresaTransporte, numeroSeguimiento }
 }
 
 export async function solicitarCancelacion(id) {
+  console.log('[Pedidos] Solicitar cancelación:', { id })
   // TODO: conectar API
   await delay(500)
   const pedido = buscar(id)

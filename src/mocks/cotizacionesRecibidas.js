@@ -95,6 +95,7 @@ export async function obtenerSolicitudes() {
 }
 
 export async function responderSolicitud(id, respuesta) {
+  console.log('[CotizacionesRecibidas] Responder solicitud:', { id, respuesta })
   // TODO: conectar API
   await delay(600)
   const solicitud = baseDatos.find((s) => s.id === id)
