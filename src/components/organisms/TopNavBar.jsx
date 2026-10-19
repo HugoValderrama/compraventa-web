@@ -12,8 +12,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const SECTIONS = [
   { label: 'Cotizaciones', path: '/cotizaciones' },
   { label: 'Perfil', path: '/perfilE' },
-  { label: 'Productos', path: '/productos'},
-  { label: 'Servicios', path: '/servicios'}
+  { label: 'Productos', path: '/productos' },
+  { label: 'Servicios', path: '/servicios' },
+  { label: 'Categorías', path: '/categorias' }
 ];
 
 export default function TopNavBar({ showBack = false, onBack }) {
@@ -53,9 +54,25 @@ export default function TopNavBar({ showBack = false, onBack }) {
             </Typography>
           ) : (
             <Tabs
-              value={activeSection}
-              slotProps={{ indicator: { sx: { display: 'none' } } }}
-            >
+  value={activeSection}
+  variant="scrollable"
+  scrollButtons="auto"
+  allowScrollButtonsMobile
+  slotProps={{
+    indicator: {
+      sx: { display: "none" },
+    },
+  }}
+  sx={{
+    maxWidth: {
+      xs: "260px",
+      sm: "450px",
+      md: "650px",
+      lg: "750px",
+    },
+    minHeight: "36px",
+  }}
+>
               {SECTIONS.map((s) => (
                 <Tab
                   key={s.label}

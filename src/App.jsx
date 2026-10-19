@@ -7,10 +7,11 @@ import ProfileClient from "./pages/Profiles/ProfileClient";
 import ProfileE from "./pages/Profiles/ProfileE";
 import CotizacionesPage from "./pages/cotizacion.jsx";
 import ProductosPage from "./pages/Productos.jsx";
-import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx"
+import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx";
 import CotizacionesRecibidasPage from "./pages/CotizacionesRecibidas/CotizacionesRecibidasPage.jsx";
 import PedidosPage from "./pages/Pedidos/PedidosPage.jsx";
 import ComprasPage from "./pages/Compras/ComprasPage.jsx";
+import CategoriasPage from "./pages/Categorias/CategoriasPage";
 
 import RecuperarPassword from "./pages/RecuperarPassword/RecuperarPassword";
 
@@ -54,32 +55,34 @@ function App() {
         />
 
         <Route
-<<<<<<< HEAD
-          path="*"
-          element={<Navigate to="/" replace />}
-        />
-=======
           path="/servicios/*"
           element={<ServiciosPage />}
         />
 
         <Route
-          path='/cotizaciones-recibidas/*'
-          element={<CotizacionesRecibidasPage/>}
+          path="/cotizaciones-recibidas/*"
+          element={<CotizacionesRecibidasPage />}
         />
 
         <Route
-          path='/pedidos/*'
-          element={<PedidosPage/>}
+          path="/pedidos/*"
+          element={<PedidosPage />}
         />
 
         <Route
-          path='/compras/*'
+          path="/compras/*"
           element={<ComprasPage />}
         />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
->>>>>>> e60dfbe28b84c84f57b374b0565906cf2de2d9c6
+        <Route
+          path="/categorias"
+          element={<CategoriasPage />}
+        />
+
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
       </Routes>
     </div>
   );

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -16,29 +17,46 @@ function LoginForm() {
   const [errorRun, setErrorRun] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
 
- const iniciarSesion = () => {
-  let hayError = false;
+  const iniciarSesion = () => {
+    console.log("[Login] Intento de inicio de sesión");
 
-  if (!validarRun(run)) {
-    setErrorRun("RUN inválido");
-    hayError = true;
-  } else {
-    setErrorRun("");
-  }
+    let hayError = false;
+    const runValido = validarRun(run);
+    const passwordIngresada = password.trim() !== "";
 
-  if (password.trim() === "") {
-    setErrorPassword("Debes ingresar tu contraseña");
-    hayError = true;
-  } else {
-    setErrorPassword("");
-  }
+    if (!runValido) {
+      setErrorRun("RUN inválido");
+      hayError = true;
+    } else {
+      setErrorRun("");
+    }
 
-  if (hayError) {
-    return;
-  }
+    if (!passwordIngresada) {
+      setErrorPassword("Debes ingresar tu contraseña");
+      hayError = true;
+    } else {
+      setErrorPassword("");
+    }
 
-  navigate("/perfil");
-};
+    if (hayError) {
+      console.log("[Login] Validación fallida:", {
+        formularioValido: false,
+        runValido,
+        passwordIngresada,
+      });
+
+      return;
+    }
+
+    console.log("[Login] Formulario validado:", {
+      formularioValido: true,
+      accion: "inicio_sesion",
+    });
+
+    // Navegación temporal hasta conectar el backend.
+    navigate("/perfil");
+  };
+
   return (
     <Box
       sx={{
@@ -86,55 +104,57 @@ function LoginForm() {
         value={password}
         onChange={setPassword}
       />
+
       {errorPassword && (
-  <Typography
-    sx={{
-      color: "#FF6B6B",
-      fontSize: "13px",
-      marginTop: "5px",
-    }}
-  >
-    {errorPassword}
-  </Typography>
-)}
+        <Typography
+          sx={{
+            color: "#FF6B6B",
+            fontSize: "13px",
+            marginTop: "5px",
+          }}
+        >
+          {errorPassword}
+        </Typography>
+      )}
 
-      
-<Box
-  sx={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: "8px",
-    marginTop: "4px",
-    marginBottom: "8px",
-    width: "100%",
-  }}
->
-  <RememberUser />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "8px",
+          marginTop: "4px",
+          marginBottom: "8px",
+          width: "100%",
+        }}
+      >
+        <RememberUser />
 
-  <Typography
-    component="button"
-    type="button"
-    onClick={() => navigate("/recuperar-password")}
-    sx={{
-      background: "none",
-      border: "none",
-      padding: 0,
-      color: "#62A7F5",
-      fontSize: "12px",
-      fontWeight: "bold",
-      whiteSpace: "nowrap",
-      cursor: "pointer",
-      textAlign: "right",
-      "&:hover": {
-        textDecoration: "underline",
-      },
-    }}
-  >
-    ¿Olvidaste tu contraseña?
-  </Typography>
-</Box>
-
+        <Typography
+          component="button"
+          type="button"
+          onClick={() => {
+            console.log("[Login] Navegación a recuperar contraseña");
+            navigate("/recuperar-password");
+          }}
+          sx={{
+            background: "none",
+            border: "none",
+            padding: 0,
+            color: "#62A7F5",
+            fontSize: "12px",
+            fontWeight: "bold",
+            whiteSpace: "nowrap",
+            cursor: "pointer",
+            textAlign: "right",
+            "&:hover": {
+              textDecoration: "underline",
+            },
+          }}
+        >
+          ¿Olvidaste tu contraseña?
+        </Typography>
+      </Box>
 
       <Button
         type="button"
@@ -146,7 +166,6 @@ function LoginForm() {
           borderRadius: "12px",
           fontSize: "18px",
           textTransform: "none",
-
           "&:hover": {
             backgroundColor: "#B5B0B0",
           },
@@ -156,7 +175,10 @@ function LoginForm() {
       </Button>
 
       <Typography
-        onClick={() => navigate("/registro")}
+        onClick={() => {
+          console.log("[Login] Navegación a crear cuenta");
+          navigate("/registro");
+        }}
         sx={{
           color: "#FFFFFF",
           fontSize: "17px",

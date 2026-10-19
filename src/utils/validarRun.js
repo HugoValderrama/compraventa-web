@@ -1,41 +1,31 @@
+
 export function validarRun(run) {
   if (!run) {
     return false;
   }
 
   // Quitar puntos, guion y espacios
-  const runLimpio = run
-    .replace(/\./g, "")
-    .replace(/-/g, "")
-    .replace(/\s/g, "")
+  const runLimpio = String(run)
+    .replace(/[.\s-]/g, "")
     .toUpperCase();
 
-  // Debe tener al menos cuerpo + dígito verificador
-  // Debe tener exactamente 8 números + 1 dígito verificador
-if (runLimpio.length !== 9) {
-  return false;
-}
-
-  const cuerpo = runLimpio.slice(0, -1);
-  const digitoIngresado = runLimpio.slice(-1);
-  if (!/^\d{8}$/.test(cuerpo)) {
-  return false;
-}
-
-  // El cuerpo debe contener solamente números
-  if (!/^\d+$/.test(cuerpo)) {
+  // Permitir 7 u 8 números + dígito verificador
+  if (!/^\d{7,8}[0-9K]$/.test(runLimpio)) {
     return false;
   }
 
-  // El dígito verificador debe ser número o K
-  if (!/^[0-9K]$/.test(digitoIngresado)) {
+  const cuerpo = runLimpio.slice(0, -1);
+  const digitoIngresado = runLimpio.slice(-1);
+
+  // Rechazar RUN compuesto solamente por ceros
+  if (Number(cuerpo) === 0) {
     return false;
   }
 
   let suma = 0;
   let multiplicador = 2;
 
-  // Recorrer el RUN de derecha a izquierda
+  // Algoritmo módulo 11
   for (let i = cuerpo.length - 1; i >= 0; i--) {
     suma += Number(cuerpo[i]) * multiplicador;
 
@@ -46,8 +36,7 @@ if (runLimpio.length !== 9) {
     }
   }
 
-  const resto = suma % 11;
-  const resultado = 11 - resto;
+  const resultado = 11 - (suma % 11);
 
   let digitoCalculado;
 
