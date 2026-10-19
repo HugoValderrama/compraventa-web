@@ -1,7 +1,7 @@
-import { Button, Paper, Stack, Typography } from '@mui/material';
+import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import DatoPerfil from '../../molecules/DatoPerfil';
 
-export default function TiendaCard({ empresa, onEditar, onVerPublica }) {
+export default function TiendaCard({ empresa, onEditar }) {
   return (
     <Paper sx={{ p: 3 }}>
       <Typography variant="h6" sx={{ mb: 1 }}>
@@ -16,18 +16,11 @@ export default function TiendaCard({ empresa, onEditar, onVerPublica }) {
         <DatoPerfil etiqueta="Tienda física" valor={empresa.direccionLocal || 'Sin completar'} />
       </Stack>
 
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        spacing={2}
-        sx={{ mt: 3, justifyContent: 'space-between', flexWrap: 'wrap' }}
-      >
+      <Box sx={{ mt: 3 }}>
         <Button variant="contained" onClick={onEditar}>
           Editar tienda
         </Button>
-        <Button variant="contained" onClick={onVerPublica}>
-          Ver mi tienda pública
-        </Button>
-      </Stack>
+      </Box>
     </Paper>
   );
 }

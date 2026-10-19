@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { Alert, Box, Button, CircularProgress, Container, Paper, Typography } from '@mui/material';
+import { Navigate } from 'react-router-dom';
+import { Alert, Box, Button, CircularProgress, Container, Paper } from '@mui/material';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined';
 import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
@@ -13,6 +13,7 @@ import HelpOutlinedIcon from '@mui/icons-material/HelpOutlined';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 
 import TopNavBar from '../../components/organisms/TopNavBar';
+import EncabezadoPerfil from '../../components/molecules/EncabezadoPerfil';
 import Notificacion from '../../components/molecules/Notificacion';
 import AccesosGrid from '../../components/organisms/perfil/AccesosGrid';
 import DatosUsuarioCard from '../../components/organisms/perfil/DatosUsuarioCard';
@@ -23,6 +24,7 @@ import CorreosDialog from '../../components/organisms/perfil/CorreosDialog';
 import CambiarClaveDialog from '../../components/organisms/perfil/CambiarClaveDialog';
 import TiendaDialog from '../../components/organisms/perfil/TiendaDialog';
 import { getEmpresa, getMe } from '../../mocks/usuario';
+import { esEmprendedor, tieneAmbosRoles } from '../../utils/roles';
 
 // Accesos del emprendedor según el diagrama de navegación.
 // Las rutas inexistentes hoy caen en la ruta comodín de App.jsx.
@@ -61,9 +63,6 @@ const GRUPOS_ACCESOS = [
   },
 ];
 
-// El rol viene de getMe() (con el backend real, del token/sesión).
-const esCliente = (u) => String(u?.rol ?? '').toLowerCase() === 'cliente';
-
 function Pantalla({ children }) {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#3026A6' }}>
@@ -76,7 +75,6 @@ function Pantalla({ children }) {
 }
 
 export default function ProfileE() {
-  const navigate = useNavigate();
   const [redirigir, setRedirigir] = useState(false);
   const [usuario, setUsuario] = useState(null);
   const [empresa, setEmpresa] = useState(null);
@@ -124,9 +122,14 @@ export default function ProfileE() {
 
   return (
     <Pantalla>
-      <Typography variant="h5" sx={{ color: 'white', mb: 3 }}>
-        Mi perfil emprendedor
-      </Typography>
+      <EncabezadoPerfil
+        titulo="Mi perfil emprendedor"
+        cambio={
+          tieneAmbosRoles(usuario)
+            ? { texto: 'Ir a mi perfil de cliente', ruta: '/perfil' }
+            : null
+        }
+      />
 
       {cargando && (
         <Paper sx={{ p: 3, mb: 3 }}>
@@ -167,7 +170,6 @@ export default function ProfileE() {
             <TiendaCard
               empresa={empresa}
               onEditar={() => setDialogo('tienda')}
-              onVerPublica={() => navigate(`/tiendas/${empresa.id}`)}
             />
           </Box>
         </>

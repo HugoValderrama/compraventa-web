@@ -12,16 +12,21 @@ const CAMPOS_EDITABLES = [
 
 const CAMPOS_EMPRESA = ['razonSocial', 'rut', 'giro', 'paginaWeb', 'direccionLocal'];
 
-// Solo desarrollo: el rol real vendrá del backend (token/sesión).
-// Para probar el perfil de emprendedor, en la consola del navegador:
-//   localStorage.setItem('rolMock', 'emprendedor')   y recargar
-// Para volver a cliente: localStorage.removeItem('rolMock')
-const rolActual = () => {
+// Solo desarrollo: los roles reales vendrán del backend (token/sesión).
+// Un usuario puede ser cliente, emprendedor o ambos. En la consola del navegador:
+//   localStorage.setItem('rolMock', 'emprendedor')   -> solo emprendedor
+//   localStorage.setItem('rolMock', 'ambos')         -> cliente y emprendedor
+//   localStorage.removeItem('rolMock')               -> solo cliente (por defecto)
+// Después, recargar la página.
+const rolesActuales = () => {
   try {
-    return localStorage.getItem('rolMock') === 'emprendedor' ? 'emprendedor' : 'cliente';
+    const valor = localStorage.getItem('rolMock');
+    if (valor === 'emprendedor') return ['emprendedor'];
+    if (valor === 'ambos') return ['cliente', 'emprendedor'];
   } catch {
-    return 'cliente';
+    /* almacenamiento no disponible */
   }
+  return ['cliente'];
 };
 
 // Datos de ejemplo. El primer correo/teléfono de cada lista es el principal.
@@ -49,7 +54,7 @@ let usuarioMock = {
 
 const publico = ({ password, empresa, ...resto }) => ({
   ...resto,
-  rol: rolActual(),
+  roles: rolesActuales(),
   correos: [...resto.correos],
   telefonos: [...resto.telefonos],
 });

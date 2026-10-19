@@ -28,7 +28,9 @@ import EditarPerfilDialog from '../../components/organisms/perfil/EditarPerfilDi
 import TelefonosDialog from '../../components/organisms/perfil/TelefonosDialog';
 import CorreosDialog from '../../components/organisms/perfil/CorreosDialog';
 import CambiarClaveDialog from '../../components/organisms/perfil/CambiarClaveDialog';
+import EncabezadoPerfil from '../../components/molecules/EncabezadoPerfil';
 import { getMe } from '../../mocks/usuario';
+import { esCliente, tieneAmbosRoles } from '../../utils/roles';
 import { formatearTelefono } from '../../utils/validaciones';
 import { formatearFecha } from '../../utils/formatos';
 
@@ -44,9 +46,6 @@ const ACCESOS_CLIENTE = [
   { titulo: 'Mis preguntas', icono: HelpOutlinedIcon, ruta: '/preguntas' },
   { titulo: 'Mis direcciones', icono: PlaceOutlinedIcon, ruta: '/direcciones' },
 ];
-
-// El rol viene de getMe() (con el backend real, del token/sesión).
-const esEmprendedor = (u) => String(u?.rol ?? '').toLowerCase() === 'emprendedor';
 
 function Pantalla({ children }) {
   return (
@@ -74,7 +73,7 @@ export default function ProfileClient() {
     setError('');
     try {
       const datos = await getMe();
-      if (esEmprendedor(datos)) {
+      if (!esCliente(datos)) {
         setRedirigir(true);
         return;
       }
@@ -105,9 +104,14 @@ export default function ProfileClient() {
 
   return (
     <Pantalla>
-      <Typography variant="h5" sx={{ color: 'white', mb: 3 }}>
-        Mi perfil
-      </Typography>
+      <EncabezadoPerfil
+        titulo="Mi perfil"
+        cambio={
+          tieneAmbosRoles(usuario)
+            ? { texto: 'Ir a mi perfil de emprendedor', ruta: '/perfilE' }
+            : null
+        }
+      />
 
       <Paper sx={{ p: 3, mb: 6 }}>
         {cargando && (
