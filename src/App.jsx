@@ -7,7 +7,7 @@ import ProfileClient from "./pages/Profiles/ProfileClient";
 import ProfileE from "./pages/Profiles/ProfileE";
 
 import CotizacionesPage from "./pages/cotizacion.jsx";
-import ProductosPage from "./pages/Productos.jsx";
+import ProductosPage from "./pages/Productos/ProductosPage.jsx";
 import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx";
 
 import CotizacionesRecibidasPage from "./pages/CotizacionesRecibidas/CotizacionesRecibidasPage.jsx";
