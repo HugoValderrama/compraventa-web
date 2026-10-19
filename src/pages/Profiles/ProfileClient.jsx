@@ -1,173 +1,231 @@
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import {
-    Avatar,
-    Box,
-    Button,
-    Container,
-    Paper,
-    Stack,
-    Typography,
-} from "@mui/material";
-import TopNavBar from "../../components/organisms/TopNavBar";
+  Alert,
+  Avatar,
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  Paper,
+  Stack,
+  Typography,
+} from '@mui/material';
+import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
+import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
+import MailOutlinedIcon from '@mui/icons-material/MailOutlined';
+import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined';
+import HelpOutlinedIcon from '@mui/icons-material/HelpOutlined';
+import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
+
+import TopNavBar from '../../components/organisms/TopNavBar';
+import DatoPerfil from '../../components/molecules/DatoPerfil';
+import Notificacion from '../../components/molecules/Notificacion';
+import AccesosGrid from '../../components/organisms/perfil/AccesosGrid';
+import EditarPerfilDialog from '../../components/organisms/perfil/EditarPerfilDialog';
+import TelefonosDialog from '../../components/organisms/perfil/TelefonosDialog';
+import CorreosDialog from '../../components/organisms/perfil/CorreosDialog';
+import CambiarClaveDialog from '../../components/organisms/perfil/CambiarClaveDialog';
+import { getMe } from '../../mocks/usuario';
+import { formatearTelefono } from '../../utils/validaciones';
+import { formatearFecha } from '../../utils/formatos';
+
+// Los 8 accesos del cliente según el diagrama de navegación.
+// Las rutas inexistentes hoy caen en la ruta comodín de App.jsx.
+const ACCESOS_CLIENTE = [
+  { titulo: 'Mis compras', icono: ShoppingBagOutlinedIcon, ruta: '/compras' },
+  { titulo: 'Carrito', icono: ShoppingCartOutlinedIcon, ruta: '/carrito' },
+  { titulo: 'Lista de deseos', icono: FavoriteBorderOutlinedIcon, ruta: '/deseos' },
+  { titulo: 'Mis reseñas', icono: StarBorderOutlinedIcon, ruta: '/resenas' },
+  { titulo: 'Mensajería', icono: MailOutlinedIcon, ruta: '/mensajeria' },
+  { titulo: 'Mis cotizaciones', icono: RequestQuoteOutlinedIcon, ruta: '/cotizaciones' },
+  { titulo: 'Mis preguntas', icono: HelpOutlinedIcon, ruta: '/preguntas' },
+  { titulo: 'Mis direcciones', icono: PlaceOutlinedIcon, ruta: '/direcciones' },
+];
+
+// El rol viene de getMe() (con el backend real, del token/sesión).
+const esEmprendedor = (u) => String(u?.rol ?? '').toLowerCase() === 'emprendedor';
 
 function Pantalla({ children }) {
-    return (
-        <Box sx={{ minHeight: "100vh", bgcolor: "#3026A6" }}>
-            <TopNavBar activeSection="" />
-
-            <Container maxWidth="md" sx={{ py: 3 }}>
-                {children}
-            </Container>
-        </Box>
-    );
+  return (
+    <Box sx={{ minHeight: '100vh', bgcolor: '#3026A6' }}>
+      <TopNavBar />
+      <Container maxWidth="md" sx={{ py: 3 }}>
+        {children}
+      </Container>
+    </Box>
+  );
 }
 
+const iniciales = (u) => `${u.nombres?.[0] ?? ''}${u.apellidos?.[0] ?? ''}`.toUpperCase();
+
 export default function ProfileClient() {
-    const navigate = useNavigate();
+  const [redirigir, setRedirigir] = useState(false);
+  const [usuario, setUsuario] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+  const [dialogo, setDialogo] = useState(null); // 'editar' | 'telefonos' | 'correos' | 'clave' | null
+  const [aviso, setAviso] = useState({ open: false, mensaje: '', severidad: 'success' });
 
-    return (
-        <Pantalla>
-            <Typography variant="h5" sx={{ color: "white", mb: 3 }}>
-                Mi perfil
-            </Typography>
+  const cargar = useCallback(async () => {
+    setCargando(true);
+    setError('');
+    try {
+      const datos = await getMe();
+      if (esEmprendedor(datos)) {
+        setRedirigir(true);
+        return;
+      }
+      setUsuario(datos);
+    } catch {
+      setError('No pudimos cargar tu perfil. Inténtalo de nuevo.');
+    } finally {
+      setCargando(false);
+    }
+  }, []);
 
-            <Paper sx={{ p: 3, mb: 6 }}>
-                <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={3}
-                    alignItems={{ xs: "center", sm: "flex-start" }}
-                >
-                    <Avatar
-                        variant="rounded"
-                        sx={{
-                            width: 140,
-                            height: 140,
-                            bgcolor: "grey.500",
-                            fontSize: "54px",
-                        }}
-                    >
-                    </Avatar>
+  useEffect(() => {
+    cargar();
+  }, [cargar]);
 
-                    <Stack spacing={1} sx={{ flex: 1, width: "100%" }}>
-                        <Stack
-                            direction={{ xs: "column", md: "row" }}
-                            spacing={{ xs: 0.5, md: 4 }}
-                        >
-                            <Typography sx={{ fontWeight: 600 }}>
-                                RUN:
-                            </Typography>
+  if (redirigir) return <Navigate to="/perfilE" replace />;
 
-                            <Typography sx={{ fontWeight: 600 }}>
-                                Birthday:
-                            </Typography>
+  const notificar = (mensaje, severidad = 'success') =>
+    setAviso({ open: true, mensaje, severidad });
+  const cerrarDialogo = () => setDialogo(null);
+  const alActualizar = (actualizado, mensaje) => {
+    setUsuario(actualizado);
+    notificar(mensaje);
+  };
+  const alFallar = (mensaje) => notificar(mensaje, 'error');
 
-                            <Typography sx={{ fontWeight: 600 }}>
-                                Registro:
-                            </Typography>
-                        </Stack>
+  const deshabilitado = !usuario;
 
-                        <Typography variant="h6">
-                            Name1, Name2, LastName1, LastName2
-                        </Typography>
+  return (
+    <Pantalla>
+      <Typography variant="h5" sx={{ color: 'white', mb: 3 }}>
+        Mi perfil
+      </Typography>
 
-                        <Typography>
-                            <strong>Email:</strong> correo@ejemplo.cl
-                        </Typography>
+      <Paper sx={{ p: 3, mb: 6 }}>
+        {cargando && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+            <CircularProgress aria-label="Cargando perfil" />
+          </Box>
+        )}
 
-                        <Typography>
-                            <strong>Dirección:</strong> Current_Address
-                        </Typography>
-                    </Stack>
+        {!cargando && error && (
+          <Alert
+            severity="error"
+            action={
+              <Button color="inherit" size="small" onClick={cargar}>
+                Reintentar
+              </Button>
+            }
+          >
+            {error}
+          </Alert>
+        )}
 
+        {!cargando && usuario && (
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={3}
+            sx={{ alignItems: { xs: 'center', sm: 'flex-start' } }}
+          >
+            <Avatar
+              variant="rounded"
+              sx={{ width: 140, height: 140, bgcolor: 'grey.500', fontSize: '54px' }}
+            >
+              {iniciales(usuario)}
+            </Avatar>
 
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/direcciones")}
-                        sx={{ whiteSpace: "nowrap" }}
-                    >
-                        Ver mis direcciones
-                    </Button>
-                </Stack>
+            <Stack spacing={1} sx={{ flex: 1, width: '100%', minWidth: 0 }}>
+              <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 0.5, md: 4 }}>
+                <DatoPerfil etiqueta="RUN" valor={usuario.run} />
+                <DatoPerfil
+                  etiqueta="Fecha de nacimiento"
+                  valor={formatearFecha(usuario.fechaNacimiento)}
+                />
+                <DatoPerfil etiqueta="Registro" valor={formatearFecha(usuario.fechaRegistro)} />
+              </Stack>
 
+              <Typography variant="h6">
+                {usuario.nombres} {usuario.apellidos}
+              </Typography>
 
-                <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={2}
-                    justifyContent="space-between"
-                    flexWrap="wrap"
-                    sx={{ mt: 3 }}
-                >
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/perfil/editar")}
-                    >
-                        Editar perfil
-                    </Button>
+              <DatoPerfil etiqueta="Correo" valor={usuario.correos[0]} />
+              <DatoPerfil etiqueta="Teléfono" valor={formatearTelefono(usuario.telefonos[0])} />
+              <DatoPerfil etiqueta="Dirección" valor={usuario.direccionPrincipal} />
+            </Stack>
+          </Stack>
+        )}
 
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/telefonos")}
-                    >
-                        Teléfonos
-                    </Button>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          sx={{ mt: 3, justifyContent: 'space-between', flexWrap: 'wrap' }}
+        >
+          <Button variant="contained" disabled={deshabilitado} onClick={() => setDialogo('editar')}>
+            Editar perfil
+          </Button>
+          <Button
+            variant="contained"
+            disabled={deshabilitado}
+            onClick={() => setDialogo('telefonos')}
+          >
+            Teléfonos
+          </Button>
+          <Button variant="contained" disabled={deshabilitado} onClick={() => setDialogo('correos')}>
+            Correos
+          </Button>
+          <Button variant="contained" disabled={deshabilitado} onClick={() => setDialogo('clave')}>
+            Cambiar contraseña
+          </Button>
+        </Stack>
+      </Paper>
 
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/correos")}
-                    >
-                        Correos
-                    </Button>
+      <AccesosGrid accesos={ACCESOS_CLIENTE} />
 
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/cambiar-contrasena")}
-                    >
-                        Cambiar contraseña
-                    </Button>
-                </Stack>
-            </Paper>
+      {usuario && (
+        <>
+          <EditarPerfilDialog
+            open={dialogo === 'editar'}
+            onClose={cerrarDialogo}
+            usuario={usuario}
+            onActualizado={alActualizar}
+            onError={alFallar}
+          />
+          <TelefonosDialog
+            open={dialogo === 'telefonos'}
+            onClose={cerrarDialogo}
+            telefonos={usuario.telefonos}
+            onActualizado={alActualizar}
+            onError={alFallar}
+          />
+          <CorreosDialog
+            open={dialogo === 'correos'}
+            onClose={cerrarDialogo}
+            correos={usuario.correos}
+            onActualizado={alActualizar}
+            onError={alFallar}
+          />
+          <CambiarClaveDialog
+            open={dialogo === 'clave'}
+            onClose={cerrarDialogo}
+            onExito={(mensaje) => notificar(mensaje)}
+          />
+        </>
+      )}
 
-
-            <Paper sx={{ p: 3, maxWidth: 700, mx: "auto" }}>
-                <Box
-                    sx={{
-                        display: "grid",
-                        gridTemplateColumns: {
-                            xs: "1fr",
-                            sm: "1fr 1fr",
-                        },
-                        gap: 3,
-                    }}
-                >
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/compras")}
-                    >
-                        Mis compras
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/mensajeria")}
-                    >
-                        Mensajería
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/cotizaciones")}
-                    >
-                        Mis cotizaciones
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/preguntas")}
-                    >
-                        Mis preguntas
-                    </Button>
-                </Box>
-            </Paper>
-        </Pantalla>
-    );
+      <Notificacion
+        open={aviso.open}
+        mensaje={aviso.mensaje}
+        severidad={aviso.severidad}
+        onClose={() => setAviso((a) => ({ ...a, open: false }))}
+      />
+    </Pantalla>
+  );
 }
