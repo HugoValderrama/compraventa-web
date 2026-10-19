@@ -93,7 +93,7 @@ export default function TopNavBar({ showBack = false, onBack }) {
           <Button startIcon={<ShoppingCartOutlinedIcon />} color="inherit" sx={{ textTransform: 'none' }}>
             Mi carrito
           </Button>
-          <Button startIcon={<FavoriteBorderOutlinedIcon />} color="inherit" sx={{ textTransform: 'none' }}>
+          <Button startIcon={<FavoriteBorderOutlinedIcon />} color="inherit" sx={{ textTransform: 'none' }} onClick={() => navigate('/lista-deseos')}>
             Lista de deseos
           </Button>
         </Box>
