@@ -13,6 +13,9 @@ import HomePage from './pages/Home/HomePage.jsx';
 import CatalogoGeneralPage from './pages/Catalogo/CatalogoGeneralPage.jsx';
 import ListaDeseosPage from './pages/ListaDeseos/ListaDeseosPage.jsx';
 import CarritoPage from './pages/Carrito/CarritoPage.jsx';
+import DireccionEnvioPage from './pages/Carrito/DireccionEnvioPage.jsx';
+import PagoPage from './pages/Carrito/PagoPage.jsx';
+import ConfirmacionPage from './pages/Carrito/ConfirmacionPage.jsx';
 
 function App() {
   return (
@@ -26,6 +29,9 @@ function App() {
         <Route path="/perfilE" element={<ProfileE />} />
         <Route path="/lista-deseos" element={<ListaDeseosPage />} />
         <Route path="/carrito" element={<CarritoPage />} />
+        <Route path="/carrito/confirmacion/:id" element={<ConfirmacionPage />}/>
+        <Route path="/carrito/pago" element={<PagoPage />} />
+        <Route path="/carrito/direccion" element={<DireccionEnvioPage />}/>
         <Route path="/cotizaciones/*" element={<CotizacionesPage />} />
         <Route path="/productos/*" element={<ProductosPage />} />
         <Route path="/servicios/*" element={<ServiciosPage />} />

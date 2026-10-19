@@ -1,15 +1,10 @@
 import * as React from 'react'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import {
   Alert,
   Box,
   Button,
   Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
   IconButton,
   Paper,
   Snackbar,
@@ -31,6 +26,14 @@ import {
 } from './carrito.js'
 
 // Ubicación: src/pages/Carrito/CarritoPage.jsx, junto a carrito.js.
+function DeleteOutlineIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6" />
+    </svg>
+  )
+}
+
 function ImagenCarrito({ producto }) {
   const [fallida, setFallida] = React.useState('')
   const src = producto?.imagen ?? ''
@@ -75,22 +78,7 @@ function FilaCarrito({ linea, onCantidad, onQuitar }) {
             {importe === null ? 'Por confirmar' : pesos(importe)}
           </Typography>
           <IconButton aria-label={'Eliminar del carrito: ' + nombre} onClick={() => onQuitar(linea.id)}>
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M4 7h16" />
-              <path d="M9 7V4h6v3" />
-              <path d="M6 7l1 14h10l1-14" />
-              <path d="M10 11v6M14 11v6" />
-            </svg>
+            <DeleteOutlineIcon />
           </IconButton>
         </Stack>
       </Stack>
@@ -99,10 +87,10 @@ function FilaCarrito({ linea, onCantidad, onQuitar }) {
 }
 
 export default function CarritoPage() {
+  const navigate = useNavigate()
   const [carrito, setCarrito] = React.useState(() => cargarCarrito())
   const [catalogo, setCatalogo] = React.useState(() => cargarCatalogo())
   const [aviso, setAviso] = React.useState(null)
-  const [revisando, setRevisando] = React.useState(false)
   const resumen = resumirCarrito(carrito.items, catalogo.productos)
   const puedeContinuar = resumen.puedeContinuar && !catalogo.error && !carrito.error
 
@@ -143,7 +131,7 @@ export default function CarritoPage() {
       const actual = validarCarritoActual()
       setCarrito(actual.carrito)
       setCatalogo(actual.catalogo)
-      setRevisando(true)
+      navigate('/carrito/direccion')
     } catch (error) {
       setCarrito(cargarCarrito())
       setCatalogo(cargarCatalogo())
@@ -194,26 +182,6 @@ export default function CarritoPage() {
           </>
         )}
       </Container>
-
-      <Dialog open={revisando} onClose={() => setRevisando(false)} fullWidth maxWidth="sm" aria-labelledby="revision-carrito-titulo">
-        <DialogTitle id="revision-carrito-titulo">Revisión del pedido</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2}>
-            {resumen.lineas.map((linea) => (
-              <Box key={linea.id}>
-                <Typography sx={{ fontWeight: 700 }}>{linea.producto?.nombre ?? 'Producto no disponible'}</Typography>
-                <Typography variant="body2">{linea.cantidad} unidades · {linea.importe === null ? 'Precio por confirmar' : pesos(linea.importe)}</Typography>
-                {linea.problema && <Typography variant="body2" color="error">{linea.problema}</Typography>}
-              </Box>
-            ))}
-            <Divider />
-            <Typography sx={{ fontWeight: 700 }}>Total de productos: {resumen.total === null ? 'Por confirmar' : pesos(resumen.total)}</Typography>
-            <Typography variant="body2" color="text.secondary">Envío pendiente de confirmar.</Typography>
-            {!puedeContinuar && <Alert severity="warning">El carrito ha cambiado. Revisa los productos antes de continuar.</Alert>}
-          </Stack>
-        </DialogContent>
-        <DialogActions><Button onClick={() => setRevisando(false)}>Volver al carrito</Button></DialogActions>
-      </Dialog>
 
       <Snackbar open={Boolean(aviso)} autoHideDuration={4000} onClose={() => setAviso(null)} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert severity={aviso?.severidad ?? 'success'} variant="filled" onClose={() => setAviso(null)}>{aviso?.mensaje ?? ''}</Alert>
