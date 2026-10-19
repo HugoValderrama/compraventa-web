@@ -126,7 +126,7 @@ function RecuperarPassword() {
           </Button>
 
           <Button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/login")}
             sx={{
               color: "#62A7F5",
               textTransform: "none",

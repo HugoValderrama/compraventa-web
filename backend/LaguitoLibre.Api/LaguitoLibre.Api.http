@@ -1,0 +1,6 @@
+@LaguitoLibre.Api_HostAddress = http://localhost:5098
+
+GET {{LaguitoLibre.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
