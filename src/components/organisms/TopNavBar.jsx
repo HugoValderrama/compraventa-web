@@ -14,6 +14,7 @@ const SECTIONS = [
   { label: 'Perfil', path: '/perfilE' },
   { label: 'Productos', path: '/productos' },
   { label: 'Servicios', path: '/servicios' },
+  { label: 'Mensajería', path: '/mensajeria' },
 ];
 
 export default function TopNavBar({ showBack = false, onBack, title = '' }) {
