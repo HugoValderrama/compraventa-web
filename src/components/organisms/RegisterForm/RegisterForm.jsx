@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -12,6 +13,7 @@ import EmailField from "../../molecules/EmailField/EmailField";
 import NameField from "../../molecules/NameField/NameField";
 import PasswordFields from "../../molecules/PasswordFields/PasswordFields";
 import EntrepreneurFields from "../../molecules/EntrepreneurFields/EntrepreneurFields";
+import PhoneField from "../../molecules/PhoneField/PhoneField";
 
 function RegisterForm({ tipoUsuario }) {
   const navigate = useNavigate();
@@ -22,17 +24,46 @@ function RegisterForm({ tipoUsuario }) {
   const [emailValido, setEmailValido] = useState(false);
   const [edadValida, setEdadValida] = useState(false);
   const [passwordsValidas, setPasswordsValidas] = useState(false);
+  const [emprendedorValido, setEmprendedorValido] = useState(true);
+  const [telefono, setTelefono] = useState("");
+  const [telefonoValido, setTelefonoValido] = useState(false);
 
-  // Formato esperado: 12345678-9
+  // Validar RUN del usuario
   const runValido = validarRun(run);
+
+  // Verificar si el RUN está completo
   const runCompleto = run.length === 10;
+
+  // Validar formulario completo
   const formularioValido =
-  runValido &&
-  nombreValido &&
-  emailValido &&
-  edadValida &&
-  passwordsValidas &&
-  aceptaTerminos;
+    runValido &&
+    nombreValido &&
+    emailValido &&
+    telefonoValido &&
+    edadValida &&
+    passwordsValidas &&
+    aceptaTerminos &&
+    (tipoUsuario !== "emprendedor" || emprendedorValido);
+
+  // Registrar evento de creación de cuenta
+  const crearCuenta = () => {
+    if (!formularioValido) return;
+
+    console.log("[Registro] Formulario validado:", {
+      tipoUsuario,
+      formularioValido: true,
+      accion: "crear_cuenta",
+    });
+
+    // Navegación temporal hasta conectar el backend.
+    if (tipoUsuario === "emprendedor") {
+      console.log("[Registro] Navegación al perfil emprendedor");
+      navigate("/perfilE");
+    } else {
+      console.log("[Registro] Navegación al perfil cliente");
+      navigate("/perfil");
+    }
+  };
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -76,16 +107,16 @@ function RegisterForm({ tipoUsuario }) {
               </Typography>
 
               {runCompleto && (
-  <Typography
-    sx={{
-      color: runValido ? "green" : "#FF0000",
-      fontSize: "13px",
-      fontWeight: "bold",
-    }}
-  >
-    {runValido ? "RUN válido ✓" : "RUN inválido X"}
-  </Typography>
-)}
+                <Typography
+                  sx={{
+                    color: runValido ? "green" : "#FF0000",
+                    fontSize: "13px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {runValido ? "RUN válido ✓" : "RUN inválido X"}
+                </Typography>
+              )}
             </Box>
 
             <RegisterField
@@ -99,6 +130,11 @@ function RegisterForm({ tipoUsuario }) {
           <NameField onValidityChange={setNombreValido} />
 
           <EmailField onValidityChange={setEmailValido} />
+
+          <PhoneField
+            onValidityChange={setTelefonoValido}
+            onChange={setTelefono}
+          />
         </Box>
 
         {/* Columna derecha */}
@@ -114,28 +150,33 @@ function RegisterForm({ tipoUsuario }) {
           <PasswordFields onValidityChange={setPasswordsValidas} />
         </Box>
       </Box>
-      {/* Campos adicionales del emprendedor */}
-{tipoUsuario === "emprendedor" && (
-  <EntrepreneurFields />
-)}
 
-      {/* Términos */}
+      {/* Campos adicionales del emprendedor */}
+      {tipoUsuario === "emprendedor" && (
+        <EntrepreneurFields
+          onValidityChange={setEmprendedorValido}
+        />
+      )}
+
+      {/* Términos y condiciones */}
       <Box sx={{ marginTop: "25px" }}>
         <TermsCheckbox
-      checked={aceptaTerminos}
-      onChange={setAceptaTerminos}
-      />
+          checked={aceptaTerminos}
+          onChange={setAceptaTerminos}
+        />
       </Box>
 
-      {/* Crear cuenta */}
+      {/* Botón Crear cuenta */}
       <Button
         variant="contained"
         fullWidth
         disabled={!formularioValido}
-        sx={{"&.Mui-disabled": {
-  backgroundColor: "#B5B0B0",
-  color: "#FFFFFF",
-},
+        onClick={crearCuenta}
+        sx={{
+          "&.Mui-disabled": {
+            backgroundColor: "#B5B0B0",
+            color: "#FFFFFF",
+          },
           marginTop: "20px",
           height: "50px",
           backgroundColor: "#62A7F5",
@@ -145,7 +186,6 @@ function RegisterForm({ tipoUsuario }) {
           fontWeight: "bold",
           textTransform: "none",
           boxShadow: "none",
-
           "&:hover": {
             backgroundColor: "#62A7F5",
             boxShadow: "none",
@@ -157,7 +197,10 @@ function RegisterForm({ tipoUsuario }) {
 
       {/* Volver al Login */}
       <Typography
-        onClick={() => navigate("/")}
+        onClick={() => {
+          console.log("[Registro] Navegación a inicio de sesión");
+          navigate("/");
+        }}
         sx={{
           color: "#62A7F5",
           textAlign: "center",

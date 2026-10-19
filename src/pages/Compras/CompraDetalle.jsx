@@ -81,17 +81,22 @@ export default function CompraDetalle() {
                       </Typography>
 
                       {compra.estado === ESTADOS_COMPRA.ENTREGADO && (
-                        <Button
-                          variant="contained"
-                          sx={{ alignSelf: 'flex-end' }}
-                          onClick={() => setAviso('Próximamente')}
-                          onClick={() => {
-                            console.log('[Compras] Calificar producto (pendiente):', { compraId: compra.id, itemId: item.id })
-                            setAviso('Próximamente')
-                          }}
-                        >
-                          Calificar
-                        </Button>
+                        
+<Button
+  variant="contained"
+  sx={{ alignSelf: "flex-end" }}
+  onClick={() => {
+    console.log("[Compras] Calificar producto (pendiente):", {
+      compraId: compra.id,
+      itemId: item.id,
+    });
+
+    setAviso("Próximamente");
+  }}
+>
+  Calificar
+</Button>
+
                       )}
                     </Stack>
                   </Stack>

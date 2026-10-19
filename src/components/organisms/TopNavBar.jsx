@@ -15,6 +15,7 @@ const SECTIONS = [
   { label: 'Productos', path: '/productos' },
   { label: 'Servicios', path: '/servicios' },
   { label: 'Mensajería', path: '/mensajeria' },
+  { label: 'Categorías', path: '/categorias' }
 ];
 
 export default function TopNavBar({ showBack = false, onBack, title = '' }) {
@@ -40,8 +41,32 @@ export default function TopNavBar({ showBack = false, onBack, title = '' }) {
               {title || (active ? active.label : '')}
             </Typography>
           ) : (
+<<<<<<< HEAD
             <Tabs value={activeSection} slotProps={{ indicator: { sx: { display: 'none' } } }}>
               {SECTIONS.map((section) => (
+=======
+            <Tabs
+  value={activeSection}
+  variant="scrollable"
+  scrollButtons="auto"
+  allowScrollButtonsMobile
+  slotProps={{
+    indicator: {
+      sx: { display: "none" },
+    },
+  }}
+  sx={{
+    maxWidth: {
+      xs: "260px",
+      sm: "450px",
+      md: "650px",
+      lg: "750px",
+    },
+    minHeight: "36px",
+  }}
+>
+              {SECTIONS.map((s) => (
+>>>>>>> 29d6a91e7ae90133dd32ca931ebd311776f20c83
                 <Tab
                   key={section.label}
                   value={section.label}
