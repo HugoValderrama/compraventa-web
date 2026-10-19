@@ -1,193 +1,228 @@
-import { useNavigate } from "react-router-dom";
-import {
-    Avatar,
-    Box,
-    Button,
-    Container,
-    Paper,
-    Stack,
-    Typography,
-} from "@mui/material";
-import TopNavBar from "../../components/organisms/TopNavBar";
+import { useCallback, useEffect, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { Alert, Box, Button, CircularProgress, Container, Paper, Typography } from '@mui/material';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined';
+import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined';
+import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
+import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
+import MailOutlinedIcon from '@mui/icons-material/MailOutlined';
+import HelpOutlinedIcon from '@mui/icons-material/HelpOutlined';
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+
+import TopNavBar from '../../components/organisms/TopNavBar';
+import Notificacion from '../../components/molecules/Notificacion';
+import AccesosGrid from '../../components/organisms/perfil/AccesosGrid';
+import DatosUsuarioCard from '../../components/organisms/perfil/DatosUsuarioCard';
+import TiendaCard from '../../components/organisms/perfil/TiendaCard';
+import EditarPerfilDialog from '../../components/organisms/perfil/EditarPerfilDialog';
+import TelefonosDialog from '../../components/organisms/perfil/TelefonosDialog';
+import CorreosDialog from '../../components/organisms/perfil/CorreosDialog';
+import CambiarClaveDialog from '../../components/organisms/perfil/CambiarClaveDialog';
+import TiendaDialog from '../../components/organisms/perfil/TiendaDialog';
+import { getEmpresa, getMe } from '../../mocks/usuario';
+
+// Accesos del emprendedor según el diagrama de navegación.
+// Las rutas inexistentes hoy caen en la ruta comodín de App.jsx.
+const GRUPOS_ACCESOS = [
+  {
+    titulo: 'Ventas',
+    accesos: [
+      { titulo: 'Pedidos recibidos', icono: LocalShippingOutlinedIcon, ruta: '/pedidos' },
+      {
+        titulo: 'Cotizaciones recibidas',
+        icono: RequestQuoteOutlinedIcon,
+        ruta: '/cotizaciones-recibidas',
+      },
+      { titulo: 'Calificaciones', icono: StarBorderOutlinedIcon, ruta: '/calificaciones' },
+    ],
+  },
+  {
+    titulo: 'Catálogo',
+    accesos: [
+      { titulo: 'Mis productos', icono: StorefrontOutlinedIcon, ruta: '/productos' },
+      { titulo: 'Mis servicios', icono: BuildOutlinedIcon, ruta: '/servicios' },
+      { titulo: 'Inventario', icono: Inventory2OutlinedIcon, ruta: '/inventario' },
+      { titulo: 'Ofertas', icono: LocalOfferOutlinedIcon, ruta: '/ofertas' },
+    ],
+  },
+  {
+    titulo: 'Comunicación',
+    accesos: [
+      { titulo: 'Mensajería', icono: MailOutlinedIcon, ruta: '/mensajeria' },
+      { titulo: 'Preguntas pendientes', icono: HelpOutlinedIcon, ruta: '/preguntas-pendientes' },
+    ],
+  },
+  {
+    titulo: 'Más',
+    accesos: [{ titulo: 'Dashboard', icono: DashboardOutlinedIcon, ruta: '/emprendedor' }],
+  },
+];
+
+// El rol viene de getMe() (con el backend real, del token/sesión).
+const esCliente = (u) => String(u?.rol ?? '').toLowerCase() === 'cliente';
 
 function Pantalla({ children }) {
-    return (
-        <Box sx={{ minHeight: "100vh", bgcolor: "#3026A6" }}>
-            <TopNavBar activeSection="" />
-
-            <Container maxWidth="md" sx={{ py: 3 }}>
-                {children}
-            </Container>
-        </Box>
-    );
+  return (
+    <Box sx={{ minHeight: '100vh', bgcolor: '#3026A6' }}>
+      <TopNavBar />
+      <Container maxWidth="md" sx={{ py: 3 }}>
+        {children}
+      </Container>
+    </Box>
+  );
 }
 
 export default function ProfileE() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [redirigir, setRedirigir] = useState(false);
+  const [usuario, setUsuario] = useState(null);
+  const [empresa, setEmpresa] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+  const [dialogo, setDialogo] = useState(null); // 'editar' | 'telefonos' | 'correos' | 'clave' | 'tienda' | null
+  const [aviso, setAviso] = useState({ open: false, mensaje: '', severidad: 'success' });
 
-    return (
-        <Pantalla>
-            <Typography variant="h5" sx={{ color: "white", mb: 3 }}>
-                Mi perfil emprendedor
-            </Typography>
+  const cargar = useCallback(async () => {
+    setCargando(true);
+    setError('');
+    try {
+      const [datos, datosEmpresa] = await Promise.all([getMe(), getEmpresa()]);
+      if (esCliente(datos)) {
+        setRedirigir(true);
+        return;
+      }
+      setUsuario(datos);
+      setEmpresa(datosEmpresa);
+    } catch {
+      setError('No pudimos cargar tu perfil. Inténtalo de nuevo.');
+    } finally {
+      setCargando(false);
+    }
+  }, []);
 
-            <Paper sx={{ p: 3, mb: 6 }}>
-                <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={3}
-                    alignItems={{ xs: "center", sm: "flex-start" }}
-                >
+  useEffect(() => {
+    cargar();
+  }, [cargar]);
 
-                    <Avatar
-                        variant="rounded"
-                        sx={{
-                            width: 140,
-                            height: 140,
-                            bgcolor: "grey.500",
-                            fontSize: "54px",
-                        }}
-                    >
-                    </Avatar>
+  if (redirigir) return <Navigate to="/perfil" replace />;
 
+  const notificar = (mensaje, severidad = 'success') =>
+    setAviso({ open: true, mensaje, severidad });
+  const cerrarDialogo = () => setDialogo(null);
+  const alActualizarUsuario = (actualizado, mensaje) => {
+    setUsuario(actualizado);
+    notificar(mensaje);
+  };
+  const alActualizarEmpresa = (actualizada, mensaje) => {
+    setEmpresa(actualizada);
+    notificar(mensaje);
+  };
+  const alFallar = (mensaje) => notificar(mensaje, 'error');
 
-                    <Stack spacing={1} sx={{ flex: 1, width: "100%" }}>
-                        <Stack
-                            direction={{ xs: "column", md: "row" }}
-                            spacing={{ xs: 0.5, md: 4 }}
-                        >
-                            <Typography sx={{ fontWeight: 600 }}>
-                                RUN:
-                            </Typography>
+  return (
+    <Pantalla>
+      <Typography variant="h5" sx={{ color: 'white', mb: 3 }}>
+        Mi perfil emprendedor
+      </Typography>
 
-                            <Typography sx={{ fontWeight: 600 }}>
-                                Registro:
-                            </Typography>
-                        </Stack>
+      {cargando && (
+        <Paper sx={{ p: 3, mb: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+            <CircularProgress aria-label="Cargando perfil" />
+          </Box>
+        </Paper>
+      )}
 
-                        <Typography variant="h6">
-                            Nombre del emprendimiento
-                        </Typography>
+      {!cargando && error && (
+        <Paper sx={{ p: 3, mb: 3 }}>
+          <Alert
+            severity="error"
+            action={
+              <Button color="inherit" size="small" onClick={cargar}>
+                Reintentar
+              </Button>
+            }
+          >
+            {error}
+          </Alert>
+        </Paper>
+      )}
 
-                        <Typography>
-                            <strong>Propietario:</strong> Name1 LastName1
-                        </Typography>
+      {!cargando && usuario && empresa && (
+        <>
+          <Box sx={{ mb: 3 }}>
+            <DatosUsuarioCard
+              usuario={usuario}
+              onEditar={() => setDialogo('editar')}
+              onTelefonos={() => setDialogo('telefonos')}
+              onCorreos={() => setDialogo('correos')}
+              onClave={() => setDialogo('clave')}
+            />
+          </Box>
 
-                        <Typography>
-                            <strong>Correo:</strong> correo@ejemplo.cl
-                        </Typography>
+          <Box sx={{ mb: 6 }}>
+            <TiendaCard
+              empresa={empresa}
+              onEditar={() => setDialogo('tienda')}
+              onVerPublica={() => navigate(`/tiendas/${empresa.id}`)}
+            />
+          </Box>
+        </>
+      )}
 
-                        <Typography>
-                            <strong>Dirección:</strong> Current_Address
-                        </Typography>
-                    </Stack>
+      {GRUPOS_ACCESOS.map(({ titulo, accesos }) => (
+        <Box key={titulo} sx={{ mb: 3 }}>
+          <AccesosGrid titulo={titulo} accesos={accesos} />
+        </Box>
+      ))}
 
+      {usuario && empresa && (
+        <>
+          <EditarPerfilDialog
+            open={dialogo === 'editar'}
+            onClose={cerrarDialogo}
+            usuario={usuario}
+            onActualizado={alActualizarUsuario}
+            onError={alFallar}
+          />
+          <TelefonosDialog
+            open={dialogo === 'telefonos'}
+            onClose={cerrarDialogo}
+            telefonos={usuario.telefonos}
+            onActualizado={alActualizarUsuario}
+            onError={alFallar}
+          />
+          <CorreosDialog
+            open={dialogo === 'correos'}
+            onClose={cerrarDialogo}
+            correos={usuario.correos}
+            onActualizado={alActualizarUsuario}
+            onError={alFallar}
+          />
+          <CambiarClaveDialog
+            open={dialogo === 'clave'}
+            onClose={cerrarDialogo}
+            onExito={(mensaje) => notificar(mensaje)}
+          />
+          <TiendaDialog
+            open={dialogo === 'tienda'}
+            onClose={cerrarDialogo}
+            empresa={empresa}
+            onActualizado={alActualizarEmpresa}
+            onError={alFallar}
+          />
+        </>
+      )}
 
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/direcciones")}
-                        sx={{ whiteSpace: "nowrap" }}
-                    >
-                        Ver mis direcciones
-                    </Button>
-                </Stack>
-
-
-                <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={2}
-                    justifyContent="space-between"
-                    flexWrap="wrap"
-                    sx={{ mt: 3 }}
-                >
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/perfil-emprendedor/editar")}
-                    >
-                        Editar perfil
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/telefonos")}
-                    >
-                        Teléfonos
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/correos")}
-                    >
-                        Correos
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/cambiar-contrasena")}
-                    >
-                        Cambiar contraseña
-                    </Button>
-                </Stack>
-            </Paper>
-
-
-            <Paper sx={{ p: 3, maxWidth: 700, mx: "auto" }}>
-                <Box
-                    sx={{
-                        display: "grid",
-                        gridTemplateColumns: {
-                            xs: "1fr",
-                            sm: "1fr 1fr",
-                        },
-                        columnGap: 3,
-                        rowGap: 3,
-                    }}
-                >
-
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/compras")}
-                    >
-                        Mis compras
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/mensajeria")}
-                    >
-                        Mensajería
-                    </Button>
-
-
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/productos")}
-                    >
-                        Mis ventas
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/preguntas")}
-                    >
-                        Mis preguntas
-                    </Button>
-
-
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/cotizaciones")}
-                    >
-                        Mis cotizaciones
-                    </Button>
-
-                    <Button
-                        variant="contained"
-                        onClick={() => navigate("/resenas")}
-                    >
-                        Mis reseñas
-                    </Button>
-                </Box>
-            </Paper>
-        </Pantalla>
-    );
+      <Notificacion
+        open={aviso.open}
+        mensaje={aviso.mensaje}
+        severidad={aviso.severidad}
+        onClose={() => setAviso((a) => ({ ...a, open: false }))}
+      />
+    </Pantalla>
+  );
 }

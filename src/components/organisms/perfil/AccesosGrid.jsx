@@ -1,11 +1,17 @@
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Paper } from '@mui/material';
+import { Box, Button, Paper, Typography } from '@mui/material';
 
-export default function AccesosGrid({ accesos }) {
+// `titulo` es opcional: agrupa los accesos bajo un encabezado (perfil emprendedor).
+export default function AccesosGrid({ accesos, titulo }) {
   const navigate = useNavigate();
 
   return (
     <Paper sx={{ p: 3, maxWidth: 700, mx: 'auto' }}>
+      {titulo && (
+        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 2 }}>
+          {titulo}
+        </Typography>
+      )}
       <Box
         sx={{
           display: 'grid',
@@ -13,14 +19,14 @@ export default function AccesosGrid({ accesos }) {
           gap: 3,
         }}
       >
-        {accesos.map(({ titulo, icono: Icono, ruta }) => (
+        {accesos.map(({ titulo: etiqueta, icono: Icono, ruta }) => (
           <Button
             key={ruta}
             variant="contained"
             startIcon={Icono ? <Icono /> : null}
             onClick={() => navigate(ruta)}
           >
-            {titulo}
+            {etiqueta}
           </Button>
         ))}
       </Box>
