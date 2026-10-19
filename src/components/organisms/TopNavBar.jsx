@@ -7,15 +7,15 @@ import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-// Agregar aca el resto de las secciones del menu principal a medida que el
-// equipo las vaya terminando (Catalogo, Mis Compras, etc.)
 const SECTIONS = [
   { label: 'Cotizaciones', path: '/cotizaciones' },
   { label: 'Perfil', path: '/perfilE' },
   { label: 'Productos', path: '/productos' },
   { label: 'Servicios', path: '/servicios' },
   { label: 'Mensajería', path: '/mensajeria' },
-  { label: 'Categorías', path: '/categorias' }
+  { label: 'Categorías', path: '/categorias' },
+  { label: 'Mis Preguntas', path: '/mis-preguntas' },
+  { label: 'Preguntas recibidas', path: '/preguntas-recibidas' },
 ];
 
 export default function TopNavBar({ showBack = false, onBack, title = '' }) {
@@ -28,8 +28,8 @@ export default function TopNavBar({ showBack = false, onBack, title = '' }) {
 
   return (
     <AppBar position="static" color="transparent" elevation={0} sx={{ borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
-      <Toolbar sx={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Toolbar sx={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 1, py: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, maxWidth: '100%', flex: '1 1 420px' }}>
           {showBack && (
             <IconButton aria-label="Volver" onClick={onBack} size="small">
               <ArrowBackIcon />
@@ -37,36 +37,25 @@ export default function TopNavBar({ showBack = false, onBack, title = '' }) {
           )}
           <Box component="img" src="/logo.png" alt="Logo de Laguito Libre" sx={{ width: 36, height: 36, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
           {showBack || title ? (
-            <Typography sx={{ fontWeight: 700, fontSize: title ? 22 : 16 }}>
+            <Typography sx={{ fontWeight: 700, fontSize: title ? 22 : 16, minWidth: 0, overflowWrap: 'anywhere' }}>
               {title || (active ? active.label : '')}
             </Typography>
           ) : (
-<<<<<<< HEAD
-            <Tabs value={activeSection} slotProps={{ indicator: { sx: { display: 'none' } } }}>
-              {SECTIONS.map((section) => (
-=======
             <Tabs
-  value={activeSection}
-  variant="scrollable"
-  scrollButtons="auto"
-  allowScrollButtonsMobile
-  slotProps={{
-    indicator: {
-      sx: { display: "none" },
-    },
-  }}
-  sx={{
-    maxWidth: {
-      xs: "260px",
-      sm: "450px",
-      md: "650px",
-      lg: "750px",
-    },
-    minHeight: "36px",
-  }}
->
-              {SECTIONS.map((s) => (
->>>>>>> 29d6a91e7ae90133dd32ca931ebd311776f20c83
+              value={activeSection}
+              variant="scrollable"
+              scrollButtons="auto"
+              allowScrollButtonsMobile
+              aria-label="Secciones principales"
+              slotProps={{ indicator: { sx: { display: 'none' } } }}
+              sx={{
+                flex: 1,
+                minWidth: 0,
+                minHeight: 36,
+                maxWidth: { xs: 260, sm: 450, md: 650, lg: 750 },
+              }}
+            >
+              {SECTIONS.map((section) => (
                 <Tab
                   key={section.label}
                   value={section.label}
