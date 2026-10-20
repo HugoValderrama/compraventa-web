@@ -17,6 +17,7 @@ const CAMPOS_EMPRESA = ['razonSocial', 'rut', 'giro', 'paginaWeb', 'direccionLoc
 //   localStorage.setItem('rolMock', 'emprendedor')   -> solo emprendedor
 //   localStorage.setItem('rolMock', 'ambos')         -> cliente y emprendedor
 //   localStorage.removeItem('rolMock')               -> solo cliente (por defecto)
+//   localStorage.setItem('rolMock', 'visitante')
 // Después, recargar la página.
 const rolesActuales = () => {
   try {
@@ -28,6 +29,14 @@ const rolesActuales = () => {
   }
   return ['cliente'];
 };
+
+const sinSesion = () => {
+  try {
+    return localStorage.getItem('rolMock') === 'visitante';
+  } catch {
+    return false;
+  }
+}
 
 // Datos de ejemplo. El primer correo/teléfono de cada lista es el principal.
 let usuarioMock = {
@@ -63,6 +72,7 @@ const publico = ({ password, empresa, ...resto }) => ({
 // GET /api/users/me
 export async function getMe() {
   await esperar();
+  if (sinSesion()) throw Object.assign(new Error('No hay una sesión activa.'), { codigo: 401 });
   return publico(usuarioMock);
 }
 

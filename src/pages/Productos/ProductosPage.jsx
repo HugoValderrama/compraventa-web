@@ -9,13 +9,19 @@ function RutaFormulario() {
   return <ProductoForm key={id ?? 'nuevo'} id={id} />;
 }
 
+// La clave reinicia el detalle (variante, cantidad, pestaña) al pasar de un producto a otro.
+function RutaDetalle() {
+  const { id } = useParams();
+  return <ProductoDetalle key={id} />;
+}
+
 export default function ProductosPage() {
   return (
     <Routes>
       <Route index element={<ProductosList />} />
       <Route path="nuevo" element={<RutaFormulario />} />
       <Route path=":id/editar" element={<RutaFormulario />} />
-      <Route path=":id" element={<ProductoDetalle />} />
+      <Route path=":id" element={<RutaDetalle />} />
       <Route path="*" element={<Navigate to="/productos" replace />} />
     </Routes>
   );
