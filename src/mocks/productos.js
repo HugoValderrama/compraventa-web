@@ -159,13 +159,18 @@ const RESENAS = {
   3: [{ id: 'r3', autor: 'Ana L.', estrellas: 5, comentario: 'Perfecta para el café de la mañana.', fecha: '2026-10-10' }],
 };
 
-const carritoMock = [];
 const deseosMock = [];
 
 const copia = (producto) => ({
   ...normalizarProducto(structuredClone(producto)),
   tienda: TIENDAS[producto.emprendedorId] ?? null,
 });
+
+// Solo para otros mocks (p. ej. el carrito): lectura síncrona, sin retardo. No es un endpoint.
+export const obtenerProductoMock = (id) => {
+  const p = productosMock.find((x) => x.id === id);
+  return p ? normalizarProducto(structuredClone(p)) : null;
+};
 
 // TODO: conectar API
 // GET /api/categories
@@ -228,23 +233,6 @@ export async function createQuestion(id, texto) {
 export async function getReviews(id) {
   await esperar();
   return (RESENAS[id] ?? []).map((r) => ({ ...r }));
-}
-
-// TODO: conectar API
-// POST /api/cart/items
-export async function addToCart(productId, varianteId, cantidad) {
-  await esperar(300);
-  const producto = productosMock.find((p) => p.id === productId);
-  if (!producto || !producto.activo) throw new Error('El producto ya no está disponible.');
-  const variante = normalizarProducto(producto).variantes.find((v) => v.id === varianteId);
-  if (!variante) throw new Error('La variante seleccionada no existe.');
-  if (!Number.isInteger(cantidad) || cantidad < 1 || cantidad > variante.stock) {
-    throw new Error('No hay stock suficiente para esa cantidad.');
-  }
-  const existente = carritoMock.find((i) => i.productId === productId && i.varianteId === varianteId);
-  if (existente) existente.cantidad = Math.min(existente.cantidad + cantidad, variante.stock);
-  else carritoMock.push({ productId, varianteId, cantidad });
-  return { ok: true, items: carritoMock.length };
 }
 
 // TODO: conectar API

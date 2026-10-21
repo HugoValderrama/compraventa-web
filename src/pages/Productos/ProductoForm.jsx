@@ -74,7 +74,11 @@ export default function ProductoForm({ id }) {
       setCategorias(cats);
       setForm(producto ? aFormulario(producto) : formVacio());
     } catch (err) {
-      setErrorCarga(err.message || 'No pudimos cargar el formulario. Inténtalo de nuevo.');
+      if (err.codigo === 401) {
+        setDenegado({ mensaje: 'Debes iniciar sesión para gestionar productos.', destino: '/login' });
+      } else {
+        setErrorCarga(err.message || 'No pudimos cargar el formulario. Inténtalo de nuevo.');
+      }      
     } finally {
       setCargando(false);
     }

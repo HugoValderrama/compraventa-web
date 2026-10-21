@@ -4,3 +4,4 @@ export const tieneRol = (usuario, rol) =>
 export const esCliente = (usuario) => tieneRol(usuario, 'cliente');
 export const esEmprendedor = (usuario) => tieneRol(usuario, 'emprendedor');
 export const tieneAmbosRoles = (usuario) => esCliente(usuario) && esEmprendedor(usuario);
+export const esAdministrador = (usuario) => tieneRol(usuario, 'administrador');

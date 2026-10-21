@@ -30,6 +30,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { NavbarDataProvider } from "./context/NavbarDataContext";
 import { TituloPantallaProvider } from "./context/TituloPantallaContext";
 import RutaPorRol from "./routes/RutaPorRol";
+import SelectorRolDev from './components/dev/SelectorRolDev';
 
 // Atajos para proteger rutas por rol (modo cliente / modo emprendedor)
 const cliente = (el) => <RutaPorRol rol="cliente">{el}</RutaPorRol>;
@@ -93,6 +94,7 @@ function App() {
               {/* Ruta desconocida */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            <SelectorRolDev />
           </div>
         </TituloPantallaProvider>
       </NavbarDataProvider>

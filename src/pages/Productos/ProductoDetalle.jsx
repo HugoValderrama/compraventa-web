@@ -32,7 +32,6 @@ import AccionesProducto from '../../components/organisms/producto/AccionesProduc
 import PreguntasProducto from '../../components/organisms/producto/PreguntasProducto';
 import ResenasProducto from '../../components/organisms/producto/ResenasProducto';
 import {
-  addToCart,
   addToWishlist,
   createQuestion,
   deleteProduct,
@@ -41,8 +40,8 @@ import {
   getRelatedProducts,
   getReviews,
 } from '../../mocks/productos';
+import { addToCart } from '../../mocks/carrito';
 import { getMe } from '../../mocks/usuario';
-import { esCliente, esEmprendedor } from '../../utils/roles';
 import { stockTotal } from '../../utils/productos';
 
 const RUTAS = {
@@ -58,12 +57,13 @@ const RUTAS = {
 const SIN_AVISO = { open: false, mensaje: '', severidad: 'success' };
 const EXTRAS_INICIAL = { cargando: true, relacionados: [], preguntas: [], resenas: [], fallos: {} };
 
-// 'visitante' | 'cliente' | 'dueno' | 'lectura' (emprendedor que no es dueño)
+// 'visitante' | 'cliente' | 'dueno' | 'lectura'. Depende del MODO activo de la sesión:
+// en modo emprendedor el dueño gestiona; en modo cliente nadie compra lo propio.
 function calcularVista(usuario, producto) {
   if (!usuario) return 'visitante';
-  if (esEmprendedor(usuario) && producto.emprendedorId === usuario.id) return 'dueno';
-  if (esCliente(usuario)) return 'cliente';
-  return 'lectura';
+  const propio = String(producto.emprendedorId) === String(usuario.id);
+  if (usuario.modo === 'emprendedor') return propio ? 'dueno' : 'lectura';
+  return propio ? 'lectura' : 'cliente';
 }
 
 function NoEncontrado({ onCatalogo }) {
@@ -150,6 +150,15 @@ export default function ProductoDetalle() {
   }, [id]);
 
   const vista = producto ? calcularVista(usuario, producto) : null;
+  const avisoModo =
+    producto && usuario && vista === 'lectura'
+      ? String(producto.emprendedorId) === String(usuario.id)
+        ? 'Este producto es tuyo. Para editarlo, cambia al modo emprendedor.'
+        : usuario.roles.includes('cliente')
+          ? 'Estás en modo emprendedor. Cambia a modo cliente para comprar.'
+          : ''
+      : '';
+
   const variantes = producto?.variantes ?? [];
   const unica = variantes.length === 1 ? variantes[0] : null;
   const variante = variantes.find((v) => v.id === varianteId) ?? unica;
@@ -294,6 +303,8 @@ export default function ProductoDetalle() {
                   {producto.restriccionEdad && (
                     <Alert severity="warning">Producto solo para mayores de 18 años (+18).</Alert>
                   )}
+
+                  {avisoModo && <Alert severity="info">{avisoModo}</Alert>}                  
 
                   {variantes.some((v) => v.etiqueta) && (
                     <SelectorVariante

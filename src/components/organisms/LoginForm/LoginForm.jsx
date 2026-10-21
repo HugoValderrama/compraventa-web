@@ -1,3 +1,6 @@
+import { useAuth } from "../../../context/AuthContext";
+import { login } from "../../../mocks/usuario";
+import { claveUltimoModo, elegirModoInicial, leerAlmacen, rutaPerfil } from "../../../utils/sesion";
 
 import { useState } from "react";
 import Box from "@mui/material/Box";
@@ -11,13 +14,15 @@ import RememberUser from "../../molecules/RememberUser/RememberUser";
 
 function LoginForm() {
   const navigate = useNavigate();
+  const { iniciarSesion: guardarSesion } = useAuth();
 
   const [run, setRun] = useState("");
   const [password, setPassword] = useState("");
   const [errorRun, setErrorRun] = useState("");
   const [errorPassword, setErrorPassword] = useState("");
+  const [enviando, setEnviando] = useState(false);  
 
-  const iniciarSesion = () => {
+  const iniciarSesion = async () => {
     console.log("[Login] Intento de inicio de sesión");
 
     let hayError = false;
@@ -53,8 +58,17 @@ function LoginForm() {
       accion: "inicio_sesion",
     });
 
-    // Navegación temporal hasta conectar el backend.
-    navigate("/perfil");
+    setEnviando(true);
+    try {
+      const cuenta = await login({ run, password }); // TODO: conectar API
+      const usuario = guardarSesion(cuenta);
+      const modo = elegirModoInicial(usuario, leerAlmacen(claveUltimoModo(usuario)));
+      navigate(rutaPerfil(modo));
+    } catch (err) {
+      setErrorPassword(err.message || "No se pudo iniciar sesión");
+      setEnviando(false);
+    }
+
   };
 
   return (
@@ -159,6 +173,7 @@ function LoginForm() {
       <Button
         type="button"
         onClick={iniciarSesion}
+        disabled={enviando}
         sx={{
           backgroundColor: "#B5B0B0",
           color: "#000000",

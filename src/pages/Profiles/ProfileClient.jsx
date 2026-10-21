@@ -30,7 +30,7 @@ import CorreosDialog from '../../components/organisms/perfil/CorreosDialog';
 import CambiarClaveDialog from '../../components/organisms/perfil/CambiarClaveDialog';
 import EncabezadoPerfil from '../../components/molecules/EncabezadoPerfil';
 import { getMe } from '../../mocks/usuario';
-import { esCliente, tieneAmbosRoles } from '../../utils/roles';
+import { esCliente, esEmprendedor, tieneAmbosRoles } from '../../utils/roles';
 import { formatearTelefono } from '../../utils/validaciones';
 import { formatearFecha } from '../../utils/formatos';
 
@@ -61,7 +61,7 @@ function Pantalla({ children }) {
 const iniciales = (u) => `${u.nombres?.[0] ?? ''}${u.apellidos?.[0] ?? ''}`.toUpperCase();
 
 export default function ProfileClient() {
-  const [redirigir, setRedirigir] = useState(false);
+  const [destino, setDestino] = useState(null); // si hay valor, se redirige ahí
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
@@ -74,12 +74,13 @@ export default function ProfileClient() {
     try {
       const datos = await getMe();
       if (!esCliente(datos)) {
-        setRedirigir(true);
+        setDestino(esEmprendedor(datos) ? '/perfilE' : '/');
         return;
       }
       setUsuario(datos);
-    } catch {
-      setError('No pudimos cargar tu perfil. Inténtalo de nuevo.');
+    } catch (err) {
+      if (err.codigo === 401) setDestino('/login');
+      else setError('No pudimos cargar tu perfil. Inténtalo de nuevo.');
     } finally {
       setCargando(false);
     }
@@ -89,7 +90,7 @@ export default function ProfileClient() {
     cargar();
   }, [cargar]);
 
-  if (redirigir) return <Navigate to="/perfilE" replace />;
+  if (destino) return <Navigate to={destino} replace />;
 
   const notificar = (mensaje, severidad = 'success') =>
     setAviso({ open: true, mensaje, severidad });

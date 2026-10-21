@@ -45,8 +45,10 @@ export default function ProductosList() {
         return;
       }
       setProductos(await getProducts({ emprendedorId: yo.id }));
-    } catch {
-      setError('No pudimos cargar tus productos. Inténtalo de nuevo.');
+    } catch (err) {
+      // Sin sesión: /perfil redirige al inicio de sesión.
+      if (err.codigo === 401) setRedirigir(true);
+      else setError('No pudimos cargar tus productos. Inténtalo de nuevo.');
     } finally {
       setCargando(false);
     }

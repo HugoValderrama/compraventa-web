@@ -24,7 +24,7 @@ import CorreosDialog from '../../components/organisms/perfil/CorreosDialog';
 import CambiarClaveDialog from '../../components/organisms/perfil/CambiarClaveDialog';
 import TiendaDialog from '../../components/organisms/perfil/TiendaDialog';
 import { getEmpresa, getMe } from '../../mocks/usuario';
-import { esEmprendedor, tieneAmbosRoles } from '../../utils/roles';
+import { esCliente, esEmprendedor, tieneAmbosRoles } from '../../utils/roles';
 
 // Accesos del emprendedor según el diagrama de navegación.
 // Las rutas inexistentes hoy caen en la ruta comodín de App.jsx.
@@ -75,7 +75,7 @@ function Pantalla({ children }) {
 }
 
 export default function ProfileE() {
-  const [redirigir, setRedirigir] = useState(false);
+  const [destino, setDestino] = useState(null); // si hay valor, se redirige ahí
   const [usuario, setUsuario] = useState(null);
   const [empresa, setEmpresa] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -89,13 +89,14 @@ export default function ProfileE() {
     try {
       const [datos, datosEmpresa] = await Promise.all([getMe(), getEmpresa()]);
       if (esCliente(datos)) {
-        setRedirigir(true);
+        setDestino(esCliente(datos) ? '/perfil' : '/');
         return;
       }
       setUsuario(datos);
       setEmpresa(datosEmpresa);
-    } catch {
-      setError('No pudimos cargar tu perfil. Inténtalo de nuevo.');
+    } catch (err) {
+      if (err.codigo === 401) setDestino('/login');
+      else setError('No pudimos cargar tu perfil. Inténtalo de nuevo.');
     } finally {
       setCargando(false);
     }
@@ -105,8 +106,8 @@ export default function ProfileE() {
     cargar();
   }, [cargar]);
 
-  if (redirigir) return <Navigate to="/perfil" replace />;
-
+  if (destino) return <Navigate to={destino} replace />;
+  
   const notificar = (mensaje, severidad = 'success') =>
     setAviso({ open: true, mensaje, severidad });
   const cerrarDialogo = () => setDialogo(null);
