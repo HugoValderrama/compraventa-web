@@ -1,38 +1,54 @@
 
 import { Routes, Route, Navigate } from "react-router-dom";
 
+// Login y registro
 import LoginScreen from "./pages/Login/LoginScreen";
 import RegistroScreen from "./pages/Registro/RegistroScreen";
+import RecuperarPassword from "./pages/RecuperarPassword/RecuperarPassword";
+
+// Perfiles
 import ProfileClient from "./pages/Profiles/ProfileClient";
 import ProfileE from "./pages/Profiles/ProfileE";
 
-import CotizacionesPage from "./pages/cotizacion.jsx";
+// Página principal y catálogo
+import HomePage from "./pages/Home/HomePage.jsx";
+import CatalogoGeneralPage from "./pages/Catalogo/CatalogoGeneralPage.jsx";
+
+// Productos y servicios
 import ProductosPage from "./pages/Productos/ProductosPage.jsx";
 import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx";
 
+// Cotizaciones
+import CotizacionesPage from "./pages/cotizacion.jsx";
 import CotizacionesRecibidasPage from "./pages/CotizacionesRecibidas/CotizacionesRecibidasPage.jsx";
+
+// Pedidos y compras
 import PedidosPage from "./pages/Pedidos/PedidosPage.jsx";
 import ComprasPage from "./pages/Compras/ComprasPage.jsx";
-import HomePage from './pages/Home/HomePage.jsx';
-import CatalogoGeneralPage from './pages/Catalogo/CatalogoGeneralPage.jsx';
-import ListaDeseosPage from './pages/ListaDeseos/ListaDeseosPage.jsx';
-import CarritoPage from './pages/Carrito/CarritoPage.jsx';
-import DireccionEnvioPage from './pages/Carrito/DireccionEnvioPage.jsx';
-import PagoPage from './pages/Carrito/PagoPage.jsx';
-import ConfirmacionPage from './pages/Carrito/ConfirmacionPage.jsx';
-import MensajeriaPage from './pages/Mensajeria/MensajeriaPage.jsx';
-import MisPreguntasPage, {PreguntasRecibidasPage,} from './pages/MisPreguntas/MisPreguntasPage.jsx';
-// Tus pantallas
+
+// Carrito y compras
+import ListaDeseosPage from "./pages/ListaDeseos/ListaDeseosPage.jsx";
+import CarritoPage from "./pages/Carrito/CarritoPage.jsx";
+import DireccionEnvioPage from "./pages/Carrito/DireccionEnvioPage.jsx";
+import PagoPage from "./pages/Carrito/PagoPage.jsx";
+import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage.jsx";
+
+// Mensajería
+import MensajeriaPage from "./pages/Mensajeria/MensajeriaPage.jsx";
+
+// Preguntas
+import MisPreguntasPage, {
+  PreguntasRecibidasPage,
+} from "./pages/MisPreguntas/MisPreguntasPage.jsx";
+
+// Categorías
 import CategoriasPage from "./pages/Categorias/CategoriasPage";
-import RecuperarPassword from "./pages/RecuperarPassword/RecuperarPassword";
-
-
 
 function App() {
   return (
     <div className="App">
       <Routes>
-        {/* Inicio principal */}
+        {/* Página principal */}
         <Route path="/" element={<HomePage />} />
 
         {/* Inicio de sesión y registro */}
@@ -46,24 +62,22 @@ function App() {
         {/* Perfiles */}
         <Route path="/perfil" element={<ProfileClient />} />
         <Route path="/perfilE" element={<ProfileE />} />
-        <Route path="/lista-deseos" element={<ListaDeseosPage />} />
-        <Route path="/carrito" element={<CarritoPage />} />
-        <Route path="/mensajeria" element={<MensajeriaPage />} />
-        <Route path="/mensajeria/:id" element={<MensajeriaPage />} />
-        <Route path="/carrito/confirmacion/:id" element={<ConfirmacionPage />}/>
-        <Route path="/carrito/pago" element={<PagoPage />} />
-        <Route path="/carrito/direccion" element={<DireccionEnvioPage />}/>
-        <Route path="/cotizaciones/*" element={<CotizacionesPage />} />
 
         {/* Catálogo */}
-        <Route path="/catalogo" element={<CatalogoGeneralPage />} />
+        <Route
+          path="/catalogo"
+          element={<CatalogoGeneralPage />}
+        />
 
         {/* Productos y servicios */}
         <Route path="/productos/*" element={<ProductosPage />} />
         <Route path="/servicios/*" element={<ServiciosPage />} />
 
         {/* Cotizaciones */}
-        <Route path="/cotizaciones/*" element={<CotizacionesPage />} />
+        <Route
+          path="/cotizaciones/*"
+          element={<CotizacionesPage />}
+        />
         <Route
           path="/cotizaciones-recibidas/*"
           element={<CotizacionesRecibidasPage />}
@@ -73,21 +87,65 @@ function App() {
         <Route path="/pedidos/*" element={<PedidosPage />} />
         <Route path="/compras/*" element={<ComprasPage />} />
 
-        {/* Gestión de categorías */}
+        {/* Categorías */}
         <Route path="/categorias" element={<CategoriasPage />} />
 
-        {/* Lista de deseos y carrito */}
-        <Route path="/lista-deseos" element={<ListaDeseosPage />} />
+        {/* Lista de deseos */}
+        <Route
+          path="/lista-deseos"
+          element={<ListaDeseosPage />}
+        />
+
+        {/* Carrito */}
         <Route path="/carrito" element={<CarritoPage />} />
+        <Route
+          path="/carrito/direccion"
+          element={<DireccionEnvioPage />}
+        />
+        <Route
+          path="/carrito/pago"
+          element={<PagoPage />}
+        />
+        <Route
+          path="/carrito/confirmacion/:id"
+          element={<ConfirmacionPage />}
+        />
 
-        <Route path="/mis-preguntas" element={<MisPreguntasPage />} />
-        <Route path="/mis-preguntas/:id" element={<MisPreguntasPage />} />
+        {/* Mensajería */}
+        <Route
+          path="/mensajeria"
+          element={<MensajeriaPage />}
+        />
+        <Route
+          path="/mensajeria/:id"
+          element={<MensajeriaPage />}
+        />
 
-        <Route path="/preguntas-recibidas" element={<PreguntasRecibidasPage />}/>
-        <Route path="/preguntas-recibidas/:id" element={<PreguntasRecibidasPage />}/>
+        {/* Mis preguntas */}
+        <Route
+          path="/mis-preguntas"
+          element={<MisPreguntasPage />}
+        />
+        <Route
+          path="/mis-preguntas/:id"
+          element={<MisPreguntasPage />}
+        />
 
-        {/* Ruta desconocida */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Preguntas recibidas */}
+        <Route
+          path="/preguntas-recibidas"
+          element={<PreguntasRecibidasPage />}
+        />
+        <Route
+          path="/preguntas-recibidas/:id"
+          element={<PreguntasRecibidasPage />}
+        />
+
+        {/* Rutas desconocidas */}
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
       </Routes>
     </div>
   );
