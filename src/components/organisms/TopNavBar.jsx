@@ -1,233 +1,215 @@
+import { useState } from 'react'
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
+import { AppBar, Box, Button, ButtonBase, Stack, Toolbar, Typography } from '@mui/material'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined'
+import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNoneOutlined'
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
+import NavIconButton, { FOCO_VISIBLE } from '../atoms/NavIconButton'
+import MenuPerfil from '../molecules/MenuPerfil'
+import PanelNotificaciones from '../molecules/PanelNotificaciones'
+import { useAuth } from '../../context/AuthContext'
+import { useNavbarData } from '../../context/NavbarDataContext'
+import { useTituloActual } from '../../context/TituloPantallaContext'
+import { tituloDeRuta } from '../../utils/titulosRutas'
+import { rutaInicio } from '../../utils/sesion'
 
-import React from "react";
-import {
-  AppBar,
-  Toolbar,
-  Tabs,
-  Tab,
-  Button,
-  Box,
-  IconButton,
-  Typography,
-} from "@mui/material";
+export const INVERTIDO_POR_DEFECTO = true
 
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
-import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
-import FavoriteBorderOutlinedIcon from "@mui/icons-material/FavoriteBorderOutlined";
-import LoginIcon from "@mui/icons-material/Login";
+const RUTA_LOGIN = '/login'
+const RUTA_REGISTRO = '/registro'
+const RUTAS_SIN_VOLVER = ['/', RUTA_LOGIN, RUTA_REGISTRO]
 
-import { useLocation, useNavigate } from "react-router-dom";
+// Las pantallas que aún pasen showBack / onBack no se rompen: el navbar es el mismo en todas.
+// `title` sigue funcionando como título forzado.
+export default function TopNavBar({ invertido = INVERTIDO_POR_DEFECTO, title = '' }) {
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const { usuario, modo, cambiarModo, cerrarSesion } = useAuth()
+  const { cantidadCarrito, notificaciones, noLeidas, noLeidasOtroModo, marcarLeida, marcarTodasLeidas, avisar } =
+    useNavbarData()
+  const tituloPersonalizado = useTituloActual()
 
-const SECTIONS = [
-  { label: "Cotizaciones", path: "/cotizaciones" },
-  { label: "Perfil", path: "/perfilE" },
-  { label: "Productos", path: "/productos" },
-  { label: "Servicios", path: "/servicios" },
-  { label: "Mensajería", path: "/mensajeria" },
-  { label: "Categorías", path: "/categorias" },
-  { label: "Mis Preguntas", path: "/mis-preguntas" },
-  { label: "Preguntas recibidas", path: "/preguntas-recibidas" },
-];
+  const [anclaPerfil, setAnclaPerfil] = useState(null)
+  const [anclaNotif, setAnclaNotif] = useState(null)
 
-export default function TopNavBar({
-  showBack = false,
-  onBack,
-  title = "",
-}) {
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const ruta = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname
+  const titulo = title || tituloPersonalizado || tituloDeRuta(pathname)
+  const mostrarVolver = !RUTAS_SIN_VOLVER.includes(ruta)
+  const tieneAmbosRoles = Boolean(usuario && usuario.roles.length > 1)
 
-  const active = SECTIONS.find(
-    (section) =>
-      pathname === section.path ||
-      pathname.startsWith(section.path + "/")
-  );
+  // Sin historial previo (primera pantalla de la sesión) no sacamos al usuario del sitio.
+  const volver = () => {
+    if (window.history.state?.idx === 0) navigate('/')
+    else navigate(-1)
+  }
 
-  const activeSection = active ? active.label : false;
+  const irA = (destino) => {
+    setAnclaPerfil(null)
+    navigate(destino)
+  }
 
-  return (
-    <AppBar
-      position="static"
-      color="transparent"
-      elevation={0}
-      sx={{
-        borderBottom: "1px solid",
-        borderColor: "divider",
-        bgcolor: "background.paper",
-      }}
+  const handleCambiarModo = () => {
+    const nuevo = modo === 'cliente' ? 'emprendedor' : 'cliente'
+    setAnclaPerfil(null)
+    cambiarModo(nuevo)
+    navigate(rutaInicio(nuevo))
+    avisar(`Ahora estás en modo ${nuevo}`)
+  }
+
+  const handleCerrarSesion = () => {
+    setAnclaPerfil(null)
+    cerrarSesion() // también vacía carrito y notificaciones (NavbarDataProvider)
+    navigate('/')
+  }
+
+  const handleClickNotificacion = (n) => {
+    marcarLeida(n.id)
+    setAnclaNotif(null)
+    navigate(n.ruta)
+  }
+
+  const identidad = (
+    <Stack
+      key="identidad"
+      direction="row"
+      spacing={0.5}
+      sx={{ alignItems: 'center', minWidth: 0, flex: '1 1 auto', justifyContent: invertido ? 'flex-start' : 'flex-end' }}
     >
-      <Toolbar
-        sx={{
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: 1,
-          py: 1,
-        }}
+      <ButtonBase
+        component={RouterLink}
+        to="/"
+        aria-label="Ir al inicio de Laguito Libre"
+        sx={{ borderRadius: '50%', flexShrink: 0, ...FOCO_VISIBLE }}
       >
-        {/* Navegación izquierda */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            minWidth: 0,
-            maxWidth: "100%",
-            flex: "1 1 420px",
-          }}
+        <Box component="img" src="/logo.png" alt="" sx={{ width: 40, height: 40, borderRadius: '50%', display: 'block' }} />
+      </ButtonBase>
+
+      {mostrarVolver && (
+        <NavIconButton label="Volver" onClick={volver}>
+          <ArrowBackIcon />
+        </NavIconButton>
+      )}
+
+      {titulo && (
+        <Typography
+          component="span"
+          title={titulo}
+          noWrap
+          sx={{ fontWeight: 700, fontSize: { xs: 16, sm: 20 }, minWidth: 0, pl: 0.5 }}
         >
-          {showBack && (
-            <IconButton
-              aria-label="Volver"
-              onClick={onBack}
-              size="small"
-            >
-              <ArrowBackIcon />
-            </IconButton>
-          )}
+          {titulo}
+        </Typography>
+      )}
+    </Stack>
+  )
 
-          <Box
-            component="img"
-            src="/logo.png"
-            alt="Logo de Laguito Libre"
-            sx={{
-              width: 36,
-              height: 36,
-              objectFit: "contain",
-              display: "block",
-              flexShrink: 0,
-              cursor: "pointer",
-            }}
-            onClick={() => navigate("/")}
-          />
-
-          {showBack || title ? (
-            <Typography
-              sx={{
-                fontWeight: 700,
-                fontSize: title ? 22 : 16,
-                minWidth: 0,
-                overflowWrap: "anywhere",
-              }}
-            >
-              {title || (active ? active.label : "")}
-            </Typography>
-          ) : (
-            <Tabs
-              value={activeSection}
-              variant="scrollable"
-              scrollButtons="auto"
-              allowScrollButtonsMobile
-              aria-label="Secciones principales"
-              slotProps={{
-                indicator: {
-                  sx: { display: "none" },
-                },
-              }}
-              sx={{
-                flex: 1,
-                minWidth: 0,
-                minHeight: 36,
-                maxWidth: {
-                  xs: 260,
-                  sm: 450,
-                  md: 650,
-                  lg: 750,
-                },
-              }}
-            >
-              {SECTIONS.map((section) => (
-                <Tab
-                  key={section.label}
-                  value={section.label}
-                  label={section.label}
-                  onClick={() => navigate(section.path)}
-                  sx={{
-                    textTransform: "none",
-                    fontWeight: 600,
-                    minHeight: 36,
-                    borderRadius: 999,
-                    "&.Mui-selected": {
-                      bgcolor: "primary.main",
-                      color: "primary.contrastText",
-                    },
-                  }}
-                />
-              ))}
-            </Tabs>
-          )}
-        </Box>
-
-        {/* Navegación derecha */}
-        <Box
-          sx={{
-            display: "flex",
-            gap: 0.5,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          {/* Botón de inicio de sesión */}
+  const acciones = (
+    <Stack key="acciones" direction="row" spacing={0.5} sx={{ alignItems: 'center', flexShrink: 0 }}>
+      {usuario ? (
+        <>
           <Button
-            variant="contained"
-            startIcon={<LoginIcon />}
-            onClick={() => {
-              console.log("[Navegación] Ir a inicio de sesión");
-              navigate("/login");
-            }}
+            color="inherit"
+            aria-label="Mi perfil"
+            aria-haspopup="menu"
+            aria-controls={anclaPerfil ? 'menu-perfil' : undefined}
+            aria-expanded={anclaPerfil ? 'true' : undefined}
+            onClick={(e) => setAnclaPerfil(e.currentTarget)}
+            startIcon={
+              <Box component="span" sx={{ display: 'inline-flex', position: 'relative' }}>
+                <AccountCircleOutlinedIcon />
+                {noLeidasOtroModo > 0 && (
+                  <Box
+                    component="span"
+                    aria-hidden="true"
+                    sx={{ position: 'absolute', top: 0, right: 0, width: 8, height: 8, borderRadius: '50%', bgcolor: 'error.main' }}
+                  />
+                )}
+              </Box>
+            }
             sx={{
-              backgroundColor: "#62A7F5",
-              color: "#000000",
-              textTransform: "none",
-              fontWeight: "bold",
-              borderRadius: "8px",
-              boxShadow: "none",
-              "&:hover": {
-                backgroundColor: "#62A7F5",
-                boxShadow: "none",
-              },
+              textTransform: 'none',
+              minWidth: 0,
+              px: { xs: 1, sm: 1.5 },
+              ...FOCO_VISIBLE,
+              '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 }, ml: { xs: 0, sm: -0.5 } },
             }}
           >
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Mi perfil</Box>
+          </Button>
+
+          {modo === 'cliente' && (
+            <NavIconButton
+              label={cantidadCarrito > 0 ? `Mi carrito, ${cantidadCarrito} ítems` : 'Mi carrito'}
+              badge={cantidadCarrito}
+              onClick={() => navigate('/carrito')}
+            >
+              <ShoppingCartOutlinedIcon />
+            </NavIconButton>
+          )}
+
+          <NavIconButton
+            label={noLeidas > 0 ? `Notificaciones, ${noLeidas} sin leer` : 'Notificaciones'}
+            badge={noLeidas}
+            aria-haspopup="dialog"
+            aria-controls={anclaNotif ? 'panel-notificaciones' : undefined}
+            aria-expanded={anclaNotif ? 'true' : undefined}
+            onClick={(e) => setAnclaNotif(e.currentTarget)}
+          >
+            <NotificationsNoneOutlinedIcon />
+          </NavIconButton>
+        </>
+      ) : (
+        <>
+          <Button component={RouterLink} to={RUTA_LOGIN} color="inherit" sx={{ textTransform: 'none', ...FOCO_VISIBLE }}>
             Iniciar sesión
           </Button>
-
-          <Button
-            startIcon={<AccountCircleOutlinedIcon />}
-            color="inherit"
-            sx={{ textTransform: "none" }}
-            onClick={() => navigate("/perfilE")}
-          >
-            Mi perfil
+          <Button component={RouterLink} to={RUTA_REGISTRO} variant="contained" disableElevation sx={{ textTransform: 'none', ...FOCO_VISIBLE }}>
+            Registrarse
           </Button>
+        </>
+      )}
+    </Stack>
+  )
 
-          <Button
-            startIcon={<NotificationsNoneOutlinedIcon />}
-            color="inherit"
-            sx={{ textTransform: "none" }}
-          >
-            Notificaciones
-          </Button>
+  const bloques = invertido ? [identidad, acciones] : [acciones, identidad]
 
-          <Button
-            startIcon={<ShoppingCartOutlinedIcon />}
-            color="inherit"
-            sx={{ textTransform: "none" }}
-            onClick={() => navigate("/carrito")}
-          >
-            Mi carrito
-          </Button>
+  return (
+    <>
+      <AppBar
+        position="sticky"
+        color="transparent"
+        elevation={0}
+        component="header"
+        sx={{ borderBottom: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', color: 'text.primary' }}
+      >
+        <Toolbar sx={{ justifyContent: 'space-between', gap: 1, px: { xs: 1, sm: 2 }, py: 0.5 }}>
+          {bloques}
+        </Toolbar>
+      </AppBar>
 
-          <Button
-            startIcon={<FavoriteBorderOutlinedIcon />}
-            color="inherit"
-            sx={{ textTransform: "none" }}
-            onClick={() => navigate("/lista-deseos")}
-          >
-            Lista de deseos
-          </Button>
-        </Box>
-      </Toolbar>
-    </AppBar>
-  );
+      {usuario && (
+        <>
+          <MenuPerfil
+            anchorEl={anclaPerfil}
+            onClose={() => setAnclaPerfil(null)}
+            modo={modo}
+            tieneAmbosRoles={tieneAmbosRoles}
+            noLeidasOtroModo={noLeidasOtroModo}
+            onNavegar={irA}
+            onCambiarModo={handleCambiarModo}
+            onCerrarSesion={handleCerrarSesion}
+          />
+          <PanelNotificaciones
+            anchorEl={anclaNotif}
+            onClose={() => setAnclaNotif(null)}
+            notificaciones={notificaciones}
+            noLeidas={noLeidas}
+            onClickNotificacion={handleClickNotificacion}
+            onMarcarTodas={marcarTodasLeidas}
+          />
+        </>
+      )}
+    </>
+  )
 }
