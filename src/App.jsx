@@ -21,6 +21,7 @@ import PagoPage from './pages/Carrito/PagoPage.jsx';
 import ConfirmacionPage from './pages/Carrito/ConfirmacionPage.jsx';
 import MensajeriaPage from './pages/Mensajeria/MensajeriaPage.jsx';
 import MisPreguntasPage, {PreguntasRecibidasPage,} from './pages/MisPreguntas/MisPreguntasPage.jsx';
+import InventarioPage from "./pages/Inventario/InventarioPage.jsx";
 // Tus pantallas
 import CategoriasPage from "./pages/Categorias/CategoriasPage";
 import RecuperarPassword from "./pages/RecuperarPassword/RecuperarPassword";
@@ -72,6 +73,7 @@ function App() {
               <Route path="/mis-preguntas/:id" element={cliente(<MisPreguntasPage />)} />
 
               {/* Modo emprendedor */}
+              <Route path="/inventario" element={emprendedor(<InventarioPage />)} />
               <Route
                 path="/cotizaciones-recibidas/*"
                 element={emprendedor(<CotizacionesRecibidasPage />)}

@@ -172,6 +172,21 @@ export const obtenerProductoMock = (id) => {
   return p ? normalizarProducto(structuredClone(p)) : null;
 };
 
+// Solo para otros mocks (inventario, dashboard): acceso síncrono a la MISMA fuente. No son endpoints.
+export const listarProductosMock = () =>
+  productosMock.map((p) => normalizarProducto(structuredClone(p)));
+
+export function actualizarStockVarianteMock(productoId, varianteId, stock) {
+  productosMock = productosMock.map((p) => {
+    if (p.id !== productoId) return p;
+    const base = normalizarProducto(structuredClone(p));
+    return {
+      ...base,
+      variantes: base.variantes.map((v) => (v.id === varianteId ? { ...v, stock } : v)),
+    };
+  });
+}
+
 // TODO: conectar API
 // GET /api/categories
 export async function getCategories() {
