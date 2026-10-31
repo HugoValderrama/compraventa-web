@@ -37,6 +37,7 @@ const ENVIO = [3000, 3500, 4000, 4500]
 
 const pedido = ({ id, fecha, cliente, oferta, cantidad = 1, comuna, estado, pagado = true, envio = 0 }) => {
   const servicio = oferta.tipo === 'Servicio'
+  const subtotal = oferta.precio * cantidad
   return {
     id: String(id),
     fecha: fecha.toISOString(),
@@ -45,7 +46,10 @@ const pedido = ({ id, fecha, cliente, oferta, cantidad = 1, comuna, estado, paga
     tipo: oferta.tipo,
     detalle: servicio ? oferta.nombre : `${cantidad} × ${oferta.nombre}`,
     comuna,
-    total: oferta.precio * cantidad + envio,
+    subtotal,
+    envio,
+    total: subtotal + envio,
+    medioPago: Number(id) % 2 ? 'Transferencia' : 'Tarjeta',
     pagado,
     estado,
   }

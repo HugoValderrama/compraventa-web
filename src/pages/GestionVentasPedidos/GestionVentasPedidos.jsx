@@ -5,6 +5,10 @@ import {
   Button,
   CircularProgress,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   InputAdornment,
   Paper,
@@ -15,7 +19,6 @@ import {
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import TopNavBar from '../../components/organisms/TopNavBar'
-import EstadoChip from '../../components/atoms/EstadoChip'
 import { pesos } from '../../utils/formatos'
 import { ESTADOS_ADMIN, listarPedidosAdmin } from './pedidosadmin'
 
@@ -80,6 +83,31 @@ const normalizar = (texto) =>
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+
+const COLORES_ESTADO = {
+  Pagado: { bg: '#eaf6ee', color: '#21864b' },
+  'Pendiente de pago': { bg: '#fff3d9', color: '#996200' },
+  [ESTADOS_ADMIN.POR_PREPARAR]: { bg: '#fff3d9', color: '#996200' },
+  [ESTADOS_ADMIN.CONFIRMADO]: { bg: '#e8f4fd', color: AZUL },
+  [ESTADOS_ADMIN.ENVIADO]: { bg: '#e8f4fd', color: AZUL },
+  [ESTADOS_ADMIN.ENTREGADO]: { bg: '#eaf6ee', color: '#21864b' },
+  [ESTADOS_ADMIN.CANCELADO]: { bg: '#fdecea', color: '#c62828' },
+}
+
+// "15 oct 2026 · 14:20"
+const fechaLarga = (valor) => `${fechaCorta(valor).replace(' · ', ` ${new Date(valor).getFullYear()} · `)}`
+
+function ChipEstado({ estado }) {
+  const { bg, color } = COLORES_ESTADO[estado]
+  return (
+    <Box
+      component="span"
+      sx={{ bgcolor: bg, color, fontSize: 11, fontWeight: 700, px: '7px', py: '3px', borderRadius: '4px', whiteSpace: 'nowrap' }}
+    >
+      {estado}
+    </Box>
+  )
+}
 
 const botonAzul = {
   bgcolor: AZUL,
@@ -146,18 +174,86 @@ function FilaPedido({ pedido, onVer }) {
 
       <Stack spacing={0.5} sx={{ minWidth: { sm: 105 }, alignItems: 'flex-start' }}>
         <Typography sx={{ fontWeight: 700, fontSize: 17 }}>{pesos(pedido.total)}</Typography>
-        <EstadoChip
-          estado={pedido.pagado ? 'Pagado' : 'Pendiente de pago'}
-        />
+        <ChipEstado estado={pedido.pagado ? 'Pagado' : 'Pendiente de pago'} />
       </Stack>
 
       <Stack spacing={1} sx={{ minWidth: { sm: 104 }, alignItems: 'flex-start' }}>
-        <EstadoChip estado={pedido.estado} />
+        <ChipEstado estado={pedido.estado} />
         <Button variant="contained" onClick={() => onVer(pedido)} sx={botonAzul}>
           Ver detalle
         </Button>
       </Stack>
     </Stack>
+  )
+}
+
+function DetallePedido({ pedido, onCerrar }) {
+  const servicio = pedido.tipo === 'Servicio'
+
+  return (
+    <Dialog open onClose={onCerrar} fullWidth maxWidth="sm" aria-labelledby="titulo-detalle-pedido">
+      <DialogTitle id="titulo-detalle-pedido" sx={{ pb: 0.5 }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+          <Typography component="span" sx={{ fontSize: 18, fontWeight: 700, mr: 'auto' }}>
+            Pedido #{pedido.id}
+          </Typography>
+          <ChipEstado estado={pedido.pagado ? 'Pagado' : 'Pendiente de pago'} />
+          <ChipEstado estado={pedido.estado} />
+        </Stack>
+        <Typography sx={{ fontSize: 11, color: 'text.secondary', fontWeight: 400, mt: 0.5 }}>
+          Recibido el {fechaLarga(pedido.fecha)}
+        </Typography>
+      </DialogTitle>
+
+      <DialogContent>
+        <Stack spacing={1.25} sx={{ pt: 1 }}>
+          <Divider />
+
+          <Box>
+            <Typography sx={{ fontSize: 13, fontWeight: 700 }}>{pedido.detalle}</Typography>
+            <Typography sx={{ fontSize: 12 }}>
+              {pedido.tipo} · {pedido.emprendedor}
+            </Typography>
+          </Box>
+
+          <Divider />
+
+          <Box>
+            <Typography sx={{ fontSize: 13, fontWeight: 700 }}>Cliente</Typography>
+            <Typography sx={{ fontSize: 12 }}>
+              {pedido.cliente} · {pedido.comuna}
+            </Typography>
+          </Box>
+
+          <Divider />
+
+          <Stack direction="row" spacing={1.5} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography sx={{ fontSize: 12 }}>
+              {servicio
+                ? `Servicio ${pesos(pedido.subtotal)}`
+                : `Producto ${pesos(pedido.subtotal)} + Envío ${pesos(pedido.envio)}`}
+            </Typography>
+            <Typography sx={{ fontSize: 18, fontWeight: 700 }}>Total {pesos(pedido.total)}</Typography>
+          </Stack>
+
+          <Typography sx={{ fontSize: 11, color: 'text.secondary' }}>
+            {pedido.pagado
+              ? `Pago confirmado · ${pedido.medioPago} · Comprobante #P${pedido.id}`
+              : `Pago pendiente · ${pedido.medioPago}`}
+          </Typography>
+        </Stack>
+      </DialogContent>
+
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button
+          onClick={onCerrar}
+          variant="outlined"
+          sx={{ textTransform: 'none', fontWeight: 700, fontSize: 13, borderRadius: 2, color: 'text.primary', borderColor: '#dde1e6' }}
+        >
+          Cerrar
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
 
@@ -173,6 +269,7 @@ export default function GestionVentasPedidos() {
   const [pago, setPago] = useState('todos')
   const [pagina, setPagina] = useState(1)
   const [aviso, setAviso] = useState('')
+  const [detalle, setDetalle] = useState(null)
 
   useEffect(() => {
     let activo = true
@@ -397,8 +494,7 @@ export default function GestionVentasPedidos() {
               !error &&
               visibles.map((p, i) => (
                 <Box key={p.id}>
-                  {/* TODO: no hay pantalla de detalle para administrador en el prototipo */}
-                  <FilaPedido pedido={p} onVer={() => setAviso('Próximamente')} />
+                  <FilaPedido pedido={p} onVer={setDetalle} />
                   {i < visibles.length - 1 && <Divider />}
                 </Box>
               ))}
@@ -462,6 +558,8 @@ export default function GestionVentasPedidos() {
           </Stack>
         </Paper>
       </Container>
+
+      {detalle && <DetallePedido pedido={detalle} onCerrar={() => setDetalle(null)} />}
 
       <Snackbar
         open={Boolean(aviso)}
