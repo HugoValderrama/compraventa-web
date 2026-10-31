@@ -23,6 +23,7 @@ import MensajeriaPage from './pages/Mensajeria/MensajeriaPage.jsx';
 import MisPreguntasPage, {PreguntasRecibidasPage,} from './pages/MisPreguntas/MisPreguntasPage.jsx';
 import InventarioPage from "./pages/Inventario/InventarioPage.jsx";
 import GestionVentasPedidos from "./pages/GestionVentasPedidos/GestionVentasPedidos.jsx";
+import GestionDevolucionesReembolsos from "./pages/GestionDevolucionesReembolsos/GestionDevolucionesReembolsos.jsx";
 // Tus pantallas
 import CategoriasPage from "./pages/Categorias/CategoriasPage";
 import RecuperarPassword from "./pages/RecuperarPassword/RecuperarPassword";
@@ -89,7 +90,7 @@ function App() {
               <Route path="/catalogo" element={<CatalogoGeneralPage />} />
               <Route path="/categorias" element={<CategoriasPage />} />
               <Route path="/gestion-ventas-pedidos" element={<GestionVentasPedidos />} />
-
+              <Route path="/gestion-devoluciones-reembolsos" element={<GestionDevolucionesReembolsos />} />
               {/* /productos y /servicios mezclan detalle (cliente) y gestión (emprendedor),
                   por eso no se protegen por rol */}
               <Route path="/productos/*" element={<ProductosPage />} />
