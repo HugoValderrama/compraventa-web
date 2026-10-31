@@ -56,6 +56,7 @@ const TITULOS = [
   ['/pedidos', 'Pedidos recibidos'],
   ['/pedidos/:id', 'Detalle de pedido'],
   ['/calificaciones', 'Mis calificaciones'],
+  ['/gestion-ventas-pedidos', 'Gestión de ventas/pedidos'],
 ]
 
 // Devuelve el título de la ruta o '' si no hay coincidencia.
