@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import {
   Navigate,
@@ -32,7 +33,7 @@ import TopNavBar from '../components/organisms/TopNavBar'
 /* ------------------------------------------------------------------ */
 
 const CLAVE = 'laguito-libre.productos.v1'
-const AZUL = '#60a3f0'
+const AZUL = '#62A7F5'
 
 const INICIALES = [
   {
@@ -117,8 +118,7 @@ function cargar() {
   }
 }
 
-// Convierte el formulario (todo texto) en un producto válido.
-// Lanza un Error con un mensaje claro si algo está mal.
+// Convierte el formulario en un producto válido.
 function normalizar(form) {
   const texto = (v) => v.trim()
   const entero = (v) => (v.trim() === '' ? NaN : Number(v))
@@ -130,14 +130,23 @@ function normalizar(form) {
     form.precioAnterior.trim() === '' ? 0 : Number(form.precioAnterior)
 
   if (!nombre) throw new Error('El nombre es obligatorio.')
+
   if (nombre.length > 80) {
     throw new Error('El nombre puede tener hasta 80 caracteres.')
   }
-  if (!texto(form.categoria)) throw new Error('La categoría es obligatoria.')
-  if (!texto(form.vendedor)) throw new Error('El vendedor es obligatorio.')
+
+  if (!texto(form.categoria)) {
+    throw new Error('La categoría es obligatoria.')
+  }
+
+  if (!texto(form.vendedor)) {
+    throw new Error('El vendedor es obligatorio.')
+  }
+
   if (!Number.isSafeInteger(precio) || precio < 1) {
     throw new Error('El precio debe ser un número entero mayor que cero.')
   }
+
   if (
     !Number.isSafeInteger(precioAnterior) ||
     precioAnterior < 0 ||
@@ -147,11 +156,18 @@ function normalizar(form) {
       'El precio anterior debe ser mayor que el precio actual (o dejarse vacío).'
     )
   }
+
   if (!Number.isSafeInteger(stock) || stock < 0) {
     throw new Error('El stock debe ser un número entero, desde cero.')
   }
-  if (texto(form.imagen) && !/^https?:\/\//i.test(texto(form.imagen))) {
-    throw new Error('La imagen debe ser un enlace que empiece con http:// o https://')
+
+  if (
+    texto(form.imagen) &&
+    !/^https?:\/\//i.test(texto(form.imagen))
+  ) {
+    throw new Error(
+      'La imagen debe ser un enlace que empiece con http:// o https://'
+    )
   }
 
   return {
@@ -193,6 +209,7 @@ function Pantalla({ children, volver = false, destino = '/productos' }) {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#3026A6' }}>
       <TopNavBar showBack={volver} onBack={() => navigate(destino)} />
+
       <Container maxWidth="md" sx={{ py: 3 }}>
         {children}
       </Container>
@@ -239,9 +256,17 @@ function Precio({ producto, grande = false }) {
   const pct = descuento(producto)
 
   return (
-    <Stack direction="row" spacing={1.5} sx={{ alignItems: 'baseline', flexWrap: 'wrap' }}>
+    <Stack
+      direction="row"
+      spacing={1.5}
+      sx={{ alignItems: 'baseline', flexWrap: 'wrap' }}
+    >
       <Typography
-        sx={{ color: AZUL, fontWeight: 800, fontSize: grande ? 28 : 18 }}
+        sx={{
+          color: AZUL,
+          fontWeight: 800,
+          fontSize: grande ? 28 : 18,
+        }}
       >
         {pesos(producto.precio)}
       </Typography>
@@ -250,10 +275,14 @@ function Precio({ producto, grande = false }) {
         <>
           <Typography
             variant="body2"
-            sx={{ color: 'text.secondary', textDecoration: 'line-through' }}
+            sx={{
+              color: 'text.secondary',
+              textDecoration: 'line-through',
+            }}
           >
             {pesos(producto.precioAnterior)}
           </Typography>
+
           <Chip label={`-${pct}%`} size="small" color="error" />
         </>
       )}
@@ -263,13 +292,19 @@ function Precio({ producto, grande = false }) {
 
 function Stock({ stock }) {
   const color =
-    stock === 0 ? 'error.main' : stock <= 5 ? 'warning.main' : 'success.main'
+    stock === 0
+      ? 'error.main'
+      : stock <= 5
+        ? 'warning.main'
+        : 'success.main'
 
   return (
     <Typography variant="body2" sx={{ color, fontWeight: 600 }}>
       {stock === 0
         ? 'Sin stock'
-        : `${stock} ${stock === 1 ? 'unidad disponible' : 'unidades disponibles'} en stock`}
+        : `${stock} ${
+            stock === 1 ? 'unidad disponible' : 'unidades disponibles'
+          } en stock`}
     </Typography>
   )
 }
@@ -324,7 +359,10 @@ function Lista({ productos, error }) {
       {visibles.map((p) => (
         <Paper key={p.id} sx={{ p: 2, mb: 2 }}>
           <Stack direction="row" spacing={2}>
-            <Imagen producto={p} sx={{ width: 96, height: 96, flexShrink: 0 }} />
+            <Imagen
+              producto={p}
+              sx={{ width: 96, height: 96, flexShrink: 0 }}
+            />
 
             <Stack spacing={0.5} sx={{ flex: 1, minWidth: 0 }}>
               <Typography
@@ -333,7 +371,11 @@ function Lista({ productos, error }) {
               >
                 {p.categoria}
               </Typography>
-              <Typography sx={{ fontWeight: 600 }}>{p.nombre}</Typography>
+
+              <Typography sx={{ fontWeight: 600 }}>
+                {p.nombre}
+              </Typography>
+
               <Precio producto={p} />
               <Stock stock={p.stock} />
             </Stack>
@@ -356,7 +398,9 @@ function Lista({ productos, error }) {
       )}
 
       {!error && productos.length > 0 && !visibles.length && (
-        <Alert severity="info">No hay productos que coincidan con la búsqueda.</Alert>
+        <Alert severity="info">
+          No hay productos que coincidan con la búsqueda.
+        </Alert>
       )}
     </Pantalla>
   )
@@ -366,19 +410,31 @@ function Lista({ productos, error }) {
 /* CREATE / UPDATE: formulario compartido                              */
 /* ------------------------------------------------------------------ */
 
-function Formulario({ titulo, inicial, textoBoton, errorLectura, onGuardar, volverA }) {
+function Formulario({
+  titulo,
+  inicial,
+  textoBoton,
+  errorLectura,
+  onGuardar,
+  volverA,
+}) {
   const [form, setForm] = useState(inicial)
   const [error, setError] = useState('')
   const [guardando, setGuardando] = useState(false)
 
   const cambiar = (campo) => (e) =>
-    setForm((actual) => ({ ...actual, [campo]: e.target.value }))
+    setForm((actual) => ({
+      ...actual,
+      [campo]: e.target.value,
+    }))
 
   const enviar = (e) => {
     e.preventDefault()
+
     if (guardando) return
 
     setGuardando(true)
+
     try {
       onGuardar(form)
     } catch (err) {
@@ -406,10 +462,14 @@ function Formulario({ titulo, inicial, textoBoton, errorLectura, onGuardar, volv
 
       <Paper component="form" noValidate onSubmit={enviar} sx={{ p: 3 }}>
         <Stack spacing={2}>
-          {errorLectura && <Alert severity="error">{errorLectura}</Alert>}
+          {errorLectura && (
+            <Alert severity="error">{errorLectura}</Alert>
+          )}
 
           {campo('nombre', 'Nombre del producto', {
-            slotProps: { htmlInput: { maxLength: 80 } },
+            slotProps: {
+              htmlInput: { maxLength: 80 },
+            },
           })}
 
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -436,11 +496,15 @@ function Formulario({ titulo, inicial, textoBoton, errorLectura, onGuardar, volv
           {campo('descripcion', 'Descripción (opcional)', {
             multiline: true,
             minRows: 2,
-            slotProps: { htmlInput: { maxLength: 500 } },
+            slotProps: {
+              htmlInput: { maxLength: 500 },
+            },
           })}
 
           <Divider>
-            <Typography variant="caption">Especificaciones</Typography>
+            <Typography variant="caption">
+              Especificaciones
+            </Typography>
           </Divider>
 
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -480,9 +544,12 @@ function Nuevo({ onCrear, errorLectura }) {
       volverA="/productos"
       onGuardar={(form) => {
         const nuevo = onCrear(form)
+
         navigate(`/productos/${nuevo.id}`, {
           replace: true,
-          state: { mensaje: 'Producto publicado correctamente.' },
+          state: {
+            mensaje: 'Producto publicado correctamente.',
+          },
         })
       }}
     />
@@ -512,9 +579,12 @@ function EditarRuta({ productos, errorLectura, onActualizar }) {
       volverA={`/productos/${id}`}
       onGuardar={(form) => {
         onActualizar(id, form)
+
         navigate(`/productos/${id}`, {
           replace: true,
-          state: { mensaje: 'Cambios guardados.' },
+          state: {
+            mensaje: 'Cambios guardados.',
+          },
         })
       }}
     />
@@ -522,15 +592,22 @@ function EditarRuta({ productos, errorLectura, onActualizar }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* READ: detalle (como en la imagen) + DELETE                          */
+/* READ: detalle + DELETE                                              */
 /* ------------------------------------------------------------------ */
 
 function DetalleRuta(props) {
   const { id } = useParams()
+
   return <Detalle key={id} id={id} {...props} />
 }
 
-function Detalle({ id, productos, errorLectura, onEliminar, mensajeInicial }) {
+function Detalle({
+  id,
+  productos,
+  errorLectura,
+  onEliminar,
+  mensajeInicial,
+}) {
   const navigate = useNavigate()
   const producto = productos.find((p) => p.id === id)
 
@@ -562,23 +639,36 @@ function Detalle({ id, productos, errorLectura, onEliminar, mensajeInicial }) {
       ) : (
         <Paper sx={{ p: { xs: 2, sm: 3 } }}>
           <Stack spacing={2}>
-            {mensajeInicial && <Alert severity="success">{mensajeInicial}</Alert>}
+            {mensajeInicial && (
+              <Alert severity="success">{mensajeInicial}</Alert>
+            )}
+
             {error && <Alert severity="error">{error}</Alert>}
 
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              spacing={3}
+            >
               <Box sx={{ flex: 1 }}>
                 <Imagen producto={producto} />
               </Box>
 
               <Stack spacing={1.5} sx={{ flex: 1 }}>
-                <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
+                <Stack
+                  direction="row"
+                  sx={{ justifyContent: 'space-between' }}
+                >
                   <Typography
                     variant="caption"
                     sx={{ color: AZUL, fontWeight: 700 }}
                   >
                     {producto.categoria}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+
+                  <Typography
+                    variant="caption"
+                    sx={{ color: 'text.secondary' }}
+                  >
                     Por: {producto.vendedor}
                   </Typography>
                 </Stack>
@@ -591,10 +681,18 @@ function Detalle({ id, productos, errorLectura, onEliminar, mensajeInicial }) {
 
                 {producto.tamanos.length > 0 && (
                   <Stack spacing={0.5}>
-                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: 'text.secondary' }}
+                    >
                       Tamaño:
                     </Typography>
-                    <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
+
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      sx={{ flexWrap: 'wrap', rowGap: 1 }}
+                    >
                       {producto.tamanos.map((t) => (
                         <Chip
                           key={t}
@@ -627,6 +725,7 @@ function Detalle({ id, productos, errorLectura, onEliminar, mensajeInicial }) {
                   >
                     Editar
                   </Button>
+
                   <Button
                     variant="outlined"
                     color="error"
@@ -639,10 +738,14 @@ function Detalle({ id, productos, errorLectura, onEliminar, mensajeInicial }) {
               </Stack>
             </Stack>
 
-            <Tabs value={pestana} onChange={(_, v) => setPestana(v)}>
+            <Tabs
+              value={pestana}
+              onChange={(_, v) => setPestana(v)}
+            >
               <Tab label="Especificaciones" />
               <Tab label="Descripción" />
             </Tabs>
+
             <Divider sx={{ mt: '-16px !important' }} />
 
             {pestana === 0 &&
@@ -650,15 +753,25 @@ function Detalle({ id, productos, errorLectura, onEliminar, mensajeInicial }) {
                 <Box
                   sx={{
                     display: 'grid',
-                    gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                    gridTemplateColumns: {
+                      xs: '1fr',
+                      sm: '1fr 1fr',
+                    },
                     gap: 2,
                   }}
                 >
                   {especificaciones.map(([clave, etiqueta]) => (
                     <Typography key={clave} variant="body2">
-                      <Box component="span" sx={{ color: 'text.secondary', mr: 1 }}>
+                      <Box
+                        component="span"
+                        sx={{
+                          color: 'text.secondary',
+                          mr: 1,
+                        }}
+                      >
                         {etiqueta}:
                       </Box>
+
                       {producto[clave]}
                     </Typography>
                   ))}
@@ -672,9 +785,13 @@ function Detalle({ id, productos, errorLectura, onEliminar, mensajeInicial }) {
             {pestana === 1 && (
               <Typography
                 variant="body2"
-                sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}
+                sx={{
+                  whiteSpace: 'pre-wrap',
+                  overflowWrap: 'anywhere',
+                }}
               >
-                {producto.descripcion || 'Este producto no tiene descripción.'}
+                {producto.descripcion ||
+                  'Este producto no tiene descripción.'}
               </Typography>
             )}
           </Stack>
@@ -689,12 +806,23 @@ function Detalle({ id, productos, errorLectura, onEliminar, mensajeInicial }) {
         <DialogTitle id="eliminar-titulo">
           ¿Eliminar “{producto?.nombre}”?
         </DialogTitle>
+
         <DialogContent>
-          <Typography>Esta acción no se puede deshacer.</Typography>
+          <Typography>
+            Esta acción no se puede deshacer.
+          </Typography>
         </DialogContent>
+
         <DialogActions>
-          <Button onClick={() => setConfirmando(false)}>Volver</Button>
-          <Button color="error" variant="contained" onClick={eliminar}>
+          <Button onClick={() => setConfirmando(false)}>
+            Volver
+          </Button>
+
+          <Button
+            color="error"
+            variant="contained"
+            onClick={eliminar}
+          >
             Eliminar producto
           </Button>
         </DialogActions>
@@ -711,21 +839,36 @@ export default function ProductosPage() {
   const [datos, setDatos] = useState(cargar)
 
   const guardar = (productos) => {
-    if (datos.error) throw new Error(datos.error)
-
-    try {
-      window.localStorage.setItem(CLAVE, JSON.stringify(productos))
-    } catch {
-      throw new Error('No se pudo guardar. Revisa el almacenamiento del navegador.')
+    if (datos.error) {
+      throw new Error(datos.error)
     }
 
-    setDatos({ productos, error: '' })
+    try {
+      window.localStorage.setItem(
+        CLAVE,
+        JSON.stringify(productos)
+      )
+    } catch {
+      throw new Error(
+        'No se pudo guardar. Revisa el almacenamiento del navegador.'
+      )
+    }
+
+    setDatos({
+      productos,
+      error: '',
+    })
   }
 
   // CREATE
   const crear = (form) => {
-    const nuevo = { id: crypto.randomUUID(), ...normalizar(form) }
+    const nuevo = {
+      id: crypto.randomUUID(),
+      ...normalizar(form),
+    }
+
     guardar([nuevo, ...datos.productos])
+
     return nuevo
   }
 
@@ -736,7 +879,12 @@ export default function ProductosPage() {
     }
 
     const cambios = normalizar(form)
-    guardar(datos.productos.map((p) => (p.id === id ? { ...p, ...cambios } : p)))
+
+    guardar(
+      datos.productos.map((p) =>
+        p.id === id ? { ...p, ...cambios } : p
+      )
+    )
   }
 
   // DELETE
@@ -745,22 +893,27 @@ export default function ProductosPage() {
       throw new Error('El producto ya no existe.')
     }
 
-    guardar(datos.productos.filter((p) => p.id !== id))
+    guardar(
+      datos.productos.filter((p) => p.id !== id)
+    )
   }
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/productos" replace />} />
-
-      <Route path="/productos" element={<Lista {...datos} />} />
+      <Route index element={<Lista {...datos} />} />
 
       <Route
-        path="/productos/nuevo"
-        element={<Nuevo onCrear={crear} errorLectura={datos.error} />}
+        path="nuevo"
+        element={
+          <Nuevo
+            onCrear={crear}
+            errorLectura={datos.error}
+          />
+        }
       />
 
       <Route
-        path="/productos/:id"
+        path=":id"
         element={
           <DetalleRutaConMensaje
             productos={datos.productos}
@@ -771,7 +924,7 @@ export default function ProductosPage() {
       />
 
       <Route
-        path="/productos/:id/editar"
+        path=":id/editar"
         element={
           <EditarRuta
             productos={datos.productos}
@@ -781,7 +934,10 @@ export default function ProductosPage() {
         }
       />
 
-      <Route path="*" element={<Navigate to="/productos" replace />} />
+      <Route
+        path="*"
+        element={<Navigate to="/productos" replace />}
+      />
     </Routes>
   )
 }
@@ -789,5 +945,11 @@ export default function ProductosPage() {
 // Lee el mensaje que dejan "crear" y "editar" al navegar al detalle.
 function DetalleRutaConMensaje(props) {
   const location = useLocation()
-  return <DetalleRuta {...props} mensajeInicial={location.state?.mensaje} />
+
+  return (
+    <DetalleRuta
+      {...props}
+      mensajeInicial={location.state?.mensaje}
+    />
+  )
 }
