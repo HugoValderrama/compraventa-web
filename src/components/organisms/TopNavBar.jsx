@@ -7,6 +7,7 @@ import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNone
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
 import NavIconButton, { FOCO_VISIBLE } from '../atoms/NavIconButton'
 import MenuPerfil from '../molecules/MenuPerfil'
+import MenuAdmin from '../molecules/MenuAdmin'
 import PanelNotificaciones from '../molecules/PanelNotificaciones'
 import { useAuth } from '../../context/AuthContext'
 import { useNavbarData } from '../../context/NavbarDataContext'
@@ -37,6 +38,7 @@ export default function TopNavBar({ invertido = INVERTIDO_POR_DEFECTO, title = '
   const titulo = title || tituloPersonalizado || tituloDeRuta(pathname)
   const mostrarVolver = !RUTAS_SIN_VOLVER.includes(ruta)
   const tieneAmbosRoles = Boolean(usuario && usuario.roles.length > 1)
+  const esAdmin = modo === 'administrador'
 
   // Sin historial previo (primera pantalla de la sesión) no sacamos al usuario del sitio.
   const volver = () => {
@@ -148,6 +150,7 @@ export default function TopNavBar({ invertido = INVERTIDO_POR_DEFECTO, title = '
             </NavIconButton>
           )}
 
+          {!esAdmin && (
           <NavIconButton
             label={noLeidas > 0 ? `Notificaciones, ${noLeidas} sin leer` : 'Notificaciones'}
             badge={noLeidas}
@@ -158,7 +161,9 @@ export default function TopNavBar({ invertido = INVERTIDO_POR_DEFECTO, title = '
           >
             <NotificationsNoneOutlinedIcon />
           </NavIconButton>
+          )}
         </>
+        
       ) : (
         <>
           <Button component={RouterLink} to={RUTA_LOGIN} color="inherit" sx={{ textTransform: 'none', ...FOCO_VISIBLE }}>
@@ -188,26 +193,37 @@ export default function TopNavBar({ invertido = INVERTIDO_POR_DEFECTO, title = '
         </Toolbar>
       </AppBar>
 
-      {usuario && (
+            {usuario && (
         <>
-          <MenuPerfil
-            anchorEl={anclaPerfil}
-            onClose={() => setAnclaPerfil(null)}
-            modo={modo}
-            tieneAmbosRoles={tieneAmbosRoles}
-            noLeidasOtroModo={noLeidasOtroModo}
-            onNavegar={irA}
-            onCambiarModo={handleCambiarModo}
-            onCerrarSesion={handleCerrarSesion}
-          />
-          <PanelNotificaciones
-            anchorEl={anclaNotif}
-            onClose={() => setAnclaNotif(null)}
-            notificaciones={notificaciones}
-            noLeidas={noLeidas}
-            onClickNotificacion={handleClickNotificacion}
-            onMarcarTodas={marcarTodasLeidas}
-          />
+          {esAdmin ? (
+            <MenuAdmin
+              anchorEl={anclaPerfil}
+              onClose={() => setAnclaPerfil(null)}
+              onNavegar={irA}
+              onCerrarSesion={handleCerrarSesion}
+            />
+          ) : (
+            <>
+              <MenuPerfil
+                anchorEl={anclaPerfil}
+                onClose={() => setAnclaPerfil(null)}
+                modo={modo}
+                tieneAmbosRoles={tieneAmbosRoles}
+                noLeidasOtroModo={noLeidasOtroModo}
+                onNavegar={irA}
+                onCambiarModo={handleCambiarModo}
+                onCerrarSesion={handleCerrarSesion}
+              />
+              <PanelNotificaciones
+                anchorEl={anclaNotif}
+                onClose={() => setAnclaNotif(null)}
+                notificaciones={notificaciones}
+                noLeidas={noLeidas}
+                onClickNotificacion={handleClickNotificacion}
+                onMarcarTodas={marcarTodasLeidas}
+              />
+            </>
+          )}
         </>
       )}
     </>
