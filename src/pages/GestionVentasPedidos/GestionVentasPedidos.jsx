@@ -20,7 +20,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search'
 import TopNavBar from '../../components/organisms/TopNavBar'
 import { pesos } from '../../utils/formatos'
-import { ESTADOS_ADMIN, listarPedidosAdmin } from './pedidosadmin'
+import { ESTADOS_ADMIN, listarPedidosAdmin } from './Pedidosadmin'
 
 const AZUL = '#0088ff'
 const POR_PAGINA = 3

@@ -17,7 +17,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search'
 import TopNavBar from '../../components/organisms/TopNavBar'
 import { pesos } from '../../utils/formatos'
-import { ESTADOS_DEVOLUCION, listarDevolucionesAdmin, resolverDevolucionAdmin } from './devolucionesadmin'
+import { ESTADOS_DEVOLUCION, listarDevolucionesAdmin, resolverDevolucionAdmin } from './Devolucionesadmin'
 
 const AZUL = '#0088ff'
 const POR_PAGINA = 3
