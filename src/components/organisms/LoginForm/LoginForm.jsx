@@ -1,7 +1,6 @@
 import { useAuth } from "../../../context/AuthContext";
 import { login } from "../../../mocks/usuario";
-import { claveUltimoModo, elegirModoInicial, leerAlmacen, rutaPerfil } from "../../../utils/sesion";
-
+import { claveUltimoModo, elegirModoInicial, leerAlmacen, rutaInicio } from "../../../utils/sesion";
 import { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -63,7 +62,7 @@ function LoginForm() {
       const cuenta = await login({ run, password }); // TODO: conectar API
       const usuario = guardarSesion(cuenta);
       const modo = elegirModoInicial(usuario, leerAlmacen(claveUltimoModo(usuario)));
-      navigate(rutaPerfil(modo));
+      navigate(rutaInicio(modo));
     } catch (err) {
       setErrorPassword(err.message || "No se pudo iniciar sesión");
       setEnviando(false);

@@ -187,6 +187,12 @@ export function actualizarStockVarianteMock(productoId, varianteId, stock) {
   });
 }
 
+// Solo para otros mocks (preguntas, dashboard): acceso síncrono a la MISMA fuente. No es un endpoint.
+export const listarPreguntasMock = () =>
+  Object.entries(PREGUNTAS).flatMap(([productoId, lista]) =>
+    lista.map((pregunta) => ({ ...pregunta, productoId }))
+  );
+
 // TODO: conectar API
 // GET /api/categories
 export async function getCategories() {

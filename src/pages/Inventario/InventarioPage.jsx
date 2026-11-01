@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -69,6 +69,7 @@ const etiquetaPagina = (tipo, pagina, seleccionada) => {
 
 export default function InventarioPage() {
   const navigate = useNavigate();
+  const [parametros] = useSearchParams();
   const theme = useTheme();
   const movil = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -79,7 +80,7 @@ export default function InventarioPage() {
   const [guardando, setGuardando] = useState({}); // { [varianteId]: true }
   const [guardandoLote, setGuardandoLote] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState('todos');
-  const [busqueda, setBusqueda] = useState('');
+  const [busqueda, setBusqueda] = useState(() => parametros.get('buscar') ?? '');
   const [orden, setOrden] = useState('stock');
   const [pagina, setPagina] = useState(1);
   const [destino, setDestino] = useState(null); // ruta pendiente de confirmar

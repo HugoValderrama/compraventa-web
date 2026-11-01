@@ -1,5 +1,5 @@
-import { leerSesionGuardada, normalizarUsuario } from '../utils/sesion';
 import { MAX_STOCK } from '../utils/inventario';
+import { exigirEmprendedor, fallo } from './sesionMock';
 import {
   actualizarStockVarianteMock,
   listarProductosMock,
@@ -11,18 +11,6 @@ import {
 
 const esperar = (ms = 400) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const fallo = (mensaje, codigo, campo) =>
-  Object.assign(new Error(mensaje), { codigo, ...(campo ? { campo } : {}) });
-
-// En el backend el emprendedor sale del token; aquí, de la sesión guardada por AuthContext.
-function exigirEmprendedor() {
-  const usuario = normalizarUsuario(leerSesionGuardada()?.usuario);
-  if (!usuario) throw fallo('No hay una sesión activa.', 401);
-  if (!usuario.roles.includes('emprendedor')) {
-    throw fallo('Solo los emprendedores gestionan inventario.', 403);
-  }
-  return usuario;
-}
 
 // Los ids de variante de los productos son locales ("v1"); con el backend real serán
 // globales. Aquí la variante se identifica como "productoId:varianteId".
