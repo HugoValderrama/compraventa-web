@@ -12,6 +12,7 @@ import ProductosPage from "./pages/Productos/ProductosPage.jsx";
 import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx";
 import OfertasPage from "./pages/Ofertas/OfertasPage.jsx";
 
+
 import CotizacionesRecibidasPage from "./pages/CotizacionesRecibidas/CotizacionesRecibidasPage.jsx";
 import PedidosPage from "./pages/Pedidos/PedidosPage.jsx";
 import ComprasPage from "./pages/Compras/ComprasPage.jsx";
@@ -31,6 +32,7 @@ import MisPreguntasPage, {
 import InventarioPage from "./pages/Inventario/InventarioPage.jsx";
 import GestionVentasPedidos from "./pages/GestionVentasPedidos/GestionVentasPedidos.jsx";
 import GestionDevolucionesReembolsos from "./pages/GestionDevolucionesReembolsos/GestionDevolucionesReembolsos.jsx";
+import GestionPublicacionesPage from "./pages/GestionPublicaciones/GestionPublicacionesPage.jsx";
 import CalificacionesPage from "./pages/Calificaciones/CalificacionesPage.jsx";
 
 import CategoriasPage from "./pages/Categorias/CategoriasPage";
@@ -166,6 +168,10 @@ function App() {
               <Route
                 path="/gestion-devoluciones-reembolsos"
                 element={<GestionDevolucionesReembolsos />}
+              />
+              <Route
+                path="/gestion-publicaciones"
+                element={<GestionPublicacionesPage />}
               />
               <Route path="/perfil-emprendedor" element={emprendedor(<PerfilEmprendedor />)}/>
               {/* Productos y servicios */}
