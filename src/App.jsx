@@ -24,6 +24,7 @@ import MisPreguntasPage, {PreguntasRecibidasPage,} from './pages/MisPreguntas/Mi
 import InventarioPage from "./pages/Inventario/InventarioPage.jsx";
 import GestionVentasPedidos from "./pages/GestionVentasPedidos/GestionVentasPedidos.jsx";
 import GestionDevolucionesReembolsos from "./pages/GestionDevolucionesReembolsos/GestionDevolucionesReembolsos.jsx";
+import CalificacionesPage from "./pages/Calificaciones/CalificacionesPage.jsx";
 // Tus pantallas
 import CategoriasPage from "./pages/Categorias/CategoriasPage";
 import RecuperarPassword from "./pages/RecuperarPassword/RecuperarPassword";
@@ -83,6 +84,7 @@ function App() {
               <Route path="/pedidos/*" element={emprendedor(<PedidosPage />)} />
               <Route path="/preguntas-recibidas" element={emprendedor(<PreguntasRecibidasPage />)} />
               <Route path="/preguntas-recibidas/:id" element={emprendedor(<PreguntasRecibidasPage />)} />
+              <Route path="/calificaciones" element={emprendedor(<CalificacionesPage />)} />
 
               {/* Compartidas (cliente y emprendedor) */}
               <Route path="/mensajeria" element={<MensajeriaPage />} />
