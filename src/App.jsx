@@ -5,6 +5,7 @@ import LoginScreen from "./pages/Login/LoginScreen";
 import RegistroScreen from "./pages/Registro/RegistroScreen";
 import ProfileClient from "./pages/Profiles/ProfileClient";
 import ProfileE from "./pages/Profiles/ProfileE";
+import DashboardPage from "./pages/Emprendedor/DashboardPage.jsx";
 
 import CotizacionesPage from "./pages/cotizacion.jsx";
 import ProductosPage from "./pages/Productos/ProductosPage.jsx";
@@ -122,6 +123,8 @@ function App() {
               />
 
               {/* Modo emprendedor */}
+              <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
+
               <Route
                 path="/inventario"
                 element={emprendedor(<InventarioPage />)}
@@ -146,6 +149,9 @@ function App() {
                 path="/preguntas-recibidas/:id"
                 element={emprendedor(<PreguntasRecibidasPage />)}
               />
+
+              <Route path="/preguntas-pendientes" element={<Navigate to="/preguntas-recibidas" replace />} />
+
               <Route
                 path="/calificaciones"
                 element={emprendedor(<CalificacionesPage />)}
