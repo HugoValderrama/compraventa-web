@@ -19,8 +19,8 @@ import {
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import TopNavBar from '../../components/organisms/TopNavBar'
-import { formatearFechaHora, hoyISO, pesos } from '../../utils/formatos'
-import { ESTADOS_ADMIN, listarPedidosAdmin } from './Pedidosadmin'
+import { pesos } from '../../utils/formatos'
+import { ESTADOS_ADMIN, listarPedidosAdmin } from './pedidosadmin'
 
 const AZUL = '#0088ff'
 const POR_PAGINA = 3
@@ -76,43 +76,6 @@ const fechaCorta = (valor) => {
   const hora = String(f.getHours()).padStart(2, '0')
   const min = String(f.getMinutes()).padStart(2, '0')
   return `${f.getDate()} ${MESES[f.getMonth()]} · ${hora}:${min}`
-}
-
-// Descarga lo que se está viendo (todas las páginas, con período, pago y búsqueda aplicados).
-// Separador ";" y BOM UTF-8 para que Excel en español lo abra en columnas y con tildes bien.
-const celdaCSV = (valor) => {
-  let texto = String(valor ?? '')
-  if (/^[=+\-@]/.test(texto)) texto = `'${texto}` // evita que Excel lo interprete como fórmula
-  return `"${texto.replace(/"/g, '""')}"`
-}
-
-function descargarListado(pedidos) {
-  const columnas = [
-    ['Pedido', (p) => p.id],
-    ['Fecha', (p) => formatearFechaHora(p.fecha)],
-    ['Cliente', (p) => p.cliente],
-    ['Emprendedor', (p) => p.emprendedor],
-    ['Tipo', (p) => p.tipo],
-    ['Detalle', (p) => p.detalle],
-    ['Comuna', (p) => p.comuna],
-    ['Subtotal', (p) => p.subtotal],
-    ['Envío', (p) => p.envio],
-    ['Total', (p) => p.total],
-    ['Medio de pago', (p) => p.medioPago],
-    ['Pago', (p) => (p.pagado ? 'Pagado' : 'Pendiente')],
-    ['Estado', (p) => p.estado],
-  ]
-  const lineas = [
-    columnas.map(([titulo]) => celdaCSV(titulo)).join(';'),
-    ...pedidos.map((p) => columnas.map(([, valor]) => celdaCSV(valor(p))).join(';')),
-  ]
-  const blob = new Blob(['\ufeff' + lineas.join('\r\n')], { type: 'text/csv;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const enlace = Object.assign(document.createElement('a'), { href: url, download: `pedidos-${hoyISO()}.csv` })
-  document.body.appendChild(enlace)
-  enlace.click()
-  enlace.remove()
-  URL.revokeObjectURL(url)
 }
 
 const normalizar = (texto) =>
@@ -408,14 +371,9 @@ export default function GestionVentasPedidos() {
           <Button
             variant="contained"
             sx={botonAzul}
-            disabled={cargando || Boolean(error)}
             onClick={() => {
-              if (!filtrados.length) {
-                setAviso('No hay pedidos para descargar con los filtros actuales.')
-                return
-              }
-              descargarListado(filtrados)
-              setAviso(`Listado descargado (${filtrados.length} ${filtrados.length === 1 ? 'pedido' : 'pedidos'}).`)
+              console.log('[Gestión de ventas] Descargar listado (pendiente)')
+              setAviso('Próximamente')
             }}
           >
             Descargar listado
