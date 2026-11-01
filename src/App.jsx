@@ -79,10 +79,6 @@ function App() {
                 path="/perfilE"
                 element={emprendedor(<ProfileE />)}
               />
-              <Route
-                path="/emprendedor"
-                element={<Navigate to="/perfilE" replace />}
-              />
 
               {/* Modo cliente */}
               <Route
