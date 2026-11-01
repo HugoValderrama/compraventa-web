@@ -23,7 +23,7 @@ const ITEMS_POR_MODO = {
     { label: 'Ver mi perfil', ruta: rutaPerfil('cliente'), Icono: PersonOutlineIcon },
     { label: 'Mis compras', ruta: '/compras', Icono: ReceiptLongOutlinedIcon },
     { label: 'Mis cotizaciones', ruta: '/cotizaciones', Icono: RequestQuoteOutlinedIcon },
-    { label: 'Mis direcciones', ruta: '/direcciones', Icono: LocationOnOutlinedIcon },
+    { label: 'Mis direcciones', ruta: '/mis-direcciones', Icono: LocationOnOutlinedIcon },
   ],
   emprendedor: [
     { label: 'Ver mi perfil', ruta: rutaPerfil('emprendedor'), Icono: PersonOutlineIcon },

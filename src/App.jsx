@@ -42,7 +42,8 @@ import { TituloPantallaProvider } from "./context/TituloPantallaContext";
 
 import RutaPorRol from "./routes/RutaPorRol";
 import SelectorRolDev from "./components/dev/SelectorRolDev";
-
+import PerfilEmprendedor from "./pages/PerfilEmprendedor/PerfilEmprendedor";
+import MisDireccionesPage from "./pages/MisDirecciones/MisDireccionesPage";
 // Atajos para proteger rutas por rol.
 const cliente = (el) => (
   <RutaPorRol rol="cliente">{el}</RutaPorRol>
@@ -170,11 +171,12 @@ function App() {
                 path="/gestion-devoluciones-reembolsos"
                 element={<GestionDevolucionesReembolsos />}
               />
-
+              <Route path="/perfil-emprendedor" element={emprendedor(<PerfilEmprendedor />)}/>
               {/* Productos y servicios */}
               <Route path="/productos/*" element={<ProductosPage />} />
               <Route path="/servicios/*" element={<ServiciosPage />} />
 
+              <Route path="/mis-direcciones" element={cliente(<MisDireccionesPage />)}/>
               {/* Ruta desconocida */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
