@@ -192,7 +192,7 @@ function DetalleSolicitud({ caso, procesando, onResolver, onVerFotos, onContacta
             onClick={onVerFotos}
             sx={{ p: 0, minWidth: 0, textTransform: 'none', fontSize: 12, fontWeight: 700, color: AZUL }}
           >
-            Ver {caso.fotos.length} {caso.fotos.length === 1 ? 'foto adjunta' : 'fotos adjuntas'}
+            {`Ver ${caso.fotos.length} ${caso.fotos.length === 1 ? 'foto adjunta' : 'fotos adjuntas'}`}
           </Button>
         ) : (
           <Typography sx={{ fontSize: 12, color: '#707070' }}>Sin fotos adjuntas</Typography>
