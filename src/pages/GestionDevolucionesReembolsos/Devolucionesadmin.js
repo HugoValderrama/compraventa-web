@@ -67,14 +67,38 @@ const NOTA_POR_ESTADO = {
   [ESTADOS_DEVOLUCION.RECHAZADA]: 'No hay respaldo suficiente para el reclamo.',
 }
 
-const caso = (n, datos) => ({
-  id: `DEV-${String(n).padStart(3, '0')}`,
-  fecha: new Date(2026, 9, 14 + (n - 24)).toISOString(),
-  estado: estadoDe(n),
-  destino: 'medio de pago original',
-  plazo: '5–10 días hábiles',
-  ...datos,
-})
+// TODO: conectar API (URLs reales de las fotos que sube el comprador).
+// Mientras tanto se generan imágenes de ejemplo.
+const COLORES_FOTO = ['#dbeafe', '#fde68a', '#d1fae5']
+
+function fotoDeEjemplo(idCaso, numero, total, motivo) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+<rect width="800" height="600" fill="${COLORES_FOTO[numero % COLORES_FOTO.length]}"/>
+<circle cx="600" cy="170" r="55" fill="#ffffff" opacity="0.7"/>
+<path d="M0 520 L220 280 L370 430 L500 330 L800 560 L800 600 L0 600 Z" fill="#3026a6" opacity="0.35"/>
+<text x="400" y="110" font-family="sans-serif" font-size="34" font-weight="700" text-anchor="middle" fill="#1e1e1e">Foto de ejemplo ${numero} de ${total}</text>
+<text x="400" y="155" font-family="sans-serif" font-size="26" text-anchor="middle" fill="#1e1e1e">${idCaso} · ${motivo}</text>
+</svg>`
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+}
+
+// "fotos" llega como cantidad y se convierte en la lista de fotos del caso
+const caso = (n, { fotos, ...datos }) => {
+  const id = `DEV-${String(n).padStart(3, '0')}`
+  return {
+    id,
+    fecha: new Date(2026, 9, 14 + (n - 24)).toISOString(),
+    estado: estadoDe(n),
+    destino: 'medio de pago original',
+    plazo: '5–10 días hábiles',
+    ...datos,
+    fotos: Array.from({ length: fotos }, (_, i) => ({
+      id: `${id}-foto-${i + 1}`,
+      url: fotoDeEjemplo(id, i + 1, fotos, datos.motivo),
+      descripcion: `Foto ${i + 1} de ${fotos} adjunta al caso ${id}`,
+    })),
+  }
+}
 
 // Los tres primeros son los del prototipo
 const DEL_PROTOTIPO = [

@@ -6,6 +6,10 @@ import {
   ButtonBase,
   CircularProgress,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
   InputAdornment,
   Paper,
@@ -14,10 +18,17 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 import SearchIcon from '@mui/icons-material/Search'
 import TopNavBar from '../../components/organisms/TopNavBar'
 import { pesos } from '../../utils/formatos'
-import { ESTADOS_DEVOLUCION, listarDevolucionesAdmin, resolverDevolucionAdmin } from './Devolucionesadmin'
+import {
+  CLAVE_MENSAJERIA,
+  MAXIMO_MENSAJE,
+  cargarMensajeria,
+  enviarMensaje,
+} from '../Mensajeria/mensajeria.js'
+import { ESTADOS_DEVOLUCION, listarDevolucionesAdmin, resolverDevolucionAdmin } from './devolucionesadmin'
 
 const AZUL = '#0088ff'
 const POR_PAGINA = 3
@@ -53,7 +64,43 @@ const normalizar = (texto) =>
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
 
+const botonSecundario = {
+  textTransform: 'none',
+  fontWeight: 700,
+  fontSize: 13,
+  borderRadius: 2,
+  color: 'text.primary',
+  borderColor: '#dde1e6',
+}
+
 const estiloCampo = { '& .MuiOutlinedInput-root': { borderRadius: '6px', fontSize: 12 } }
+
+const slug = (texto) =>
+  normalizar(texto)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+
+// Crea la conversación en Mensajería si no existe y envía el mensaje. Devuelve el id de la conversación.
+function escribirAContacto({ nombre, rol }, texto) {
+  const id = `contacto-${slug(nombre)}`
+  const datos = cargarMensajeria()
+  if (datos.error) throw new Error(datos.error)
+
+  if (!datos.conversaciones.some((c) => c.id === id)) {
+    const conversaciones = [...datos.conversaciones, { id, contacto: { nombre, rol }, leidoHasta: null, mensajes: [] }]
+    try {
+      window.localStorage.setItem(CLAVE_MENSAJERIA, JSON.stringify({ version: 1, conversaciones }))
+    } catch {
+      throw new Error('No se pudo guardar el mensaje. Revisa el almacenamiento del navegador.')
+    }
+  }
+
+  enviarMensaje(id, texto)
+  return id
+}
+
+const plantilla = (caso, nombre) =>
+  `Hola ${nombre}, te escribimos desde la administración de Laguito Libre por el caso ${caso.id} (pedido #${caso.pedido}). `
 
 function ChipEstado({ estado }) {
   const { bg, color } = COLORES_ESTADO[estado]
@@ -100,7 +147,7 @@ function ItemSolicitud({ caso, seleccionado, onElegir }) {
 }
 
 // key={caso.id} en el padre: al cambiar de caso se reinicia la nota
-function DetalleSolicitud({ caso, procesando, onResolver, onAviso }) {
+function DetalleSolicitud({ caso, procesando, onResolver, onVerFotos, onContactar }) {
   const [nota, setNota] = useState(caso.nota)
   const [errorNota, setErrorNota] = useState('')
 
@@ -139,13 +186,13 @@ function DetalleSolicitud({ caso, procesando, onResolver, onAviso }) {
       <Typography sx={{ fontSize: 12 }}>{caso.comentario}</Typography>
 
       <Stack direction="row" spacing={1.5} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-        {caso.fotos > 0 ? (
+        {caso.fotos.length > 0 ? (
           <Button
             variant="text"
-            onClick={() => onAviso('Próximamente')}
+            onClick={onVerFotos}
             sx={{ p: 0, minWidth: 0, textTransform: 'none', fontSize: 12, fontWeight: 700, color: AZUL }}
           >
-            Ver {caso.fotos} {caso.fotos === 1 ? 'foto adjunta' : 'fotos adjuntas'}
+            Ver {caso.fotos.length} {caso.fotos.length === 1 ? 'foto adjunta' : 'fotos adjuntas'}
           </Button>
         ) : (
           <Typography sx={{ fontSize: 12, color: '#707070' }}>Sin fotos adjuntas</Typography>
@@ -225,7 +272,7 @@ function DetalleSolicitud({ caso, procesando, onResolver, onAviso }) {
 
           <Button
             variant="text"
-            onClick={() => onAviso('Próximamente')}
+            onClick={onContactar}
             sx={{ textTransform: 'none', fontSize: 12, color: AZUL }}
           >
             Contactar
@@ -236,7 +283,171 @@ function DetalleSolicitud({ caso, procesando, onResolver, onAviso }) {
   )
 }
 
+function GaleriaFotos({ caso, onCerrar }) {
+  const [indice, setIndice] = useState(0)
+  const foto = caso.fotos[indice]
+
+  const mover = (paso) => setIndice((i) => Math.min(caso.fotos.length - 1, Math.max(0, i + paso)))
+
+  return (
+    <Dialog
+      open
+      onClose={onCerrar}
+      fullWidth
+      maxWidth="sm"
+      aria-labelledby="titulo-fotos"
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowLeft') mover(-1)
+        if (e.key === 'ArrowRight') mover(1)
+      }}
+    >
+      <DialogTitle id="titulo-fotos" sx={{ fontSize: 16, fontWeight: 700 }}>
+        Fotos adjuntas · {caso.id}
+      </DialogTitle>
+
+      <DialogContent>
+        <Box
+          component="img"
+          src={foto.url}
+          alt={foto.descripcion}
+          sx={{ display: 'block', width: '100%', maxHeight: '60vh', objectFit: 'contain', borderRadius: 1, bgcolor: 'grey.100' }}
+        />
+        <Stack direction="row" spacing={1.5} sx={{ justifyContent: 'center', alignItems: 'center', pt: 1.5 }}>
+          <Button size="small" disabled={indice === 0} onClick={() => mover(-1)} sx={{ textTransform: 'none', color: AZUL }}>
+            ‹ Anterior
+          </Button>
+          <Typography aria-live="polite" sx={{ fontSize: 12, color: '#707070' }}>
+            {indice + 1} de {caso.fotos.length}
+          </Typography>
+          <Button
+            size="small"
+            disabled={indice === caso.fotos.length - 1}
+            onClick={() => mover(1)}
+            sx={{ textTransform: 'none', color: AZUL }}
+          >
+            Siguiente ›
+          </Button>
+        </Stack>
+      </DialogContent>
+
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={onCerrar} variant="outlined" sx={botonSecundario}>
+          Cerrar
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+function ContactarDialog({ caso, onCerrar, onEnviado }) {
+  const destinatarios = [
+    { valor: 'cliente', etiqueta: `Comprador/a: ${caso.cliente}`, nombre: caso.cliente, rol: 'cliente' },
+    { valor: 'vendedor', etiqueta: `Vendedor: ${caso.vendedor}`, nombre: caso.vendedor, rol: 'emprendedor' },
+  ]
+  const [destino, setDestino] = useState('cliente')
+  const [texto, setTexto] = useState(plantilla(caso, caso.cliente))
+  const [error, setError] = useState('')
+
+  const actual = destinatarios.find((d) => d.valor === destino)
+
+  // Si el texto sigue siendo la plantilla, se actualiza con el nombre del nuevo destinatario
+  const cambiarDestino = (valor) => {
+    const nuevo = destinatarios.find((d) => d.valor === valor)
+    if (texto === plantilla(caso, actual.nombre)) setTexto(plantilla(caso, nuevo.nombre))
+    setDestino(valor)
+    setError('')
+  }
+
+  const enviar = () => {
+    if (!texto.trim()) {
+      setError('Escribe un mensaje antes de enviarlo.')
+      return
+    }
+    try {
+      const id = escribirAContacto(actual, texto)
+      onEnviado(id, actual.nombre)
+    } catch (e) {
+      setError(e.message || 'No se pudo enviar el mensaje.')
+    }
+  }
+
+  return (
+    <Dialog open onClose={onCerrar} fullWidth maxWidth="sm" aria-labelledby="titulo-contactar">
+      <DialogTitle id="titulo-contactar" sx={{ fontSize: 16, fontWeight: 700 }}>
+        Contactar · {caso.id}
+      </DialogTitle>
+
+      <DialogContent>
+        <Stack spacing={1.5} sx={{ pt: 0.5 }}>
+          <Stack spacing={0.5}>
+            <Typography component="label" htmlFor="destinatario" sx={{ fontSize: 12, fontWeight: 700 }}>
+              Destinatario
+            </Typography>
+            <TextField
+              id="destinatario"
+              select
+              size="small"
+              value={destino}
+              onChange={(e) => cambiarDestino(e.target.value)}
+              slotProps={{ select: { native: true } }}
+              sx={estiloCampo}
+            >
+              {destinatarios.map((d) => (
+                <option key={d.valor} value={d.valor}>
+                  {d.etiqueta}
+                </option>
+              ))}
+            </TextField>
+          </Stack>
+
+          <Stack spacing={0.5}>
+            <Typography component="label" htmlFor="mensaje-contacto" sx={{ fontSize: 12, fontWeight: 700 }}>
+              Mensaje
+            </Typography>
+            <TextField
+              id="mensaje-contacto"
+              multiline
+              minRows={4}
+              value={texto}
+              onChange={(e) => {
+                setTexto(e.target.value)
+                setError('')
+              }}
+              slotProps={{ htmlInput: { maxLength: MAXIMO_MENSAJE } }}
+              sx={estiloCampo}
+            />
+          </Stack>
+
+          {error && <Alert severity="error">{error}</Alert>}
+        </Stack>
+      </DialogContent>
+
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={onCerrar} variant="outlined" sx={botonSecundario}>
+          Cancelar
+        </Button>
+        <Button
+          onClick={enviar}
+          variant="contained"
+          sx={{
+            bgcolor: AZUL,
+            textTransform: 'none',
+            fontWeight: 700,
+            fontSize: 13,
+            borderRadius: 2,
+            boxShadow: 'none',
+            '&:hover': { bgcolor: '#0070d1', boxShadow: 'none' },
+          }}
+        >
+          Enviar mensaje
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
 export default function GestionDevolucionesReembolsos() {
+  const navigate = useNavigate()
   const [casos, setCasos] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
@@ -247,7 +458,8 @@ export default function GestionDevolucionesReembolsos() {
   const [busqueda, setBusqueda] = useState('')
   const [pagina, setPagina] = useState(1)
   const [elegido, setElegido] = useState(null)
-  const [aviso, setAviso] = useState(null) // { texto, severidad }
+  const [aviso, setAviso] = useState(null) // { texto, severidad, ruta? }
+  const [dialogo, setDialogo] = useState(null) // { tipo: 'fotos' | 'contactar', caso }
 
   useEffect(() => {
     let activo = true
@@ -471,7 +683,8 @@ export default function GestionDevolucionesReembolsos() {
                   caso={seleccionado}
                   procesando={procesando}
                   onResolver={resolver}
-                  onAviso={(texto) => setAviso({ texto, severidad: 'info' })}
+                  onVerFotos={() => setDialogo({ tipo: 'fotos', caso: seleccionado })}
+                  onContactar={() => setDialogo({ tipo: 'contactar', caso: seleccionado })}
                 />
               ) : (
                 <Typography sx={{ fontSize: 12, color: '#707070' }}>
@@ -483,16 +696,44 @@ export default function GestionDevolucionesReembolsos() {
         )}
       </Container>
 
+      {dialogo?.tipo === 'fotos' && <GaleriaFotos caso={dialogo.caso} onCerrar={() => setDialogo(null)} />}
+
+      {dialogo?.tipo === 'contactar' && (
+        <ContactarDialog
+          caso={dialogo.caso}
+          onCerrar={() => setDialogo(null)}
+          onEnviado={(id, nombre) => {
+            setDialogo(null)
+            setAviso({ texto: `Mensaje enviado a ${nombre}`, severidad: 'success', ruta: `/mensajeria/${encodeURIComponent(id)}` })
+          }}
+        />
+      )}
+
       <Snackbar
         open={Boolean(aviso)}
-        autoHideDuration={3000}
-        onClose={() => setAviso(null)}
+        autoHideDuration={aviso?.ruta ? 6000 : 3000}
+        onClose={(_, razon) => {
+          // Un clic en otra parte (por ejemplo "Enviar mensaje") no debe cerrar el aviso nuevo
+          if (razon !== 'clickaway') setAviso(null)
+        }}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert severity={aviso?.severidad ?? 'info'} variant="filled" onClose={() => setAviso(null)}>
+        <Alert
+          severity={aviso?.severidad ?? 'info'}
+          variant="filled"
+          onClose={() => setAviso(null)}
+          action={
+            aviso?.ruta && (
+              <Button color="inherit" size="small" onClick={() => navigate(aviso.ruta)}>
+                Ver conversación
+              </Button>
+            )
+          }
+        >
           {aviso?.texto}
         </Alert>
       </Snackbar>
     </Box>
   )
 }
+
