@@ -12,7 +12,9 @@ import {
 // Vive en App para que no se pierda cuando cada pantalla monta su propio <TopNavBar />.
 const NavbarDataContext = createContext(null)
 
-const SIN_NOTIFS = { cliente: [], emprendedor: [] }
+const SIN_NOTIFS = { cliente: [], emprendedor: [], administrador: [] }
+// El administrador no tiene notificaciones por ahora.
+const ROLES_CON_NOTIFICACIONES = ['cliente', 'emprendedor']
 const porFechaDesc = (a, b) => new Date(b.fecha) - new Date(a.fecha)
 const contarNoLeidas = (lista) => lista.filter((n) => !n.leida).length
 
@@ -34,14 +36,15 @@ export function NavbarDataProvider({ children }) {
       return
     }
     const roles = rolesKey.split(',').filter(Boolean)
+    const rolesNotif = roles.filter((rol) => ROLES_CON_NOTIFICACIONES.includes(rol))
     try {
       const [cart, ...listas] = await Promise.all([
         roles.includes('cliente') ? getCart() : Promise.resolve({ items: [] }),
-        ...roles.map((rol) => getNotifications(rol)),
+        ...rolesNotif.map((rol) => getNotifications(rol)),
       ])
       if (carga !== cargaRef.current) return // llegó una carga más nueva
       setCarrito(cart)
-      setNotifs({ ...SIN_NOTIFS, ...Object.fromEntries(roles.map((rol, i) => [rol, listas[i]])) })
+      setNotifs({ ...SIN_NOTIFS, ...Object.fromEntries(rolesNotif.map((rol, i) => [rol, listas[i]])) })
     } catch {
       // TODO: mostrar error de carga cuando exista la API real
     }
@@ -55,6 +58,7 @@ export function NavbarDataProvider({ children }) {
   const marcarLeida = useCallback(
     (id) => {
       setNotifs((previo) => ({
+        ...previo,
         cliente: previo.cliente.map((n) => (n.id === id ? { ...n, leida: true } : n)),
         emprendedor: previo.emprendedor.map((n) => (n.id === id ? { ...n, leida: true } : n)),
       }))
@@ -73,7 +77,7 @@ export function NavbarDataProvider({ children }) {
 
   const valor = useMemo(() => {
     const otro = modo === 'cliente' ? 'emprendedor' : 'cliente'
-    const delModo = modo ? [...notifs[modo]].sort(porFechaDesc) : []
+    const delModo = modo ? [...(notifs[modo] ?? [])].sort(porFechaDesc) : []
     return {
       cantidadCarrito: carrito.items.reduce((total, item) => total + (item.cantidad ?? 1), 0),
       notificaciones: delModo,

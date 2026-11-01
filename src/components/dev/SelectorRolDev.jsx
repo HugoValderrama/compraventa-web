@@ -12,6 +12,7 @@ const CUENTAS = {
   cliente: ['cliente'],
   emprendedor: ['emprendedor'],
   ambos: ['cliente', 'emprendedor'],
+  administrador: ['administrador'],
 };
 
 const TEXTOS = {
@@ -19,6 +20,7 @@ const TEXTOS = {
   cliente: 'Cliente',
   emprendedor: 'Emprendedor',
   ambos: 'Cliente y emprendedor',
+  administrador: 'Administrador',
 };
 
 function opcionActual() {

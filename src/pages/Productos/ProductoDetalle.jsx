@@ -61,6 +61,7 @@ const EXTRAS_INICIAL = { cargando: true, relacionados: [], preguntas: [], resena
 // en modo emprendedor el dueño gestiona; en modo cliente nadie compra lo propio.
 function calcularVista(usuario, producto) {
   if (!usuario) return 'visitante';
+  if (usuario.modo === 'administrador') return 'lectura';
   const propio = String(producto.emprendedorId) === String(usuario.id);
   if (usuario.modo === 'emprendedor') return propio ? 'dueno' : 'lectura';
   return propio ? 'lectura' : 'cliente';
