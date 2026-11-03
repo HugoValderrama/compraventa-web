@@ -22,6 +22,7 @@ const CUENTAS_DE_PRUEBA = {
   111111111: { roles: ['cliente'] },
   222222222: { roles: ['emprendedor'] },
   123456785: { roles: ['cliente', 'emprendedor'] },
+  999999993: { roles: ['administrador'] },
 };
 
 // Un solo usuario de mentira (id 1): de la sesión solo se toman roles y modo.

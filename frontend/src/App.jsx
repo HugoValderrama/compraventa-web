@@ -56,6 +56,11 @@ const emprendedor = (el) => (
   <RutaPorRol rol="emprendedor">{el}</RutaPorRol>
 );
 
+const administrador = (el) => (
+  <RutaPorRol rol="administrador">{el}</RutaPorRol>
+);
+
+
 function App() {
   return (
     <AuthProvider>
@@ -156,13 +161,14 @@ function App() {
                 path="/calificaciones"
                 element={emprendedor(<CalificacionesPage />)}
               />
+              {/* Administrador*/}
+              <Route path="/admin" element={administrador(<DashboardAdmin />)} />
 
               {/* Compartidas */}
               <Route path="/mensajeria" element={<MensajeriaPage />} />
               <Route path="/mensajeria/:id" element={<MensajeriaPage />} />
               <Route path="/catalogo" element={<CatalogoGeneralPage />} />
               <Route path="/categorias" element={<CategoriasPage />} />
-              <Route path="/dashboard-admin" element={<DashboardAdmin />} />
               <Route
                 path="/gestion-ventas-pedidos"
                 element={<GestionVentasPedidos />}

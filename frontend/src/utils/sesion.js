@@ -13,6 +13,9 @@ export function rutaPerfil(modo) {
   if (modo === 'administrador') return '/'
   return modo === 'emprendedor' ? '/perfilE' : '/perfil'
 }
+export function rutaInicio(modo) {
+  if (modo === 'administrador') return '/admin'
+}
 
 // Pantalla de inicio de cada modo (al cambiar de modo).
 export function rutaInicio(modo) {
