@@ -6,6 +6,7 @@ import RegistroScreen from "./pages/Registro/RegistroScreen";
 import ProfileClient from "./pages/Profiles/ProfileClient";
 import ProfileE from "./pages/Profiles/ProfileE";
 import DashboardPage from "./pages/Emprendedor/DashboardPage.jsx";
+import DashboardAdmin from "./pages/DashboardAdmin/DashboardAdmin.jsx";
 
 import CotizacionesPage from "./pages/cotizacion.jsx";
 import ProductosPage from "./pages/Productos/ProductosPage.jsx";
@@ -46,7 +47,6 @@ import RutaPorRol from "./routes/RutaPorRol";
 import SelectorRolDev from "./components/dev/SelectorRolDev";
 import PerfilEmprendedor from "./pages/PerfilEmprendedor/PerfilEmprendedor";
 import MisDireccionesPage from "./pages/MisDirecciones/MisDireccionesPage";
-import DashboardAdmin from "./pages/DashboardAdmin/DashboardAdmin.jsx";
 // Atajos para proteger rutas por rol.
 const cliente = (el) => (
   <RutaPorRol rol="cliente">{el}</RutaPorRol>
@@ -59,7 +59,6 @@ const emprendedor = (el) => (
 const administrador = (el) => (
   <RutaPorRol rol="administrador">{el}</RutaPorRol>
 );
-
 
 function App() {
   return (
@@ -126,6 +125,8 @@ function App() {
                 path="/mis-preguntas/:id"
                 element={cliente(<MisPreguntasPage />)}
               />
+              {/* Modo administrador */}
+              <Route path="/admin" element={administrador(<DashboardAdmin />)} />
 
               {/* Modo emprendedor */}
               <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
@@ -161,9 +162,6 @@ function App() {
                 path="/calificaciones"
                 element={emprendedor(<CalificacionesPage />)}
               />
-              {/* Administrador*/}
-              <Route path="/admin" element={administrador(<DashboardAdmin />)} />
-
               {/* Compartidas */}
               <Route path="/mensajeria" element={<MensajeriaPage />} />
               <Route path="/mensajeria/:id" element={<MensajeriaPage />} />
