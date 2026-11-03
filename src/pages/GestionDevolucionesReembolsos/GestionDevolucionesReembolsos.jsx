@@ -28,7 +28,7 @@ import {
   cargarMensajeria,
   enviarMensaje,
 } from '../Mensajeria/mensajeria.js'
-import { ESTADOS_DEVOLUCION, listarDevolucionesAdmin, resolverDevolucionAdmin } from './devolucionesadmin'
+import { ESTADOS_DEVOLUCION, listarDevolucionesAdmin, resolverDevolucionAdmin } from './Devolucionesadmin'
 
 const AZUL = '#0088ff'
 const POR_PAGINA = 3
