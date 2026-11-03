@@ -24,9 +24,9 @@ const AZUL = '#0088ff'
 const RUTAS = {
   pedidos: '/gestion-ventas-pedidos',
   devoluciones: '/gestion-devoluciones-reembolsos',
-  publicaciones: null,
+  publicaciones: '/gestion-publicaciones',
   usuarios: null,
-  categorias: null,
+  categorias: '/categorias',
   reportes: null,
 }
 
