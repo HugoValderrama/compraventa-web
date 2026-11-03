@@ -46,6 +46,7 @@ import RutaPorRol from "./routes/RutaPorRol";
 import SelectorRolDev from "./components/dev/SelectorRolDev";
 import PerfilEmprendedor from "./pages/PerfilEmprendedor/PerfilEmprendedor";
 import MisDireccionesPage from "./pages/MisDirecciones/MisDireccionesPage";
+import DashboardAdmin from "./pages/DashboardAdmin/DashboardAdmin.jsx";
 // Atajos para proteger rutas por rol.
 const cliente = (el) => (
   <RutaPorRol rol="cliente">{el}</RutaPorRol>
@@ -161,6 +162,7 @@ function App() {
               <Route path="/mensajeria/:id" element={<MensajeriaPage />} />
               <Route path="/catalogo" element={<CatalogoGeneralPage />} />
               <Route path="/categorias" element={<CategoriasPage />} />
+              <Route path="/dashboard-admin" element={<DashboardAdmin />} />
               <Route
                 path="/gestion-ventas-pedidos"
                 element={<GestionVentasPedidos />}
