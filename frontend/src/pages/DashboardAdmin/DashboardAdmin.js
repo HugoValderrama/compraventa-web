@@ -1,5 +1,5 @@
 // Resumen del marketplace para el Dashboard Admin.
-// Datos de ejemplo: cuando exista el backend, estos valores salen de la API.
+
 
 const RESUMEN_EJEMPLO = {
   actualizado: new Date(2026, 9, 15, 14, 30).toISOString(),
@@ -41,9 +41,9 @@ const RESUMEN_EJEMPLO = {
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// Simula la API. Reemplazar por fetch cuando el backend esté listo.
+
 export async function obtenerDashboardAdmin() {
-  // TODO: conectar API (GET del resumen del marketplace, solo administrador)
+  
   await delay(500)
   return JSON.parse(JSON.stringify(RESUMEN_EJEMPLO))
 }
