@@ -1,5 +1,5 @@
 // Resumen del marketplace para el Dashboard Admin.
-
+// Datos de ejemplo: cuando exista el backend, estos valores salen de la API.
 
 const RESUMEN_EJEMPLO = {
   actualizado: new Date(2026, 9, 15, 14, 30).toISOString(),
