@@ -57,6 +57,7 @@ const TITULOS = [
   ['/pedidos/:id', 'Detalle de pedido'],
   ['/calificaciones', 'Mis calificaciones'],
   ['/gestion-ventas-pedidos', 'Gestión de ventas/pedidos'],
+  ['/reportes', 'Reportes'],
   ['/gestion-publicaciones', 'Gestión de publicaciones'],
   ['/gestion-devoluciones-reembolsos', 'Gestión de devoluciones y reembolsos'],
 ]
