@@ -24,6 +24,7 @@ import DireccionEnvioPage from "./pages/Carrito/DireccionEnvioPage.jsx";
 import PagoPage from "./pages/Carrito/PagoPage.jsx";
 import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage.jsx";
 import MensajeriaPage from "./pages/Mensajeria/MensajeriaPage.jsx";
+import GestionUsuarios from "./pages/Administrador/GestionUsuarios.jsx";
 
 import MisPreguntasPage, {
   PreguntasRecibidasPage,
@@ -177,6 +178,12 @@ function App() {
               {/* Productos y servicios */}
               <Route path="/productos/*" element={<ProductosPage />} />
               <Route path="/servicios/*" element={<ServiciosPage />} />
+               {/* Modo administrador */}
+<Route
+  path="/admin/usuarios"
+  element={<GestionUsuarios />}
+/>
+              
 
               <Route path="/mis-direcciones" element={cliente(<MisDireccionesPage />)}/>
               {/* Ruta desconocida */}
