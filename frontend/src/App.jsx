@@ -35,6 +35,7 @@ import GestionVentasPedidos from "./pages/GestionVentasPedidos/GestionVentasPedi
 import GestionDevolucionesReembolsos from "./pages/GestionDevolucionesReembolsos/GestionDevolucionesReembolsos.jsx";
 import GestionPublicacionesPage from "./pages/GestionPublicaciones/GestionPublicacionesPage.jsx";
 import CalificacionesPage from "./pages/Calificaciones/CalificacionesPage.jsx";
+import MisReseñas from "./pages/MisReseñas/MisReseñas.js";
 
 import CategoriasPage from "./pages/Categorias/CategoriasPage";
 import RecuperarPassword from "./pages/RecuperarPassword/RecuperarPassword";
@@ -127,6 +128,8 @@ function App() {
               />
               {/* Modo administrador */}
               <Route path="/admin" element={administrador(<DashboardAdmin />)} />
+
+              <Route path="/resenas" element={cliente(<MisReseñas />)} />
 
               {/* Modo emprendedor */}
               <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
