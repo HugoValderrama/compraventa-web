@@ -321,13 +321,7 @@ export default function MisResenas() {
 
       <Container maxWidth="lg" sx={{ pt: 2, pb: 4 }}>
         <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 1.5, mb: 2.5 }}>
-          <IconButton
-            aria-label="Volver"
-            onClick={() => navigate(-1)}
-            sx={{ bgcolor: '#5BA8F5', color: 'white', borderRadius: 1, '&:hover': { bgcolor: '#4A97E4' } }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
+          
 
           <Stack direction="row" role="group" aria-label="Secciones de reseñas" sx={{ gap: 1.5, flexWrap: 'wrap' }}>
             {botonPestana('resenas', 'Mis reseñas')}
