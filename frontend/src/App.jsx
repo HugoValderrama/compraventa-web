@@ -12,6 +12,7 @@ import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx";
 import OfertasPage from "./pages/Ofertas/OfertasPage.jsx";
 
 
+import CotizacionesPage from "./pages/cotizacion.jsx";
 import CotizacionesRecibidasPage from "./pages/CotizacionesRecibidas/CotizacionesRecibidasPage.jsx";
 import PedidosPage from "./pages/Pedidos/PedidosPage.jsx";
 import ComprasPage from "./pages/Compras/ComprasPage.jsx";
@@ -23,7 +24,7 @@ import CarritoPage from "./pages/Carrito/CarritoPage.jsx";
 import DireccionEnvioPage from "./pages/Carrito/DireccionEnvioPage.jsx";
 import PagoPage from "./pages/Carrito/PagoPage";
 import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage";
-import PanelModeracion from "./pages/PanelModeracion/PanelModeracion";
+import PanelModeracion from "./pages/PanelMensajeriaModeracion/PanelModeracion.jsx";
 import MisPreguntasPage, {
   PreguntasRecibidasPage,
 } from "./pages/MisPreguntas/MisPreguntasPage.jsx";

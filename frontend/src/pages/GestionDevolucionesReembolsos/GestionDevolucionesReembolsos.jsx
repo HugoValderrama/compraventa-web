@@ -27,7 +27,7 @@ import {
   MAXIMO_MENSAJE,
   cargarMensajeria,
   enviarMensaje,
-} from 'moderacionMensajeria.js'
+} from "../PanelMensajeriaModeracion/mensajeriaLocal.js";
 import { ESTADOS_DEVOLUCION, listarDevolucionesAdmin, resolverDevolucionAdmin } from './Devolucionesadmin'
 
 const AZUL = '#0088ff'
