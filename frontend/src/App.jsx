@@ -131,6 +131,7 @@ function App() {
 
               {/* Modo emprendedor */}
               <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
+
               <Route
                 path="/inventario"
                 element={emprendedor(<InventarioPage />)}
