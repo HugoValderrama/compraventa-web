@@ -128,13 +128,9 @@ function App() {
               {/* Modo administrador */}
               
               <Route path="/admin" element={administrador(<DashboardAdmin />)} />
-              <Route path="/moderacion" element={administrador(<PanelModeracionPage />)} />
-
-              
 
               {/* Modo emprendedor */}
               <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
-
               <Route
                 path="/inventario"
                 element={emprendedor(<InventarioPage />)}
