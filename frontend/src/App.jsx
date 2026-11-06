@@ -137,6 +137,7 @@ function App() {
               <Route path="/panel-moderacion" element={administrador(<PanelModeracion />)} />
 
               <Route path="/resenas" element={administrador(<MisResenas />)} />
+              
 
               {/* Modo emprendedor */}
               <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
