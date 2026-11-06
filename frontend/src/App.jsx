@@ -24,6 +24,7 @@ import CarritoPage from "./pages/Carrito/CarritoPage.jsx";
 import DireccionEnvioPage from "./pages/Carrito/DireccionEnvioPage.jsx";
 import PagoPage from "./pages/Carrito/PagoPage";
 import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage";
+import ReportesPage from "./pages/MisReportes/Reportespage.jsx";
 import PanelModeracion from "./pages/PanelMensajeriaModeracion/PanelModeracion.jsx";
 import MisPreguntasPage, {
   PreguntasRecibidasPage,
@@ -128,6 +129,8 @@ function App() {
               {/* Modo administrador */}
               
               <Route path="/admin" element={administrador(<DashboardAdmin />)} />
+
+              <Route path="/reportes" element={administrador(<ReportesPage />)} />
 
               <Route path="/panel-moderacion" element={administrador(<PanelModeracion />)} />
 
