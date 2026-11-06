@@ -25,7 +25,7 @@ import DireccionEnvioPage from "./pages/Carrito/DireccionEnvioPage.jsx";
 import PagoPage from "./pages/Carrito/PagoPage.jsx";
 import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage.jsx";
 import MensajeriaPage from "./pages/Mensajeria/MensajeriaPage.jsx";
-import PanelModeracion from "./pages/PanelModeracion/PanelModeracion.jsx";
+import Panelmoderacion from "./pages/Panelmoderacion/Panelmoderacion.jsx";
 
 import MisPreguntasPage, {
   PreguntasRecibidasPage,
@@ -130,7 +130,7 @@ function App() {
               {/* Modo administrador */}
               <Route path="/admin" element={administrador(<DashboardAdmin />)} />
 
-              <Route path="/panel-moderacion" element={administrador(<PanelModeracion />)} />
+              <Route path="/panel-moderacion" element={administrador(<Panelmoderacion />)} />
 
               {/* Modo emprendedor */}
               <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
