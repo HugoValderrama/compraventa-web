@@ -26,6 +26,8 @@ import PagoPage from "./pages/Carrito/PagoPage";
 import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage";
 import ReportesPage from "./pages/MisReportes/Reportespage.jsx";
 import PanelModeracion from "./pages/PanelMensajeriaModeracion/PanelModeracion.jsx";
+import MisResenas from "./pages/MisReseñas/Misreseñas.jsx";
+
 import MisPreguntasPage, {
   PreguntasRecibidasPage,
 } from "./pages/MisPreguntas/MisPreguntasPage.jsx";
@@ -133,6 +135,8 @@ function App() {
               <Route path="/reportes" element={administrador(<ReportesPage />)} />
 
               <Route path="/panel-moderacion" element={administrador(<PanelModeracion />)} />
+
+              <Route path="/resenas" element={administrador(<MisResenas />)} />
 
               {/* Modo emprendedor */}
               <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
