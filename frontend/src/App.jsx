@@ -7,8 +7,6 @@ import ProfileClient from "./pages/Profiles/ProfileClient";
 import ProfileE from "./pages/Profiles/ProfileE";
 import DashboardPage from "./pages/Emprendedor/DashboardPage.jsx";
 import DashboardAdmin from "./pages/DashboardAdmin/DashboardAdmin.jsx";
-
-import CotizacionesPage from "./pages/cotizacion.jsx";
 import ProductosPage from "./pages/Productos/ProductosPage.jsx";
 import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx";
 import OfertasPage from "./pages/Ofertas/OfertasPage.jsx";
@@ -20,12 +18,12 @@ import ComprasPage from "./pages/Compras/ComprasPage.jsx";
 import HomePage from "./pages/Home/HomePage.jsx";
 import CatalogoGeneralPage from "./pages/Catalogo/CatalogoGeneralPage.jsx";
 import ListaDeseosPage from "./pages/ListaDeseos/ListaDeseosPage.jsx";
+import PanelModeracionPage from "./pages/PanelMensajeria_Moderacion/Panelmoderacionpage.jsx";
 import CarritoPage from "./pages/Carrito/CarritoPage.jsx";
 import DireccionEnvioPage from "./pages/Carrito/DireccionEnvioPage.jsx";
 import PagoPage from "./pages/Carrito/PagoPage.jsx";
 import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage.jsx";
-import MensajeriaPage from "./pages/Mensajeria/MensajeriaPage.jsx";
-import Panelmoderacion from "./pages/Panelmoderacion/Panelmoderacion.jsx";
+
 
 import MisPreguntasPage, {
   PreguntasRecibidasPage,
@@ -128,9 +126,11 @@ function App() {
                 element={cliente(<MisPreguntasPage />)}
               />
               {/* Modo administrador */}
+              
               <Route path="/admin" element={administrador(<DashboardAdmin />)} />
+              <Route path="/moderacion" element={administrador(<PanelModeracionPage />)} />
 
-              <Route path="/panel-moderacion" element={administrador(<Panelmoderacion />)} />
+              
 
               {/* Modo emprendedor */}
               <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
