@@ -17,14 +17,13 @@ import PedidosPage from "./pages/Pedidos/PedidosPage.jsx";
 import ComprasPage from "./pages/Compras/ComprasPage.jsx";
 import HomePage from "./pages/Home/HomePage.jsx";
 import CatalogoGeneralPage from "./pages/Catalogo/CatalogoGeneralPage.jsx";
+
 import ListaDeseosPage from "./pages/ListaDeseos/ListaDeseosPage.jsx";
-import PanelModeracionPage from "./pages/PanelMensajeria_Moderacion/Panelmoderacionpage.jsx";
 import CarritoPage from "./pages/Carrito/CarritoPage.jsx";
 import DireccionEnvioPage from "./pages/Carrito/DireccionEnvioPage.jsx";
-import PagoPage from "./pages/Carrito/PagoPage.jsx";
-import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage.jsx";
-
-
+import PagoPage from "./pages/Carrito/PagoPage";
+import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage";
+import PanelModeracion from "./pages/PanelModeracion/PanelModeracion";
 import MisPreguntasPage, {
   PreguntasRecibidasPage,
 } from "./pages/MisPreguntas/MisPreguntasPage.jsx";
@@ -129,6 +128,8 @@ function App() {
               
               <Route path="/admin" element={administrador(<DashboardAdmin />)} />
 
+              <Route path="/panel-moderacion" element={administrador(<PanelModeracion />)} />
+
               {/* Modo emprendedor */}
               <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
 
@@ -164,8 +165,7 @@ function App() {
                 element={emprendedor(<CalificacionesPage />)}
               />
               {/* Compartidas */}
-              <Route path="/mensajeria" element={<MensajeriaPage />} />
-              <Route path="/mensajeria/:id" element={<MensajeriaPage />} />
+
               <Route path="/catalogo" element={<CatalogoGeneralPage />} />
               <Route path="/categorias" element={<CategoriasPage />} />
               <Route
