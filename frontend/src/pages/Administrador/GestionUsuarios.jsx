@@ -1,6 +1,10 @@
 
+import { useNavigate } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import { useMemo, useState } from 'react';
 
+import logo from '../../assets/logo.png';
 import {
   Alert,
   Box,
@@ -32,11 +36,15 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PeopleIcon from '@mui/icons-material/People';
+import PersonIcon from '@mui/icons-material/Person';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 
 import { validarRun } from '../../utils/validarRun.js';
 import RegisterField from '../../components/molecules/RegisterField/RegisterField';
 
-// Datos de prueba
+const MORADO = '#3026A6';
+const AZUL = '#0095FF';
+
 const usuariosIniciales = [
   {
     id: 1,
@@ -72,7 +80,7 @@ export default function GestionUsuarios() {
   const [usuarios, setUsuarios] = useState(usuariosIniciales);
   const [busqueda, setBusqueda] = useState('');
   const [filtro, setFiltro] = useState('Todos');
-
+  const navigate = useNavigate();
   const [dialogoAbierto, setDialogoAbierto] = useState(false);
   const [dialogoEliminar, setDialogoEliminar] = useState(false);
 
@@ -82,11 +90,9 @@ export default function GestionUsuarios() {
   const [formulario, setFormulario] = useState(formularioInicial);
   const [mensaje, setMensaje] = useState('');
 
-  // Validación del RUN
   const runValido = validarRun(formulario.run);
   const runCompleto = formulario.run.length === 10;
 
-  // Contadores
   const totalClientes = usuarios.filter(
     (usuario) => usuario.tipo === 'Cliente'
   ).length;
@@ -95,7 +101,6 @@ export default function GestionUsuarios() {
     (usuario) => usuario.tipo === 'Emprendedor'
   ).length;
 
-  // Buscador y filtros
   const usuariosFiltrados = useMemo(() => {
     return usuarios.filter((usuario) => {
       const coincideFiltro =
@@ -112,11 +117,11 @@ export default function GestionUsuarios() {
     });
   }, [usuarios, filtro, busqueda]);
 
-  // Abrir formulario
   const abrirCrear = () => {
     setModo('crear');
     setFormulario(formularioInicial);
     setUsuarioSeleccionado(null);
+    setMensaje('');
     setDialogoAbierto(true);
   };
 
@@ -131,6 +136,7 @@ export default function GestionUsuarios() {
       tipo: usuario.tipo,
     });
 
+    setMensaje('');
     setDialogoAbierto(true);
   };
 
@@ -145,10 +151,10 @@ export default function GestionUsuarios() {
       tipo: usuario.tipo,
     });
 
+    setMensaje('');
     setDialogoAbierto(true);
   };
 
-  // Cambios del formulario
   const manejarCambio = (evento) => {
     const { name, value } = evento.target;
 
@@ -158,9 +164,20 @@ export default function GestionUsuarios() {
     }));
   };
 
-  // Crear o actualizar usuario
   const guardarUsuario = (evento) => {
     evento.preventDefault();
+
+    const nombreLimpio = formulario.nombre.trim();
+
+    if (!nombreLimpio) {
+      setMensaje('El nombre no puede estar vacío.');
+      return;
+    }
+
+    if (formulario.nombre !== formulario.nombre.trimStart()) {
+      setMensaje('El nombre no puede comenzar con espacios.');
+      return;
+    }
 
     if (!validarRun(formulario.run)) {
       setMensaje('El RUN ingresado no es válido.');
@@ -171,6 +188,7 @@ export default function GestionUsuarios() {
       const nuevoUsuario = {
         id: Date.now(),
         ...formulario,
+        nombre: nombreLimpio,
       };
 
       setUsuarios((actuales) => [...actuales, nuevoUsuario]);
@@ -179,7 +197,7 @@ export default function GestionUsuarios() {
       setUsuarios((actuales) =>
         actuales.map((usuario) =>
           usuario.id === usuarioSeleccionado.id
-            ? { ...usuario, ...formulario }
+            ? { ...usuario, ...formulario, nombre: nombreLimpio }
             : usuario
         )
       );
@@ -190,7 +208,6 @@ export default function GestionUsuarios() {
     setDialogoAbierto(false);
   };
 
-  // Eliminar usuario
   const eliminarUsuario = () => {
     setUsuarios((actuales) =>
       actuales.filter(
@@ -203,230 +220,450 @@ export default function GestionUsuarios() {
     setMensaje('Usuario eliminado correctamente.');
   };
 
-  return (
-    <Box sx={{ width: '100%', pb: 4 }}>
+  const esError =
+    mensaje.includes('no es válido') ||
+    mensaje.includes('no puede estar vacío') ||
+    mensaje.includes('no puede comenzar con espacios');
 
-      {/* Encabezado */}
+  const estiloTarjeta = {
+    p: 2.5,
+    borderRadius: 3,
+    backgroundColor: '#FFFFFF',
+    boxShadow: '0 3px 12px rgba(0,0,0,0.08)',
+  };
+
+  const estiloBoton = {
+    backgroundColor: AZUL,
+    borderRadius: 2,
+    px: 2.5,
+    py: 1,
+    fontWeight: 700,
+    textTransform: 'none',
+    '&:hover': {
+      backgroundColor: '#0078D4',
+    },
+  };
+
+  
+return (
+  <>
+    {/* BARRA SUPERIOR BLANCA */}
+    <Box
+      sx={{
+        width: '100%',
+        height: 74,
+        backgroundColor: '#FFFFFF',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        px: { xs: 2, md: 3 },
+        boxSizing: 'border-box',
+      }}
+    >
+      {/* LOGO, FLECHA Y TÍTULO */}
       <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        justifyContent="space-between"
-        alignItems={{ xs: 'stretch', sm: 'center' }}
+        direction="row"
+        alignItems="center"
         spacing={2}
-        sx={{ mb: 3 }}
       >
-        <Box>
-          <Typography variant="h4" fontWeight={700}>
+        <Box
+          component="img"
+          src={logo}
+          alt="Logo Ulagito Libre"
+          sx={{
+            width: 44,
+            height: 44,
+            borderRadius: '50%',
+            objectFit: 'cover',
+          }}
+        />
+
+        <IconButton
+          onClick={() => navigate(-1)}
+          sx={{ color: '#111111' }}
+        >
+          <ArrowBackIcon sx={{ fontSize: 28 }} />
+        </IconButton>
+
+        <Typography
+          sx={{
+            color: '#111111',
+            fontSize: { xs: 17, md: 23 },
+            fontWeight: 700,
+          }}
+        >
+          Gestión de Usuarios
+        </Typography>
+      </Stack>
+
+      {/* MI PERFIL */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        spacing={1}
+      >
+        <AccountCircleOutlinedIcon
+          sx={{ color: '#111111', fontSize: 27 }}
+        />
+
+        <Typography
+          sx={{
+            color: '#111111',
+            fontWeight: 500,
+            fontSize: 16,
+          }}
+        >
+          Mi perfil
+        </Typography>
+      </Stack>
+    </Box>
+
+    {/* CONTENIDO MORADO */}
+    <Box
+      sx={{
+        width: '100%',
+        minHeight: '100vh',
+        backgroundColor: MORADO,
+        px: { xs: 2, md: 4 },
+        py: 3,
+        boxSizing: 'border-box',
+      }}
+    >
+      <Box sx={{ maxWidth: 1360, mx: 'auto' }}>
+
+
+        {/* ENCABEZADO */}
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          justifyContent="space-between"
+          alignItems={{ xs: 'flex-start', sm: 'center' }}
+          spacing={2}
+          sx={{ mb: 3 }}
+        >
+          <Typography
+            variant="h4"
+            sx={{
+              color: '#FFFFFF',
+              fontWeight: 800,
+              fontSize: { xs: 27, md: 34 },
+            }}
+          >
             Gestión de Usuarios
           </Typography>
 
-          <Typography color="text.secondary" sx={{ mt: 0.5 }}>
-            Administra los clientes y emprendedores de la plataforma.
-          </Typography>
-        </Box>
+          <Chip
+            label="Administración de usuarios"
+            sx={{
+              backgroundColor: '#FFFFFF',
+              color: AZUL,
+              fontWeight: 600,
+              borderRadius: 5,
+            }}
+          />
+        </Stack>
 
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={abrirCrear}
+        <Typography
           sx={{
-            backgroundColor: '#3026A6',
-            '&:hover': { backgroundColor: '#241d82' },
+            color: '#FFFFFF',
+            mb: 2.5,
+            fontSize: 14,
           }}
         >
-          Crear usuario
-        </Button>
-      </Stack>
+          Administra los clientes y emprendedores registrados en la plataforma.
+        </Typography>
 
-      {/* Mensajes */}
-      {mensaje && (
-        <Alert
-          severity={
-            mensaje.includes('no es válido') ? 'error' : 'success'
-          }
-          sx={{ mb: 2 }}
-          onClose={() => setMensaje('')}
+        {/* MENSAJES */}
+        {mensaje && (
+          <Alert
+            severity={esError ? 'error' : 'success'}
+            sx={{
+              mb: 2.5,
+              borderRadius: 2,
+            }}
+            onClose={() => setMensaje('')}
+          >
+            {mensaje}
+          </Alert>
+        )}
+
+        {/* TARJETAS DE RESUMEN */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(3, 1fr)',
+            },
+            gap: 2,
+            mb: 3,
+          }}
         >
-          {mensaje}
-        </Alert>
-      )}
+          <Paper sx={estiloTarjeta}>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <PeopleIcon sx={{ fontSize: 40, color: MORADO }} />
 
-      {/* Resumen */}
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: {
-            xs: '1fr',
-            sm: 'repeat(3, 1fr)',
-          },
-          gap: 2,
-          mb: 3,
-        }}
-      >
-        <Paper sx={{ p: 2.5, borderRadius: 2 }}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <PeopleIcon sx={{ fontSize: 38, color: '#3026A6' }} />
+              <Box>
+                <Typography color="text.secondary" variant="body2">
+                  Total de usuarios
+                </Typography>
 
-            <Box>
-              <Typography color="text.secondary" variant="body2">
-                Total de usuarios
+                <Typography variant="h4" fontWeight={800}>
+                  {usuarios.length}
+                </Typography>
+              </Box>
+            </Stack>
+          </Paper>
+
+          <Paper sx={estiloTarjeta}>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <PersonIcon sx={{ fontSize: 40, color: AZUL }} />
+
+              <Box>
+                <Typography color="text.secondary" variant="body2">
+                  Clientes
+                </Typography>
+
+                <Typography variant="h4" fontWeight={800} color={MORADO}>
+                  {totalClientes}
+                </Typography>
+              </Box>
+            </Stack>
+          </Paper>
+
+          <Paper sx={estiloTarjeta}>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <StorefrontIcon sx={{ fontSize: 40, color: AZUL }} />
+
+              <Box>
+                <Typography color="text.secondary" variant="body2">
+                  Emprendedores
+                </Typography>
+
+                <Typography variant="h4" fontWeight={800} color={MORADO}>
+                  {totalEmprendedores}
+                </Typography>
+              </Box>
+            </Stack>
+          </Paper>
+        </Box>
+
+        {/* TABLA */}
+        <Paper
+          sx={{
+            borderRadius: 3,
+            overflow: 'hidden',
+            boxShadow: '0 3px 12px rgba(0,0,0,0.10)',
+          }}
+        >
+          {/* CABECERA DE TABLA */}
+          <Box sx={{ p: { xs: 2, md: 3 } }}>
+            <Stack
+              direction={{ xs: 'column', md: 'row' }}
+              justifyContent="space-between"
+              alignItems={{ xs: 'stretch', md: 'center' }}
+              spacing={2}
+              sx={{ mb: 2.5 }}
+            >
+              <Typography variant="h6" fontWeight={800}>
+                Usuarios registrados
               </Typography>
 
-              <Typography variant="h4" fontWeight={700}>
-                {usuarios.length}
-              </Typography>
-            </Box>
-          </Stack>
-        </Paper>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={abrirCrear}
+                sx={estiloBoton}
+              >
+                Crear usuario
+              </Button>
+            </Stack>
 
-        <Paper sx={{ p: 2.5, borderRadius: 2 }}>
-          <Typography color="text.secondary" variant="body2">
-            Clientes
-          </Typography>
+            <TextField
+              fullWidth
+              placeholder="Buscar por nombre, RUN o correo..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  backgroundColor: '#FFFFFF',
+                },
+              }}
+            />
+          </Box>
 
-          <Typography variant="h4" fontWeight={700} color="#3026A6">
-            {totalClientes}
-          </Typography>
-        </Paper>
+          {/* FILTROS */}
+          <Tabs
+            value={filtro}
+            onChange={(_, valor) => setFiltro(valor)}
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{
+              px: 2,
+              borderBottom: '1px solid #E5E7EB',
+              '& .MuiTabs-indicator': {
+                backgroundColor: MORADO,
+                height: 3,
+              },
+              '& .MuiTab-root': {
+                textTransform: 'none',
+                fontWeight: 600,
+              },
+              '& .Mui-selected': {
+                color: MORADO,
+              },
+            }}
+          >
+            <Tab label="Todos" value="Todos" />
+            <Tab label="Clientes" value="Cliente" />
+            <Tab label="Emprendedores" value="Emprendedor" />
+          </Tabs>
 
-        <Paper sx={{ p: 2.5, borderRadius: 2 }}>
-          <Typography color="text.secondary" variant="body2">
-            Emprendedores
-          </Typography>
+          {/* CONTENIDO DE TABLA */}
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <Table sx={{ minWidth: 750 }}>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#F5F6FA' }}>
+                  <TableCell sx={{ fontWeight: 800 }}>Nombre</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>RUN</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>
+                    Correo electrónico
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>
+                    Tipo de usuario
+                  </TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 800 }}>
+                    Acciones
+                  </TableCell>
+                </TableRow>
+              </TableHead>
 
-          <Typography variant="h4" fontWeight={700} color="#3026A6">
-            {totalEmprendedores}
-          </Typography>
+              <TableBody>
+                {usuariosFiltrados.map((usuario) => (
+                  <TableRow
+                    key={usuario.id}
+                    hover
+                    sx={{
+                      '&:last-child td': {
+                        borderBottom: 0,
+                      },
+                    }}
+                  >
+                    <TableCell sx={{ fontWeight: 600 }}>
+                      {usuario.nombre}
+                    </TableCell>
+
+                    <TableCell>{usuario.run}</TableCell>
+
+                    <TableCell>{usuario.correo}</TableCell>
+
+                    <TableCell>
+                      <Chip
+                        label={usuario.tipo}
+                        size="small"
+                        sx={{
+                          fontWeight: 600,
+                          backgroundColor:
+                            usuario.tipo === 'Cliente'
+                              ? '#E4F2FF'
+                              : '#E6F5EB',
+                          color:
+                            usuario.tipo === 'Cliente'
+                              ? '#0875C9'
+                              : '#218344',
+                        }}
+                      />
+                    </TableCell>
+
+                    <TableCell align="center">
+                      <Stack
+                        direction="row"
+                        justifyContent="center"
+                        spacing={0.5}
+                      >
+                        <IconButton
+                          color="primary"
+                          onClick={() => abrirVer(usuario)}
+                          title="Ver usuario"
+                        >
+                          <VisibilityOutlinedIcon />
+                        </IconButton>
+
+                        <IconButton
+                          color="primary"
+                          onClick={() => abrirEditar(usuario)}
+                          title="Editar usuario"
+                        >
+                          <EditOutlinedIcon />
+                        </IconButton>
+
+                        <IconButton
+                          color="error"
+                          onClick={() => {
+                            setUsuarioSeleccionado(usuario);
+                            setDialogoEliminar(true);
+                          }}
+                          title="Eliminar usuario"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))}
+
+                {usuariosFiltrados.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" sx={{ py: 5 }}>
+                      <Typography color="text.secondary">
+                        No se encontraron usuarios.
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          {/* PIE DE TABLA */}
+          <Box
+            sx={{
+              p: 2,
+              borderTop: '1px solid #E5E7EB',
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              Mostrando {usuariosFiltrados.length} de {usuarios.length} usuarios.
+            </Typography>
+          </Box>
         </Paper>
       </Box>
 
-      {/* Tabla de usuarios */}
-      <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
-        <Box sx={{ p: 2.5 }}>
-          <Typography variant="h6" fontWeight={700} sx={{ mb: 2 }}>
-            Usuarios registrados
-          </Typography>
-
-          <TextField
-            fullWidth
-            placeholder="Buscar por nombre, RUN o correo..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />
-              ),
-            }}
-          />
-        </Box>
-
-        <Tabs
-          value={filtro}
-          onChange={(_, valor) => setFiltro(valor)}
-          sx={{
-            px: 2,
-            '& .MuiTabs-indicator': {
-              backgroundColor: '#3026A6',
-            },
-          }}
-        >
-          <Tab label="Todos" value="Todos" />
-          <Tab label="Clientes" value="Cliente" />
-          <Tab label="Emprendedores" value="Emprendedor" />
-        </Tabs>
-
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: '#F5F5F5' }}>
-                <TableCell><strong>Nombre</strong></TableCell>
-                <TableCell><strong>RUN</strong></TableCell>
-                <TableCell><strong>Correo electrónico</strong></TableCell>
-                <TableCell><strong>Tipo de usuario</strong></TableCell>
-                <TableCell align="center"><strong>Acciones</strong></TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {usuariosFiltrados.map((usuario) => (
-                <TableRow key={usuario.id} hover>
-                  <TableCell>{usuario.nombre}</TableCell>
-                  <TableCell>{usuario.run}</TableCell>
-                  <TableCell>{usuario.correo}</TableCell>
-
-                  <TableCell>
-                    <Chip
-                      label={usuario.tipo}
-                      color={
-                        usuario.tipo === 'Cliente' ? 'info' : 'success'
-                      }
-                      size="small"
-                    />
-                  </TableCell>
-
-                  <TableCell align="center">
-                    <Stack
-                      direction="row"
-                      justifyContent="center"
-                      spacing={0.5}
-                    >
-                      <IconButton
-                        color="primary"
-                        onClick={() => abrirVer(usuario)}
-                        title="Ver usuario"
-                      >
-                        <VisibilityOutlinedIcon />
-                      </IconButton>
-
-                      <IconButton
-                        color="primary"
-                        onClick={() => abrirEditar(usuario)}
-                        title="Editar usuario"
-                      >
-                        <EditOutlinedIcon />
-                      </IconButton>
-
-                      <IconButton
-                        color="error"
-                        onClick={() => {
-                          setUsuarioSeleccionado(usuario);
-                          setDialogoEliminar(true);
-                        }}
-                        title="Eliminar usuario"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))}
-
-              {usuariosFiltrados.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
-                    No se encontraron usuarios.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-
-        <Box sx={{ p: 2 }}>
-          <Typography variant="body2" color="text.secondary">
-            Mostrando {usuariosFiltrados.length} de {usuarios.length} usuarios.
-          </Typography>
-        </Box>
-      </Paper>
-
-      {/* Diálogo crear, ver y editar */}
+      {/* DIÁLOGO CREAR / EDITAR / VER */}
       <Dialog
         open={dialogoAbierto}
         onClose={() => setDialogoAbierto(false)}
         fullWidth
         maxWidth="sm"
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+          },
+        }}
       >
         <Box component="form" onSubmit={guardarUsuario}>
-          <DialogTitle>
+          <DialogTitle
+            sx={{
+              fontWeight: 800,
+              color: MORADO,
+              pb: 1,
+            }}
+          >
             {modo === 'crear'
               ? 'Crear usuario'
               : modo === 'editar'
@@ -441,20 +678,23 @@ export default function GestionUsuarios() {
                 label="Nombre completo"
                 name="nombre"
                 value={formulario.nombre}
-                onChange={manejarCambio}
+                onChange={(e) => {
+                  const valor = e.target.value;
+
+                  if (/^\s/.test(valor)) return;
+
+                  manejarCambio(e);
+                }}
                 disabled={modo === 'ver'}
                 required
               />
 
-              {/* RUN: mismo componente que Crear Cuenta */}
               <Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 1,
-                  }}
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  sx={{ mb: 1 }}
                 >
                   <Typography
                     fontWeight="bold"
@@ -468,14 +708,14 @@ export default function GestionUsuarios() {
                     <Typography
                       sx={{
                         color: runValido ? 'green' : '#FF0000',
-                        fontSize: '13px',
+                        fontSize: 13,
                         fontWeight: 'bold',
                       }}
                     >
                       {runValido ? 'RUN válido ✓' : 'RUN inválido X'}
                     </Typography>
                   )}
-                </Box>
+                </Stack>
 
                 <RegisterField
                   value={formulario.run}
@@ -518,8 +758,14 @@ export default function GestionUsuarios() {
             </Stack>
           </DialogContent>
 
-          <DialogActions sx={{ px: 3, pb: 2 }}>
-            <Button onClick={() => setDialogoAbierto(false)}>
+          <DialogActions sx={{ px: 3, pb: 2.5 }}>
+            <Button
+              onClick={() => setDialogoAbierto(false)}
+              sx={{
+                color: '#666666',
+                textTransform: 'none',
+              }}
+            >
               {modo === 'ver' ? 'Cerrar' : 'Cancelar'}
             </Button>
 
@@ -527,10 +773,7 @@ export default function GestionUsuarios() {
               <Button
                 type="submit"
                 variant="contained"
-                sx={{
-                  backgroundColor: '#3026A6',
-                  '&:hover': { backgroundColor: '#241d82' },
-                }}
+                sx={estiloBoton}
               >
                 {modo === 'crear' ? 'Crear usuario' : 'Guardar cambios'}
               </Button>
@@ -539,14 +782,21 @@ export default function GestionUsuarios() {
         </Box>
       </Dialog>
 
-      {/* Confirmación de eliminación */}
+      {/* DIÁLOGO ELIMINAR */}
       <Dialog
         open={dialogoEliminar}
         onClose={() => setDialogoEliminar(false)}
         fullWidth
         maxWidth="xs"
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+          },
+        }}
       >
-        <DialogTitle>Eliminar usuario</DialogTitle>
+        <DialogTitle fontWeight={800}>
+          Eliminar usuario
+        </DialogTitle>
 
         <DialogContent>
           <Typography>
@@ -559,8 +809,11 @@ export default function GestionUsuarios() {
           </Typography>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setDialogoEliminar(false)}>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button
+            onClick={() => setDialogoEliminar(false)}
+            sx={{ textTransform: 'none' }}
+          >
             Cancelar
           </Button>
 
@@ -568,11 +821,17 @@ export default function GestionUsuarios() {
             color="error"
             variant="contained"
             onClick={eliminarUsuario}
+            sx={{
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 700,
+            }}
           >
             Eliminar
           </Button>
         </DialogActions>
       </Dialog>
     </Box>
+    </>
   );
 }
