@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import { useMemo, useState } from 'react';
+import MenuAdmin from '../../components/molecules/MenuAdmin';
+import { useAuth } from '../../context/AuthContext';
 
 import logo from '../../assets/logo.png';
 import {
@@ -81,6 +83,20 @@ export default function GestionUsuarios() {
   const [busqueda, setBusqueda] = useState('');
   const [filtro, setFiltro] = useState('Todos');
   const navigate = useNavigate();
+  const { cerrarSesion } = useAuth();
+
+const [anclaPerfil, setAnclaPerfil] = useState(null);
+
+const handleCerrarSesion = () => {
+  setAnclaPerfil(null);
+  cerrarSesion();
+  navigate('/');
+};
+
+const irA = (destino) => {
+  setAnclaPerfil(null);
+  navigate(destino);
+};
   const [dialogoAbierto, setDialogoAbierto] = useState(false);
   const [dialogoEliminar, setDialogoEliminar] = useState(false);
 
@@ -297,25 +313,28 @@ return (
       </Stack>
 
       {/* MI PERFIL */}
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={1}
-      >
-        <AccountCircleOutlinedIcon
-          sx={{ color: '#111111', fontSize: 27 }}
-        />
+      {/* MI PERFIL */}
+<>
+  <Button
+    onClick={(e) => setAnclaPerfil(e.currentTarget)}
+    startIcon={<AccountCircleOutlinedIcon />}
+    sx={{
+      color: '#111111',
+      textTransform: 'none',
+      fontWeight: 500,
+      fontSize: 16,
+    }}
+  >
+    Mi perfil
+  </Button>
 
-        <Typography
-          sx={{
-            color: '#111111',
-            fontWeight: 500,
-            fontSize: 16,
-          }}
-        >
-          Mi perfil
-        </Typography>
-      </Stack>
+  <MenuAdmin
+    anchorEl={anclaPerfil}
+    onClose={() => setAnclaPerfil(null)}
+    onNavegar={irA}
+    onCerrarSesion={handleCerrarSesion}
+  />
+</>
     </Box>
 
     {/* CONTENIDO MORADO */}
