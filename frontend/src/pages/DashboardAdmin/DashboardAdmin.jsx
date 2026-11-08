@@ -1,4 +1,10 @@
 import { useEffect, useState } from 'react'
+
+import {
+  Bar, BarChart, CartesianGrid, Cell, Line, LineChart,
+  ResponsiveContainer, Tooltip, XAxis, YAxis,
+} from 'recharts'
+
 import { Link as RouterLink } from 'react-router-dom'
 import {
   Alert,
@@ -28,6 +34,7 @@ const RUTAS = {
   usuarios: '/admin/usuarios',
   categorias: '/categorias',
   reportes: '/reportes',
+  moderacion: '/panel-moderacion',
 }
 
 const NOMBRES = {
@@ -89,6 +96,18 @@ function Indicador({ titulo, valor, detalle }) {
       <Typography sx={{ fontSize: 12, color: '#707070' }}>{titulo}</Typography>
       <Typography sx={{ fontSize: 24, fontWeight: 700, lineHeight: 1.3 }}>{valor}</Typography>
       <Typography sx={{ fontSize: 11, color: '#707070' }}>{detalle}</Typography>
+    </Paper>
+  )
+}
+
+function Grafico({ titulo, descripcion, children }) {
+  return (
+    <Paper sx={{ p: 2, borderRadius: '10px' }}>
+      <Typography component="h2" sx={{ fontSize: 14, fontWeight: 700 }}>{titulo}</Typography>
+      <Typography sx={{ fontSize: 11, color: '#707070', mb: 1 }}>{descripcion}</Typography>
+      <Box sx={{ width: '100%', height: 200 }} role="img" aria-label={`${titulo}. ${descripcion}`}>
+        <ResponsiveContainer>{children}</ResponsiveContainer>
+      </Box>
     </Paper>
   )
 }
@@ -267,6 +286,48 @@ export default function DashboardAdmin() {
             </Box>
 
             <Box
+                sx={{
+                  display: 'grid',
+                  gap: 1.5,
+                  gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
+                }}
+              >
+              <Grafico titulo="Análisis comercial" descripcion="Ventas mensuales (millones de $)">
+                <LineChart data={datos.graficos.ventasMensuales} margin={{ top: 5, right: 8, left: -12, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${v / 1000000}`} />
+                  <Tooltip formatter={(v) => pesos(v)} />
+                  <Line type="monotone" dataKey="monto" name="Ventas" stroke={AZUL} strokeWidth={2} dot={{ r: 3 }} />
+                </LineChart>
+              </Grafico>
+
+              <Grafico titulo="Análisis operativo" descripcion="Pedidos del mes por estado">
+                <BarChart data={datos.graficos.pedidosPorEstado} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="estado" tick={{ fontSize: 9 }} interval={0} />
+                  <YAxis tick={{ fontSize: 11 }} />
+                  <Tooltip />
+                  <Bar dataKey="cantidad" name="Pedidos" radius={[4, 4, 0, 0]}>
+                    {datos.graficos.pedidosPorEstado.map((e) => (
+                      <Cell key={e.estado} fill={(COLORES_ESTADO[e.estado] ?? COLOR_NEUTRO).color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </Grafico>
+
+              <Grafico titulo="Análisis de calidad" descripcion="Calificaciones recibidas">
+                <BarChart data={datos.graficos.calificaciones} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="estrellas" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} />
+                  <Tooltip />
+                  <Bar dataKey="cantidad" name="Calificaciones" fill="#f5a623" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </Grafico>
+            </Box>
+
+            <Box
               sx={{
                 display: 'grid',
                 gap: 1.5,
@@ -299,6 +360,7 @@ export default function DashboardAdmin() {
                 <Stack spacing={1}>
                   <Typography component="h2" sx={{ fontSize: 18, fontWeight: 700 }}>
                     Pendientes de gestión
+                  
                   </Typography>
 
                   {filaPendiente(
@@ -307,6 +369,8 @@ export default function DashboardAdmin() {
                     'Publicaciones por moderar',
                     { bg: '#fff3d9', color: '#996200' },
                   )}
+
+
                   {filaPendiente(
                     'devoluciones',
                     datos.pendientes.devolucionesEnRevision,
@@ -320,6 +384,13 @@ export default function DashboardAdmin() {
                     { bg: '#e8f4fd', color: AZUL },
                   )}
 
+                  {filaPendiente(
+                    'moderacion',
+                    datos.pendientes.mensajesSinResponder,
+                    'Mensajes sin responder (+48 h)',
+                    { bg: '#fdecea', color: '#c62828' },
+                  )}
+
                   <Divider />
 
                   <Button variant="contained" {...destino('publicaciones')} sx={{ ...botonAzul, alignSelf: 'flex-start' }}>
@@ -329,6 +400,7 @@ export default function DashboardAdmin() {
                   {filaEnlace('usuarios', 'Gestión de usuarios')}
                   {filaEnlace('categorias', 'Categorías del marketplace')}
                   {filaEnlace('pedidos', 'Ventas y pedidos')}
+                  {filaEnlace('moderacion', 'Mensajería y moderación')}
 
                   <Typography sx={{ fontSize: 11, color: '#707070' }}>
                     Actualizado: {fechaLarga(datos.actualizado)}

@@ -148,7 +148,8 @@ function App() {
 
               <Route path="/panel-moderacion" element={administrador(<PanelModeracion />)} />
 
-              <Route path="/resenas" element={administrador(<MisResenas />)} />
+              {/* Modo emprendedor */}
+              <Route path="/resenas" element={emprendedor(<MisResenas />)} />
               
 
               {/* Modo emprendedor */}
@@ -206,10 +207,10 @@ function App() {
               <Route path="/productos/*" element={<ProductosPage />} />
               <Route path="/servicios/*" element={<ServiciosPage />} />
                {/* Modo administrador */}
-<Route
-  path="/admin/usuarios"
-  element={<GestionUsuarios />}
-/>
+              <Route
+                path="/admin/usuarios"
+                element={<GestionUsuarios />}
+              />
               
 
               <Route path="/mis-direcciones" element={cliente(<MisDireccionesPage />)}/>
