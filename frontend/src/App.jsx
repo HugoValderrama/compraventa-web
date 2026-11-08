@@ -6,24 +6,27 @@ import RegistroScreen from "./pages/Registro/RegistroScreen";
 import ProfileClient from "./pages/Profiles/ProfileClient";
 import ProfileE from "./pages/Profiles/ProfileE";
 import DashboardPage from "./pages/Emprendedor/DashboardPage.jsx";
-
-import CotizacionesPage from "./pages/cotizacion.jsx";
+import DashboardAdmin from "./pages/DashboardAdmin/DashboardAdmin.jsx";
 import ProductosPage from "./pages/Productos/ProductosPage.jsx";
 import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx";
 import OfertasPage from "./pages/Ofertas/OfertasPage.jsx";
 
 
+import CotizacionesPage from "./pages/cotizacion.jsx";
 import CotizacionesRecibidasPage from "./pages/CotizacionesRecibidas/CotizacionesRecibidasPage.jsx";
 import PedidosPage from "./pages/Pedidos/PedidosPage.jsx";
 import ComprasPage from "./pages/Compras/ComprasPage.jsx";
 import HomePage from "./pages/Home/HomePage.jsx";
 import CatalogoGeneralPage from "./pages/Catalogo/CatalogoGeneralPage.jsx";
+
 import ListaDeseosPage from "./pages/ListaDeseos/ListaDeseosPage.jsx";
 import CarritoPage from "./pages/Carrito/CarritoPage.jsx";
 import DireccionEnvioPage from "./pages/Carrito/DireccionEnvioPage.jsx";
-import PagoPage from "./pages/Carrito/PagoPage.jsx";
-import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage.jsx";
-import MensajeriaPage from "./pages/Mensajeria/MensajeriaPage.jsx";
+import PagoPage from "./pages/Carrito/PagoPage";
+import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage";
+import ReportesPage from "./pages/MisReportes/Reportespage.jsx";
+import PanelModeracion from "./pages/PanelMensajeriaModeracion/PanelModeracion.jsx";
+import MisResenas from "./pages/MisReseñas/Misreseñas.jsx";
 
 import MisPreguntasPage, {
   PreguntasRecibidasPage,
@@ -34,6 +37,7 @@ import GestionVentasPedidos from "./pages/GestionVentasPedidos/GestionVentasPedi
 import GestionDevolucionesReembolsos from "./pages/GestionDevolucionesReembolsos/GestionDevolucionesReembolsos.jsx";
 import GestionPublicacionesPage from "./pages/GestionPublicaciones/GestionPublicacionesPage.jsx";
 import CalificacionesPage from "./pages/Calificaciones/CalificacionesPage.jsx";
+
 
 import CategoriasPage from "./pages/Categorias/CategoriasPage";
 import RecuperarPassword from "./pages/RecuperarPassword/RecuperarPassword";
@@ -53,6 +57,10 @@ const cliente = (el) => (
 
 const emprendedor = (el) => (
   <RutaPorRol rol="emprendedor">{el}</RutaPorRol>
+);
+
+const administrador = (el) => (
+  <RutaPorRol rol="administrador">{el}</RutaPorRol>
 );
 
 function App() {
@@ -120,6 +128,16 @@ function App() {
                 path="/mis-preguntas/:id"
                 element={cliente(<MisPreguntasPage />)}
               />
+              {/* Modo administrador */}
+              
+              <Route path="/admin" element={administrador(<DashboardAdmin />)} />
+
+              <Route path="/reportes" element={administrador(<ReportesPage />)} />
+
+              <Route path="/panel-moderacion" element={administrador(<PanelModeracion />)} />
+
+              <Route path="/resenas" element={administrador(<MisResenas />)} />
+              
 
               {/* Modo emprendedor */}
               <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
@@ -155,10 +173,8 @@ function App() {
                 path="/calificaciones"
                 element={emprendedor(<CalificacionesPage />)}
               />
-
               {/* Compartidas */}
-              <Route path="/mensajeria" element={<MensajeriaPage />} />
-              <Route path="/mensajeria/:id" element={<MensajeriaPage />} />
+
               <Route path="/catalogo" element={<CatalogoGeneralPage />} />
               <Route path="/categorias" element={<CategoriasPage />} />
               <Route

@@ -59,7 +59,8 @@ const TITULOS = [
   ['/gestion-ventas-pedidos', 'Gestión de ventas/pedidos'],
   ['/gestion-publicaciones', 'Gestión de publicaciones'],
   ['/gestion-devoluciones-reembolsos', 'Gestión de devoluciones y reembolsos'],
-]
+  ['/reportes', 'Reportes'],
+  ]
 
 // Devuelve el título de la ruta o '' si no hay coincidencia.
 export function tituloDeRuta(pathname) {
