@@ -1,5 +1,5 @@
-
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
 import LoginScreen from "./pages/Login/LoginScreen";
 import RegistroScreen from "./pages/Registro/RegistroScreen";
@@ -11,6 +11,10 @@ import ProductosPage from "./pages/Productos/ProductosPage.jsx";
 import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx";
 import OfertasPage from "./pages/Ofertas/OfertasPage.jsx";
 
+import ReportesPage from "./pages/MisReportes/Reportespage.jsx";
+import PanelModeracion from "./pages/PanelMensajeriaModeracion/PanelModeracion.jsx";
+import MisResenas from "./pages/MisReseñas/Misreseñas.jsx";
+import GestionUsuarios from "./pages/Administrador/GestionUsuarios.jsx"; 
 
 import CotizacionesPage from "./pages/cotizacion.jsx";
 import CotizacionesRecibidasPage from "./pages/CotizacionesRecibidas/CotizacionesRecibidasPage.jsx";
@@ -48,7 +52,15 @@ import RutaPorRol from "./routes/RutaPorRol";
 import SelectorRolDev from "./components/dev/SelectorRolDev";
 import PerfilEmprendedor from "./pages/PerfilEmprendedor/PerfilEmprendedor";
 import MisDireccionesPage from "./pages/MisDirecciones/MisDireccionesPage";
+
+function Inicio() {
+  const { modo } = useAuth();
+  if (modo === "administrador") return <Navigate to="/admin" replace />;
+  return <HomePage />;
+}
+
 // Atajos para proteger rutas por rol.
+
 const cliente = (el) => (
   <RutaPorRol rol="cliente">{el}</RutaPorRol>
 );
@@ -69,6 +81,8 @@ function App() {
           <div className="App">
             <Routes>
               {/* Inicio principal */}
+              <Route path="/" element={<Inicio />} />
+
               <Route path="/" element={<HomePage />} />
 
               {/* Inicio de sesión y registro */}

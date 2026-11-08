@@ -25,9 +25,9 @@ const RUTAS = {
   pedidos: '/gestion-ventas-pedidos',
   devoluciones: '/gestion-devoluciones-reembolsos',
   publicaciones: '/gestion-publicaciones',
-  usuarios: null,
+  usuarios: '/admin/usuarios',
   categorias: '/categorias',
-  reportes: null,
+  reportes: '/reportes',
 }
 
 const NOMBRES = {
