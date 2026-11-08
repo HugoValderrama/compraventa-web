@@ -16,8 +16,8 @@ export default function MenuAdmin({
       open={Boolean(anchorEl)}
       onClose={onClose}
     >
-      <MenuItem onClick={() => onNavegar('/')}>
-        <ListItemText>Ir al inicio</ListItemText>
+      <MenuItem onClick={() => onNavegar('/admin')}>
+        <ListItemText>Dashboard</ListItemText>
       </MenuItem>
 
       <MenuItem onClick={() => onNavegar('/admin/usuarios')}>
