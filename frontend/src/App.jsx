@@ -22,11 +22,9 @@ import CatalogoGeneralPage from "./pages/Catalogo/CatalogoGeneralPage.jsx";
 import ListaDeseosPage from "./pages/ListaDeseos/ListaDeseosPage.jsx";
 import CarritoPage from "./pages/Carrito/CarritoPage.jsx";
 import DireccionEnvioPage from "./pages/Carrito/DireccionEnvioPage.jsx";
-import PagoPage from "./pages/Carrito/PagoPage";
-import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage";
-import ReportesPage from "./pages/MisReportes/Reportespage.jsx";
-import PanelModeracion from "./pages/PanelMensajeriaModeracion/PanelModeracion.jsx";
-import MisResenas from "./pages/MisReseñas/Misreseñas.jsx";
+import PagoPage from "./pages/Carrito/PagoPage.jsx";
+import ConfirmacionPage from "./pages/Carrito/ConfirmacionPage.jsx";
+import MensajeriaPage from "./pages/Mensajeria/MensajeriaPage.jsx";
 
 import MisPreguntasPage, {
   PreguntasRecibidasPage,
@@ -193,6 +191,12 @@ function App() {
               {/* Productos y servicios */}
               <Route path="/productos/*" element={<ProductosPage />} />
               <Route path="/servicios/*" element={<ServiciosPage />} />
+               {/* Modo administrador */}
+<Route
+  path="/admin/usuarios"
+  element={<GestionUsuarios />}
+/>
+              
 
               <Route path="/mis-direcciones" element={cliente(<MisDireccionesPage />)}/>
               {/* Ruta desconocida */}
