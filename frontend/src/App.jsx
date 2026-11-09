@@ -1,23 +1,28 @@
-
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
 import LoginScreen from "./pages/Login/LoginScreen";
 import RegistroScreen from "./pages/Registro/RegistroScreen";
 import ProfileClient from "./pages/Profiles/ProfileClient";
 import ProfileE from "./pages/Profiles/ProfileE";
 import DashboardPage from "./pages/Emprendedor/DashboardPage.jsx";
-
-import CotizacionesPage from "./pages/cotizacion.jsx";
+import DashboardAdmin from "./pages/DashboardAdmin/DashboardAdmin.jsx";
 import ProductosPage from "./pages/Productos/ProductosPage.jsx";
 import ServiciosPage from "./pages/Servicios/ServiciosPage.jsx";
 import OfertasPage from "./pages/Ofertas/OfertasPage.jsx";
 
+import ReportesPage from "./pages/MisReportes/Reportespage.jsx";
+import PanelModeracion from "./pages/PanelMensajeriaModeracion/PanelModeracion.jsx";
+import MisResenas from "./pages/MisReseñas/Misreseñas.jsx";
+import GestionUsuarios from "./pages/Administrador/GestionUsuarios.jsx"; 
 
+import CotizacionesPage from "./pages/cotizacion.jsx";
 import CotizacionesRecibidasPage from "./pages/CotizacionesRecibidas/CotizacionesRecibidasPage.jsx";
 import PedidosPage from "./pages/Pedidos/PedidosPage.jsx";
 import ComprasPage from "./pages/Compras/ComprasPage.jsx";
 import HomePage from "./pages/Home/HomePage.jsx";
 import CatalogoGeneralPage from "./pages/Catalogo/CatalogoGeneralPage.jsx";
+
 import ListaDeseosPage from "./pages/ListaDeseos/ListaDeseosPage.jsx";
 import CarritoPage from "./pages/Carrito/CarritoPage.jsx";
 import DireccionEnvioPage from "./pages/Carrito/DireccionEnvioPage.jsx";
@@ -35,6 +40,7 @@ import GestionDevolucionesReembolsos from "./pages/GestionDevolucionesReembolsos
 import GestionPublicacionesPage from "./pages/GestionPublicaciones/GestionPublicacionesPage.jsx";
 import CalificacionesPage from "./pages/Calificaciones/CalificacionesPage.jsx";
 
+
 import CategoriasPage from "./pages/Categorias/CategoriasPage";
 import RecuperarPassword from "./pages/RecuperarPassword/RecuperarPassword";
 
@@ -46,13 +52,25 @@ import RutaPorRol from "./routes/RutaPorRol";
 import SelectorRolDev from "./components/dev/SelectorRolDev";
 import PerfilEmprendedor from "./pages/PerfilEmprendedor/PerfilEmprendedor";
 import MisDireccionesPage from "./pages/MisDirecciones/MisDireccionesPage";
+
+function Inicio() {
+  const { modo } = useAuth();
+  if (modo === "administrador") return <Navigate to="/admin" replace />;
+  return <HomePage />;
+}
+
 // Atajos para proteger rutas por rol.
+
 const cliente = (el) => (
   <RutaPorRol rol="cliente">{el}</RutaPorRol>
 );
 
 const emprendedor = (el) => (
   <RutaPorRol rol="emprendedor">{el}</RutaPorRol>
+);
+
+const administrador = (el) => (
+  <RutaPorRol rol="administrador">{el}</RutaPorRol>
 );
 
 function App() {
@@ -63,6 +81,8 @@ function App() {
           <div className="App">
             <Routes>
               {/* Inicio principal */}
+              <Route path="/" element={<Inicio />} />
+
               <Route path="/" element={<HomePage />} />
 
               {/* Inicio de sesión y registro */}
@@ -120,6 +140,17 @@ function App() {
                 path="/mis-preguntas/:id"
                 element={cliente(<MisPreguntasPage />)}
               />
+              {/* Modo administrador */}
+              
+              <Route path="/admin" element={administrador(<DashboardAdmin />)} />
+
+              <Route path="/reportes" element={administrador(<ReportesPage />)} />
+
+              <Route path="/panel-moderacion" element={administrador(<PanelModeracion />)} />
+
+              {/* Modo emprendedor */}
+              <Route path="/resenas" element={emprendedor(<MisResenas />)} />
+              
 
               {/* Modo emprendedor */}
               <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
@@ -155,10 +186,8 @@ function App() {
                 path="/calificaciones"
                 element={emprendedor(<CalificacionesPage />)}
               />
-
               {/* Compartidas */}
-              <Route path="/mensajeria" element={<MensajeriaPage />} />
-              <Route path="/mensajeria/:id" element={<MensajeriaPage />} />
+
               <Route path="/catalogo" element={<CatalogoGeneralPage />} />
               <Route path="/categorias" element={<CategoriasPage />} />
               <Route
@@ -177,6 +206,12 @@ function App() {
               {/* Productos y servicios */}
               <Route path="/productos/*" element={<ProductosPage />} />
               <Route path="/servicios/*" element={<ServiciosPage />} />
+               {/* Modo administrador */}
+              <Route
+                path="/admin/usuarios"
+                element={<GestionUsuarios />}
+              />
+              
 
               <Route path="/mis-direcciones" element={cliente(<MisDireccionesPage />)}/>
               {/* Ruta desconocida */}

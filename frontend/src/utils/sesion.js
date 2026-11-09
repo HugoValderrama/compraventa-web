@@ -10,13 +10,12 @@ export const EXIGIR_SESION_EN_RUTAS = true
 
 // Hoy: /perfil para cliente y /perfilE para emprendedor.
 export function rutaPerfil(modo) {
-  if (modo === 'administrador') return '/'
+  if (modo === 'administrador') return '/admin'
   return modo === 'emprendedor' ? '/perfilE' : '/perfil'
 }
-
 // Pantalla de inicio de cada modo (al cambiar de modo).
 export function rutaInicio(modo) {
-  if (modo === 'administrador') return '/'
+  if (modo === 'administrador') return '/admin'
   return modo === 'emprendedor' ? '/emprendedor' : '/perfil'
 }
 

@@ -1,6 +1,5 @@
 
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import {
   Alert,
@@ -21,7 +20,6 @@ import {
   Typography,
 } from '@mui/material';
 
-import AddIcon from '@mui/icons-material/Add';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined';
 
@@ -87,9 +85,25 @@ const formularioInicial = {
   precioOferta: '',
 };
 
-export default function OfertasPage() {
-  const navigate = useNavigate();
 
+const obtenerFechaLocal = () => {
+  const hoy = new Date();
+  const anio = hoy.getFullYear();
+  const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dia = String(hoy.getDate()).padStart(2, '0');
+
+  return `${anio}-${mes}-${dia}`;
+};
+
+const formatearFecha = (fecha) => {
+  if (!fecha) return '';
+
+  const [anio, mes, dia] = fecha.split('-');
+
+  return `${dia}/${mes}/${anio}`;
+};
+
+export default function OfertasPage() {
   const [emprendedorId, setEmprendedorId] = useState(null);
   const [ofertas, setOfertas] = useState([]);
   const [productos, setProductos] = useState([]);
@@ -183,6 +197,20 @@ export default function OfertasPage() {
       return;
     }
 
+    const hoy = obtenerFechaLocal();
+
+    
+
+if (formulario.fechaInicio < hoy) {
+  setError('La fecha de inicio no puede ser anterior al día de hoy.');
+  return;
+}
+
+if (formulario.fechaFin < formulario.fechaInicio) {
+  setError('La fecha de término no puede ser anterior a la fecha de inicio.');
+  return;
+}
+
     try {
       setGuardando(true);
       setError('');
@@ -247,20 +275,17 @@ export default function OfertasPage() {
 
   return (
     <Pantalla>
-      <EncabezadoPagina
-        titulo="Mis Ofertas"
-        accion={
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={abrirCrear}
-          >
-            Crear oferta
-          </Button>
-        }
-      />
+      {/* Encabezado sin botón superior derecho */}
+      <EncabezadoPagina titulo="Mis Ofertas" />
 
-      <Typography color="#ffffff" sx={{ mb: 2 }}>
+      {/* Descripción en blanco y con letra más grande */}
+      <Typography
+        sx={{
+          color: '#FFFFFF',
+          fontSize: '22px',
+          mb: 2,
+        }}
+      >
         Administra los descuentos y la vigencia de tus productos.
       </Typography>
 
@@ -288,6 +313,7 @@ export default function OfertasPage() {
               Crea una oferta temporal para uno de tus productos.
             </Typography>
 
+            {/* Se conserva el botón central */}
             <Button variant="contained" onClick={abrirCrear}>
               Crear mi primera oferta
             </Button>
@@ -374,8 +400,8 @@ export default function OfertasPage() {
                     </Typography>
 
                     <Typography color="text.secondary" variant="body2">
-                      Desde: {producto.oferta.fechaInicio} · Hasta:{' '}
-                      {producto.oferta.fechaFin}
+                      Desde: {formatearFecha(producto.oferta.fechaInicio)} · Hasta:{' '}
+                      {formatearFecha(producto.oferta.fechaFin)}
                     </Typography>
                   </Box>
                 </Stack>
@@ -484,20 +510,19 @@ export default function OfertasPage() {
                 required
               />
 
-              <TextField
-                fullWidth
-                type="date"
-                label="Fecha de inicio"
-                name="fechaInicio"
-                value={formulario.fechaInicio}
-                onChange={manejarCambio}
-                InputLabelProps={{ shrink: true }}
-                inputProps={{
-                  min: '0001-01-01',
-                  max: '9999-12-31',
-                }}
-                required
-              />
+            <TextField
+  fullWidth
+  type="date"
+  label="Fecha de inicio"
+  name="fechaInicio"
+  value={formulario.fechaInicio}
+  onChange={manejarCambio}
+  InputLabelProps={{ shrink: true }}
+  inputProps={{
+    min: obtenerFechaLocal(),
+  }}
+  required
+/>
 
               <TextField
                 fullWidth
