@@ -32,7 +32,7 @@ function RegisterForm({ tipoUsuario }) {
   const runValido = validarRun(run);
 
   // Verificar si el RUN está completo
-  const runCompleto = run.length === 10;
+  const runCompleto = run.replace(/[^0-9K]/gi, "").length >= 8;
 
   // Validar formulario completo
   const formularioValido =

@@ -20,17 +20,27 @@ function NameField({ onValidityChange }) {
 
   const mostrarValidacion = nombre.length > 0;
 
-  const handleChange = (event) => {
-    const nuevoNombre = event.target.value;
+  
 
-    // Impedir números y símbolos directamente
-    if (
-      nuevoNombre === "" ||
-      /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/.test(nuevoNombre)
-    ) {
-      setNombre(nuevoNombre);
-    }
-  };
+const handleChange = (event) => {
+  const nuevoNombre = event.target.value;
+
+  // No permitir espacios al inicio
+  if (nuevoNombre.startsWith(" ")) {
+    return;
+  }
+
+  // Permitir letras, tildes, ñ y espacios
+  const soloLetras = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]*$/;
+
+  if (!soloLetras.test(nuevoNombre)) {
+    return;
+  }
+
+  setNombre(nuevoNombre);
+};
+
+
 
   return (
     <Box sx={{ width: "100%" }}>
