@@ -22,11 +22,13 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined'
 import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined'
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutlined'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber'
+import NavIconButton from '../../components/atoms/NavIconButton'
 import { obtenerPanelModeracion } from './moderacionMensajeria'
 import { cargarPreguntas, estadoPregunta } from '../MisPreguntas/preguntas.js'
 import { cargarMensajeria } from "./mensajeriaLocal.js";
@@ -208,66 +210,70 @@ export default function PanelModeracion() {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#3026A6' }}>
-      <Container maxWidth="md" sx={{ py: 3 }}>
-        {/* Encabezado */}
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 3, alignItems: { sm: 'center' } }}>
-          <Paper sx={{ px: 2, py: 1, borderRadius: '10px', display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Box component="img" src="/logo.png" alt="" sx={{ width: 28, height: 28, borderRadius: '50%' }} />
-            <Typography component="h1" sx={{ fontSize: 22, fontWeight: 700 }}>
-              Moderación
-            </Typography>
-          </Paper>
+      {/* Barra superior: ocupa todo el ancho de la pantalla */}
+      <Paper
+        component="header"
+        square
+        sx={{ width: '100%', px: { xs: 2, sm: 3 }, py: 1, display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <Box component="img" src="/logo.png" alt="" sx={{ width: 28, height: 28, borderRadius: '50%' }} />
+          {/* Flecha igual a la de las demás pantallas: vuelve al inicio */}
+          <NavIconButton label="Volver al inicio" component={RouterLink} to="/">
+            <ArrowBackIcon />
+          </NavIconButton>
+          <Typography component="h1" sx={{ fontSize: 22, fontWeight: 700, ml: 1 }}>
+            Moderación
+          </Typography>
+        </Box>
 
-          <Paper
-            component="nav"
-            aria-label="Accesos de moderación"
-            sx={{ flex: 1, px: 1, py: 0.5, borderRadius: '10px', display: 'flex', flexWrap: 'wrap', justifyContent: { sm: 'space-around' } }}
-          >
-            {ACCESOS.map(({ clave, texto, icono: Icono, ruta }) => {
-              let accion
-              let icono = <Icono />
+        <Box component="nav" aria-label="Accesos de moderación" sx={{ display: 'flex', flexWrap: 'wrap' }}>
+          {ACCESOS.map(({ clave, texto, icono: Icono, ruta }) => {
+            let accion
+            let icono = <Icono />
 
-              if (clave === 'notificaciones') {
-                accion = {
-                  onClick: (event) => setAnclaNotifs(event.currentTarget),
-                  'aria-haspopup': 'true',
-                  'aria-label': sinLeer > 0 ? `Notificaciones, ${sinLeer} sin leer` : 'Notificaciones',
-                }
-                icono = (
-                  <Badge badgeContent={sinLeer} color="error">
-                    <Icono />
-                  </Badge>
-                )
-              } else if (clave === 'tickets') {
-                accion = {
-                  onClick: () => setTicketsAbierto(true),
-                  'aria-haspopup': 'dialog',
-                }
-                icono = (
-                  <Badge badgeContent={ticketsAbiertos} color="error">
-                    <Icono />
-                  </Badge>
-                )
-              } else if (ruta) {
-                accion = { component: RouterLink, to: ruta }
-              } else {
-                accion = { onClick: () => setAviso(`${texto} aún no está disponible.`) }
+            if (clave === 'notificaciones') {
+              accion = {
+                onClick: (event) => setAnclaNotifs(event.currentTarget),
+                'aria-haspopup': 'true',
+                'aria-label': sinLeer > 0 ? `Notificaciones, ${sinLeer} sin leer` : 'Notificaciones',
               }
-
-              return (
-                <Button
-                  key={clave}
-                  {...accion}
-                  startIcon={icono}
-                  sx={{ color: 'text.primary', textTransform: 'none', fontWeight: 700, fontSize: 14 }}
-                >
-                  {texto}
-                </Button>
+              icono = (
+                <Badge badgeContent={sinLeer} color="error">
+                  <Icono />
+                </Badge>
               )
-            })}
-          </Paper>
-        </Stack>
+            } else if (clave === 'tickets') {
+              accion = {
+                onClick: () => setTicketsAbierto(true),
+                'aria-haspopup': 'dialog',
+              }
+              icono = (
+                <Badge badgeContent={ticketsAbiertos} color="error">
+                  <Icono />
+                </Badge>
+              )
+            } else if (ruta) {
+              accion = { component: RouterLink, to: ruta }
+            } else {
+              accion = { onClick: () => setAviso(`${texto} aún no está disponible.`) }
+            }
 
+            return (
+              <Button
+                key={clave}
+                {...accion}
+                startIcon={icono}
+                sx={{ color: 'text.primary', textTransform: 'none', fontWeight: 700, fontSize: 14 }}
+              >
+                {texto}
+              </Button>
+            )
+          })}
+        </Box>
+      </Paper>
+
+      <Container maxWidth="md" sx={{ py: 3 }}>
         {cargando && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
             <CircularProgress aria-label="Cargando panel" sx={{ color: 'white' }} />
