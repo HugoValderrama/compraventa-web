@@ -13,48 +13,57 @@ function RegisterField({
  
 
 
+
 const handleChange = (event) => {
   let nuevoValor = event.target.value;
 
   if (isRun) {
-    // Si el usuario borra todo, limpiar el campo
+    // Permitir borrar completamente
     if (nuevoValor === "" || nuevoValor === "-") {
       onChange?.("");
       return;
     }
 
-    // Permitir borrar el último dígito cuando aparece "9-"
+    // Permitir borrar el primer número
     if (
       value &&
-      /^[0-9K]-$/.test(value) &&
+      /^\d-$/.test(value) &&
       nuevoValor === value.slice(0, -1)
     ) {
       onChange?.("");
       return;
     }
 
-    // Quitar puntos y guion
     const caracteres = nuevoValor
       .toUpperCase()
-      .replace(/[^0-9K]/g, "")
-      .slice(0, 9);
+      .replace(/[^0-9K]/g, "");
 
-    if (caracteres.length === 0) {
-      onChange?.("");
+    // Solo números y una K al final
+    if (!/^\d{1,9}K?$/.test(caracteres)) {
       return;
     }
 
-    // Separar cuerpo y dígito verificador
+    // Máximo 8 números + verificador
+    if (caracteres.length > 9) {
+      return;
+    }
+
+    // K solo como dígito verificador
+    if (
+      caracteres.includes("K") &&
+      !/^\d{7,8}K$/.test(caracteres)
+    ) {
+      return;
+    }
+
     const cuerpo = caracteres.slice(0, -1);
     const digitoVerificador = caracteres.slice(-1);
 
-    // Agregar puntos automáticamente
     const cuerpoFormateado = cuerpo.replace(
       /\B(?=(\d{3})+(?!\d))/g,
       "."
     );
 
-    // Construir el RUN
     nuevoValor = cuerpoFormateado
       ? `${cuerpoFormateado}-${digitoVerificador}`
       : `${digitoVerificador}-`;

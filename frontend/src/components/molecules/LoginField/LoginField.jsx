@@ -20,32 +20,58 @@ function LoginField({
   const esPassword = type === "password";
 
   
+
+
 const handleChange = (event) => {
   let nuevoValor = event.target.value;
 
   if (isRun) {
-    // Quitar puntos y guion
-    const caracteres = nuevoValor
-      .toUpperCase()
-      .replace(/[^0-9K]/g, "")
-      .slice(0, 9);
-
-    if (caracteres.length === 0) {
+    // Permitir borrar completamente
+    if (nuevoValor === "" || nuevoValor === "-") {
       onChange?.("");
       return;
     }
 
-    // Separar cuerpo y dígito verificador
+    // Permitir borrar el primer número
+    if (
+      value &&
+      /^\d-$/.test(value) &&
+      nuevoValor === value.slice(0, -1)
+    ) {
+      onChange?.("");
+      return;
+    }
+
+    const caracteres = nuevoValor
+      .toUpperCase()
+      .replace(/[^0-9K]/g, "");
+
+    // Solo números y una K al final
+    if (!/^\d{1,9}K?$/.test(caracteres)) {
+      return;
+    }
+
+    // Máximo 8 números + verificador
+    if (caracteres.length > 9) {
+      return;
+    }
+
+    // K solo como dígito verificador
+    if (
+      caracteres.includes("K") &&
+      !/^\d{7,8}K$/.test(caracteres)
+    ) {
+      return;
+    }
+
     const cuerpo = caracteres.slice(0, -1);
     const digitoVerificador = caracteres.slice(-1);
 
-    // Agregar puntos automáticamente
     const cuerpoFormateado = cuerpo.replace(
       /\B(?=(\d{3})+(?!\d))/g,
       "."
     );
 
-    // Agregar guion automáticamente
     nuevoValor = cuerpoFormateado
       ? `${cuerpoFormateado}-${digitoVerificador}`
       : `${digitoVerificador}-`;
@@ -53,6 +79,7 @@ const handleChange = (event) => {
 
   onChange?.(nuevoValor);
 };
+
 
 
   return (
