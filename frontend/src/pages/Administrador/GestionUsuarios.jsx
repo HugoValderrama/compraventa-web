@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/logo.png';
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   Chip,
@@ -106,8 +107,35 @@ const irA = (destino) => {
   const [formulario, setFormulario] = useState(formularioInicial);
   const [mensaje, setMensaje] = useState('');
 
+const [intentoGuardar, setIntentoGuardar] = useState(false);
+
+const sugerenciasCorreo = useMemo(() => {
+  const correo = formulario.correo.trim();
+
+  if (!correo || correo.includes('@')) {
+    return [];
+  }
+
+  return [
+    `${correo}@gmail.com`,
+    `${correo}@hotmail.com`,
+    `${correo}@outlook.com`,
+    `${correo}@yahoo.com`,
+  ];
+}, [formulario.correo]);
+
+const nombreCorrecto =
+  /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü]+(?: [A-Za-zÁÉÍÓÚáéíóúÑñÜü]+)*$/.test(
+    formulario.nombre
+  );
+
+const correoCorrecto =
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formulario.correo.trim());
+
+
   const runValido = validarRun(formulario.run);
-  const runCompleto = formulario.run.length === 10;
+  const runCompleto =
+  formulario.run.replace(/[^0-9K]/gi, '').length >= 8;
 
   const totalClientes = usuarios.filter(
     (usuario) => usuario.tipo === 'Cliente'
@@ -138,11 +166,13 @@ const irA = (destino) => {
     setFormulario(formularioInicial);
     setUsuarioSeleccionado(null);
     setMensaje('');
+    setIntentoGuardar(false);
     setDialogoAbierto(true);
   };
 
   const abrirEditar = (usuario) => {
     setModo('editar');
+    setIntentoGuardar(false);
     setUsuarioSeleccionado(usuario);
 
     setFormulario({
@@ -180,49 +210,63 @@ const irA = (destino) => {
     }));
   };
 
-  const guardarUsuario = (evento) => {
-    evento.preventDefault();
+  
+const guardarUsuario = (evento) => {
+  evento.preventDefault();
+  setIntentoGuardar(true);
 
-    const nombreLimpio = formulario.nombre.trim();
+  const nombreLimpio = formulario.nombre.trim();
+  const correoLimpio = formulario.correo.trim();
 
-    if (!nombreLimpio) {
-      setMensaje('El nombre no puede estar vacío.');
-      return;
-    }
+  if (!nombreLimpio || !formulario.run || !correoLimpio) {
+    setMensaje('Debes completar todos los campos obligatorios.');
+    return;
+  }
 
-    if (formulario.nombre !== formulario.nombre.trimStart()) {
-      setMensaje('El nombre no puede comenzar con espacios.');
-      return;
-    }
+  if (!nombreCorrecto) {
+    setMensaje('El nombre solo puede contener letras, tildes y espacios entre palabras.');
+    return;
+  }
 
-    if (!validarRun(formulario.run)) {
-      setMensaje('El RUN ingresado no es válido.');
-      return;
-    }
+  if (!validarRun(formulario.run)) {
+    setMensaje('El RUN ingresado no es válido.');
+    return;
+  }
 
-    if (modo === 'crear') {
-      const nuevoUsuario = {
-        id: Date.now(),
-        ...formulario,
-        nombre: nombreLimpio,
-      };
+  if (!correoCorrecto) {
+    setMensaje('Ingresa un correo electrónico válido.');
+    return;
+  }
 
-      setUsuarios((actuales) => [...actuales, nuevoUsuario]);
-      setMensaje('Usuario creado correctamente.');
-    } else {
-      setUsuarios((actuales) =>
-        actuales.map((usuario) =>
-          usuario.id === usuarioSeleccionado.id
-            ? { ...usuario, ...formulario, nombre: nombreLimpio }
-            : usuario
-        )
-      );
-
-      setMensaje('Usuario actualizado correctamente.');
-    }
-
-    setDialogoAbierto(false);
+  const datosUsuario = {
+    ...formulario,
+    nombre: nombreLimpio,
+    correo: correoLimpio,
   };
+
+  if (modo === 'crear') {
+    const nuevoUsuario = {
+      id: Date.now(),
+      ...datosUsuario,
+    };
+
+    setUsuarios((actuales) => [...actuales, nuevoUsuario]);
+    setMensaje('Usuario creado correctamente.');
+  } else {
+    setUsuarios((actuales) =>
+      actuales.map((usuario) =>
+        usuario.id === usuarioSeleccionado.id
+          ? { ...usuario, ...datosUsuario }
+          : usuario
+      )
+    );
+
+    setMensaje('Usuario actualizado correctamente.');
+  }
+
+  setIntentoGuardar(false);
+  setDialogoAbierto(false);
+};
 
   const eliminarUsuario = () => {
     setUsuarios((actuales) =>
@@ -237,9 +281,10 @@ const irA = (destino) => {
   };
 
   const esError =
-    mensaje.includes('no es válido') ||
-    mensaje.includes('no puede estar vacío') ||
-    mensaje.includes('no puede comenzar con espacios');
+  mensaje.includes('no es válido') ||
+  mensaje.includes('obligatorios') ||
+  mensaje.includes('solo puede contener') ||
+  mensaje.includes('correo electrónico válido');
 
   const estiloTarjeta = {
     p: 2.5,
@@ -692,74 +737,120 @@ return (
 
           <DialogContent>
             <Stack spacing={2.5} sx={{ pt: 1 }}>
-              <TextField
-                fullWidth
-                label="Nombre completo"
-                name="nombre"
-                value={formulario.nombre}
-                onChange={(e) => {
-                  const valor = e.target.value;
 
-                  if (/^\s/.test(valor)) return;
+{mensaje && intentoGuardar && (
+  <Alert severity="error">
+    {mensaje}
+  </Alert>
+)}
 
-                  manejarCambio(e);
-                }}
-                disabled={modo === 'ver'}
-                required
-              />
+              
+<TextField
+  fullWidth
+  label="Nombre completo"
+  name="nombre"
+  value={formulario.nombre}
+  onChange={(e) => {
+    const valor = e.target.value;
 
-              <Box>
-                <Stack
-                  direction="row"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  sx={{ mb: 1 }}
-                >
-                  <Typography
-                    fontWeight="bold"
-                    color="#808080"
-                    fontSize="14px"
-                  >
-                    RUN
-                  </Typography>
+    if (/^\s/.test(valor)) return;
 
-                  {runCompleto && (
-                    <Typography
-                      sx={{
-                        color: runValido ? 'green' : '#FF0000',
-                        fontSize: 13,
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {runValido ? 'RUN válido ✓' : 'RUN inválido X'}
-                    </Typography>
-                  )}
-                </Stack>
+    if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]*$/.test(valor)) {
+      return;
+    }
 
-                <RegisterField
-                  value={formulario.run}
-                  onChange={(valor) =>
-                    setFormulario((actual) => ({
-                      ...actual,
-                      run: valor,
-                    }))
-                  }
-                  isRun={true}
-                  helperText="Ej: 12.345.678-9"
-                  disabled={modo === 'ver'}
-                />
-              </Box>
+    manejarCambio(e);
+  }}
+  disabled={modo === 'ver'}
+  required
+  error={intentoGuardar && !nombreCorrecto}
+  helperText={
+    intentoGuardar && !nombreCorrecto
+      ? 'Ingresa un nombre válido, solo con letras y acentos.'
+      : ''
+  }
+/>
 
-              <TextField
-                fullWidth
-                type="email"
-                label="Correo electrónico"
-                name="correo"
-                value={formulario.correo}
-                onChange={manejarCambio}
-                disabled={modo === 'ver'}
-                required
-              />
+
+              
+<Box>
+  <Typography
+    fontWeight="bold"
+    color="#808080"
+    fontSize="14px"
+    sx={{ mb: 1 }}
+  >
+    RUN
+  </Typography>
+
+  <Stack direction="row" spacing={2} alignItems="center">
+    <Box sx={{ flex: 1, minWidth: 0 }}>
+      <RegisterField
+        value={formulario.run}
+        onChange={(valor) =>
+          setFormulario((actual) => ({
+            ...actual,
+            run: valor,
+          }))
+        }
+        isRun={true}
+        helperText="Ej: 12.345.678-9"
+        disabled={modo === 'ver'}
+      />
+    </Box>
+
+    {runCompleto && (
+      <Typography
+        sx={{
+          color: runValido ? 'green' : '#FF0000',
+          fontSize: 13,
+          fontWeight: 'bold',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {runValido ? 'RUN válido ✓' : 'RUN inválido ✕'}
+      </Typography>
+    )}
+  </Stack>
+</Box>
+
+
+              
+<Autocomplete
+  freeSolo
+  fullWidth
+  options={sugerenciasCorreo}
+  filterOptions={(options) => options}
+  inputValue={formulario.correo}
+  onInputChange={(_, nuevoValor) => {
+    setFormulario((actual) => ({
+      ...actual,
+      correo: nuevoValor,
+    }));
+  }}
+  onChange={(_, nuevoValor) => {
+    setFormulario((actual) => ({
+      ...actual,
+      correo: nuevoValor || '',
+    }));
+  }}
+  disabled={modo === 'ver'}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Correo electrónico"
+      type="email"
+      required
+      error={intentoGuardar && !correoCorrecto}
+      helperText={
+        intentoGuardar && !correoCorrecto
+          ? 'Ingresa un correo electrónico válido.'
+          : ''
+      }
+    />
+  )}
+/>
+
 
               <TextField
                 select
