@@ -75,6 +75,22 @@ const administrador = (el) => (
   <RutaPorRol rol="administrador">{el}</RutaPorRol>
 );
 
+function MensajeriaPorRol() {
+  const { modo } = useAuth();
+
+  if (modo === 'administrador') {
+    return <Navigate to="/admin" replace />;
+  }
+
+  const rol = modo === 'emprendedor' ? 'emprendedor' : 'cliente';
+
+  return (
+    <RutaPorRol rol={rol}>
+      <MensajeriaPage />
+    </RutaPorRol>
+  );
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -214,8 +230,8 @@ function App() {
                 element={<GestionUsuarios />}
               />
               
-              <Route path="/mensajeria" element={cliente(<MensajeriaPage />)} />
-              <Route path="/mensajeria/:id" element={cliente(<MensajeriaPage />)} />
+              <Route path="/mensajeria" element={<MensajeriaPorRol />} />
+              <Route path="/mensajeria/:id" element={<MensajeriaPorRol />} />
               <Route path="/mis-direcciones" element={cliente(<MisDireccionesPage />)}/>
               {/* Ruta desconocida */}
               
