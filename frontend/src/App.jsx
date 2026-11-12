@@ -53,6 +53,8 @@ import SelectorRolDev from "./components/dev/SelectorRolDev";
 import PerfilEmprendedor from "./pages/PerfilEmprendedor/PerfilEmprendedor";
 import MisDireccionesPage from "./pages/MisDirecciones/MisDireccionesPage";
 
+import { TiendasQueSigoPage, AyudaPage } from "./pages/Home/AccesosInicio.jsx";
+
 function Inicio() {
   const { modo } = useAuth();
   if (modo === "administrador") return <Navigate to="/admin" replace />;
@@ -147,11 +149,11 @@ function App() {
               <Route path="/reportes" element={administrador(<ReportesPage />)} />
 
               <Route path="/panel-moderacion" element={administrador(<PanelModeracion />)} />
-
+              
+              <Route path="/resenas" element={cliente(<MisResenas />)} />
               {/* Modo emprendedor */}
               <Route path="/resenas" element={emprendedor(<MisResenas />)} />
               
-
               {/* Modo emprendedor */}
               <Route path="/emprendedor" element={emprendedor(<DashboardPage />)} />
 
@@ -212,9 +214,14 @@ function App() {
                 element={<GestionUsuarios />}
               />
               
-
+              <Route path="/mensajeria" element={cliente(<MensajeriaPage />)} />
+              <Route path="/mensajeria/:id" element={cliente(<MensajeriaPage />)} />
               <Route path="/mis-direcciones" element={cliente(<MisDireccionesPage />)}/>
               {/* Ruta desconocida */}
+              
+              <Route path="/tiendas-que-sigo" element={cliente(<TiendasQueSigoPage />)} />
+              <Route path="/ayuda" element={<AyudaPage />} />
+              
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
 

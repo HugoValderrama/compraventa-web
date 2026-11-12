@@ -1,5 +1,4 @@
-
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Navigate,
   Route,
@@ -21,22 +20,37 @@ import {
   DialogTitle,
   Paper,
   Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
   Typography,
 } from '@mui/material'
 import TopNavBar from '../components/organisms/TopNavBar'
 
 const CLAVE = 'laguito-libre.cotizaciones.v1'
+const DIAS_VIGENCIA = 15
+const FECHA_EN_CHILE = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'America/Santiago',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
 
 const CATALOGO = [
   {
     id: 'consultoria-ti',
     nombre: 'Servicio de consultoría en TI',
+    tipo: 'servicio',
     precioUnitario: 150000,
   },
   {
     id: 'kit-herramientas',
     nombre: 'Kit de herramientas Pro (Premium)',
+    tipo: 'producto',
     precioUnitario: 89900,
   },
 ]
@@ -46,6 +60,7 @@ const CAMBIOS = {
   Respondida: ['Aceptada', 'Cancelada'],
   Aceptada: [],
   Cancelada: [],
+  Expirada: [],
 }
 
 const COLORES = {
@@ -53,6 +68,7 @@ const COLORES = {
   Respondida: 'info',
   Aceptada: 'success',
   Cancelada: 'error',
+  Expirada: 'default',
 }
 
 const ACCIONES = {
@@ -68,7 +84,68 @@ const pesos = (valor) =>
     maximumFractionDigits: 0,
   })
 
-const fecha = (valor) => new Date(valor).toLocaleDateString('es-CL')
+function validarDiaISO(dia) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dia) || dia.startsWith('0000')) {
+    throw new Error('La fecha de emisión no es válida.')
+  }
+  const instante = new Date(`${dia}T00:00:00.000Z`)
+  if (!Number.isFinite(instante.getTime()) || instante.toISOString().slice(0, 10) !== dia) {
+    throw new Error('La fecha de emisión no es válida.')
+  }
+  return dia
+}
+
+function diaCotizacion(valor) {
+  let instante = valor
+  if (typeof valor === 'string') {
+    const texto = valor.trim()
+    if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) return validarDiaISO(texto)
+
+    const fechaLocal = texto.match(/^(\d{2})([-/])(\d{2})\2(\d{4})$/)
+    if (fechaLocal) return validarDiaISO(`${fechaLocal[4]}-${fechaLocal[3]}-${fechaLocal[1]}`)
+
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/i.test(texto)) {
+      throw new Error('La fecha de emisión no es válida.')
+    }
+    validarDiaISO(texto.slice(0, 10))
+    instante = new Date(texto)
+  }
+
+  if (!(instante instanceof Date) || !Number.isFinite(instante.getTime())) {
+    throw new Error('La fecha de emisión no es válida.')
+  }
+  const partes = Object.fromEntries(
+    FECHA_EN_CHILE.formatToParts(instante).map(({ type, value }) => [type, value])
+  )
+  return validarDiaISO(`${partes.year.padStart(4, '0')}-${partes.month}-${partes.day}`)
+}
+
+function fecha(valor) {
+  const [anio, mes, dia] = diaCotizacion(valor).split('-')
+  return `${dia}-${mes}-${anio}`
+}
+
+function conVigencia(cotizacion) {
+  const fechaEmision = diaCotizacion(cotizacion.fechaEmision ?? cotizacion.fechaSolicitud)
+  const expiracion = new Date(`${fechaEmision}T00:00:00.000Z`)
+  // Suma días de calendario, sin depender del horario del navegador.
+  expiracion.setUTCDate(expiracion.getUTCDate() + DIAS_VIGENCIA)
+  const fechaExpiracion = validarDiaISO(expiracion.toISOString().slice(0, 10))
+  return { ...cotizacion, fechaEmision, fechaExpiracion }
+}
+
+function estadoVigente(cotizacion, hoy = diaCotizacion(new Date())) {
+  const puedeExpirar = cotizacion.estado === 'Pendiente' || cotizacion.estado === 'Respondida'
+  return puedeExpirar && hoy >= cotizacion.fechaExpiracion ? 'Expirada' : cotizacion.estado
+}
+
+function conEstadoActualizado(cotizacion, estado, ahora = new Date()) {
+  if (!cotizacion) throw new Error('Cotización no encontrada.')
+  const vigente = estadoVigente(cotizacion, diaCotizacion(ahora))
+  if (vigente === 'Expirada') throw new Error('La cotización expiró y no admite cambios de estado.')
+  if (!CAMBIOS[vigente].includes(estado)) throw new Error('Este cambio de estado no está permitido.')
+  return { ...cotizacion, estado, actualizadaEn: ahora.toISOString() }
+}
 
 function total(items) {
   return items.reduce((suma, item) => {
@@ -86,7 +163,7 @@ function cargar() {
   try {
     const texto = window.localStorage.getItem(CLAVE)
 
-    const cotizaciones = texto === null
+    const registros = texto === null
       ? CATALOGO.map((producto, index) => ({
           id: String(index + 1),
           estado: 'Respondida',
@@ -103,23 +180,26 @@ function cargar() {
     const invalida = (c) =>
       !c ||
       !Object.hasOwn(CAMBIOS, c.estado) ||
-      !c.id ||
+      !(typeof c.id === 'string' ? c.id.trim() : Number.isSafeInteger(c.id)) ||
       !Array.isArray(c.items) ||
       !c.items.length ||
-      !Number.isFinite(Date.parse(c.fechaSolicitud)) ||
       c.items.some((i) =>
         !i ||
         typeof i.nombre !== 'string' ||
+        !i.nombre.trim() ||
         !Number.isSafeInteger(i.precioUnitario) ||
         i.precioUnitario < 0 ||
         !Number.isSafeInteger(Number(i.cantidad)) ||
         Number(i.cantidad) < 1
-      )
+      ) ||
+      !Number.isSafeInteger(total(c.items))
 
-    if (!Array.isArray(cotizaciones) || cotizaciones.some(invalida)) {
+    if (!Array.isArray(registros) || registros.some(invalida)) {
       throw new Error('Datos inválidos')
     }
 
+    // Las solicitudes antiguas ya tienen fecha y precios. Se reutilizan sin reemitirlas.
+    const cotizaciones = registros.map(conVigencia)
     return { cotizaciones, error: '' }
   } catch {
     return {
@@ -127,6 +207,48 @@ function cargar() {
       error: 'No se pudo leer el historial. Revisa el almacenamiento del navegador antes de continuar.',
     }
   }
+}
+
+function emitirCotizacion(seleccion, observaciones, ahora = new Date(), id = crypto.randomUUID()) {
+  if (!Array.isArray(seleccion) || !seleccion.length) {
+    throw new Error('Agrega al menos un producto o servicio a la solicitud.')
+  }
+
+  const nota = observaciones.trim()
+  if (nota.length > 500) throw new Error('Las observaciones pueden tener hasta 500 caracteres.')
+
+  const seleccionados = new Map()
+  for (const item of seleccion) {
+    const cantidad = Number(item.cantidad)
+    if (!Number.isSafeInteger(cantidad) || cantidad < 1) {
+      throw new Error('Las cantidades deben ser números enteros mayores que cero.')
+    }
+    const publicacion = CATALOGO.find((p) => p.id === item.productoId)
+    if (!publicacion) throw new Error('Un producto o servicio seleccionado ya no está disponible.')
+    if (!Number.isSafeInteger(publicacion.precioUnitario) || publicacion.precioUnitario < 0) {
+      throw new Error('No se pudo consultar el precio vigente de una publicación.')
+    }
+
+    const unidades = (seleccionados.get(publicacion.id)?.cantidad ?? 0) + cantidad
+    if (!Number.isSafeInteger(unidades)) throw new Error('La cantidad supera el límite permitido.')
+    // El precio se toma del catálogo al emitir y luego se guarda en la solicitud.
+    seleccionados.set(publicacion.id, {
+      ...publicacion,
+      productoId: publicacion.id,
+      cantidad: unidades,
+    })
+  }
+
+  const items = [...seleccionados.values()]
+  if (!Number.isSafeInteger(total(items))) throw new Error('El total supera el límite permitido.')
+
+  return conVigencia({
+    id,
+    estado: 'Pendiente',
+    fechaSolicitud: ahora.toISOString(),
+    observaciones: nota,
+    items,
+  })
 }
 
 function Pantalla({ children, volver = false }) {
@@ -146,7 +268,7 @@ function Pantalla({ children, volver = false }) {
   )
 }
 
-function Lista({ cotizaciones, error }) {
+function Lista({ cotizaciones, error, hoy }) {
   const navigate = useNavigate()
 
   return (
@@ -171,45 +293,34 @@ function Lista({ cotizaciones, error }) {
 
       {error && <Alert severity="error">{error}</Alert>}
 
-      {cotizaciones.map((c) => (
-        <Paper key={c.id} sx={{ p: 2, mb: 2 }}>
-          <Stack spacing={1}>
-            <Typography sx={{ fontWeight: 600 }}>
-              {c.items.map((i) => i.nombre).join(' · ')}
-            </Typography>
+      {cotizaciones.map((c) => {
+        const estado = estadoVigente(c, hoy)
+        return (
+          <Paper key={c.id} sx={{ p: 2, mb: 2 }}>
+            <Stack spacing={1}>
+              <Typography sx={{ fontWeight: 600 }}>
+                {c.items.map((i) => i.nombre).join(' · ')}
+              </Typography>
+              <Typography variant="body2">
+                Fecha de emisión: {fecha(c.fechaEmision)}
+              </Typography>
+              <Typography variant="body2">
+                Fecha de expiración: {fecha(c.fechaExpiracion)}
+              </Typography>
+              <Typography>
+                Total: {pesos(total(c.items))}
+              </Typography>
 
-            <Typography variant="body2">
-              Fecha: {fecha(c.fechaSolicitud)}
-            </Typography>
-
-            <Typography>
-              Total: {pesos(total(c.items))}
-            </Typography>
-
-            <Stack
-              direction="row"
-              spacing={2}
-              sx={{
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Chip
-                label={c.estado}
-                color={COLORES[c.estado]}
-                size="small"
-              />
-
-              <Button
-                variant="contained"
-                onClick={() => navigate(`/cotizaciones/${c.id}`)}
-              >
-                Ver detalle
-              </Button>
+              <Stack direction="row" spacing={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                <Chip label={estado} color={COLORES[estado]} size="small" />
+                <Button variant="contained" onClick={() => navigate(`/cotizaciones/${c.id}`)}>
+                  Ver detalle
+                </Button>
+              </Stack>
             </Stack>
-          </Stack>
-        </Paper>
-      ))}
+          </Paper>
+        )
+      })}
 
       {!error && !cotizaciones.length && (
         <Alert severity="info">
@@ -311,7 +422,7 @@ function Solicitud({ onCrear, errorLectura }) {
             isOptionEqualToValue={(a, b) => a.id === b.id}
             onChange={(_, value) => setProducto(value)}
             disabled={enviando || Boolean(errorLectura)}
-            noOptionsText="No se encontraron productos"
+            noOptionsText="No se encontraron productos o servicios"
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -409,6 +520,10 @@ function Solicitud({ onCrear, errorLectura }) {
             El vendedor debe confirmar los precios de la solicitud.
           </Typography>
 
+          <Typography variant="body2" color="text.secondary">
+            El documento tendrá una vigencia de {DIAS_VIGENCIA} días corridos desde su emisión.
+          </Typography>
+
           {error && <Alert severity="error">{error}</Alert>}
 
           <Button
@@ -426,6 +541,128 @@ function Solicitud({ onCrear, errorLectura }) {
   )
 }
 
+const ESTILO_IMPRESION = `
+  body { margin: 28px; color: #161616; font: 15px/1.45 system-ui, sans-serif; }
+  article { max-width: 900px; margin: 0 auto; overflow-wrap: anywhere; }
+  h2 { margin: 12px 0; font-size: 24px; }
+  dl { display: flex; flex-wrap: wrap; gap: 12px 28px; margin: 16px 0; }
+  dt { font-weight: 700; } dd { margin: 0; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th, td { padding: 8px; border: 1px solid #aaa; text-align: left; }
+  th { background: #f4f4f4; }
+  td[align="right"], th[align="right"] { text-align: right; }
+  .total-cotizacion { text-align: right; font-weight: 700; }
+  .observaciones-cotizacion { white-space: pre-wrap; }
+  button { padding: 8px 12px; cursor: pointer; }
+  @media print { body { margin: 0; } button { display: none; } thead { display: table-header-group; } tr { break-inside: avoid; } }
+`
+
+function abrirImpresion(elemento, folio) {
+  const ventana = window.open('about:blank', '_blank')
+  if (!ventana) {
+    throw new Error('El navegador bloqueó la ventana de impresión. Habilítala para guardar el PDF.')
+  }
+
+  try {
+    ventana.opener = null
+    const doc = ventana.document
+    doc.documentElement.lang = 'es-CL'
+    doc.title = `Cotización ${folio}`
+    const estilo = doc.createElement('style')
+    estilo.textContent = ESTILO_IMPRESION
+    doc.head.append(estilo)
+
+    const imprimir = doc.createElement('button')
+    imprimir.type = 'button'
+    imprimir.textContent = 'Imprimir / Guardar PDF'
+    imprimir.addEventListener('click', () => ventana.print())
+    doc.body.append(imprimir, doc.importNode(elemento, true))
+    ventana.focus()
+  } catch {
+    ventana.close()
+    throw new Error('No se pudo abrir el documento para imprimir.')
+  }
+}
+
+function DocumentoCotizacion({ cotizacion, estado }) {
+  const hoja = useRef(null)
+  const [errorImpresion, setErrorImpresion] = useState('')
+
+  const handleImprimir = () => {
+    if (!hoja.current) return
+    setErrorImpresion('')
+    try {
+      abrirImpresion(hoja.current, cotizacion.id)
+    } catch (error) {
+      setErrorImpresion(error.message)
+    }
+  }
+
+  return (
+    <Stack spacing={2}>
+      <Paper component="article" ref={hoja} variant="outlined" sx={{ p: { xs: 2, sm: 3 } }}>
+        <Typography component="h2" variant="h5" sx={{ fontWeight: 700 }}>
+          Documento de cotización
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ overflowWrap: 'anywhere', mt: 0.5 }}>
+          Folio: {cotizacion.id}
+        </Typography>
+
+        <Box component="dl" sx={{ display: 'flex', flexWrap: 'wrap', columnGap: 4, rowGap: 1.5, my: 2, '& dt': { fontWeight: 700 }, '& dd': { m: 0 } }}>
+          <div><dt>Fecha de emisión</dt><dd>{fecha(cotizacion.fechaEmision)}</dd></div>
+          <div><dt>Fecha de expiración</dt><dd>{fecha(cotizacion.fechaExpiracion)}</dd></div>
+          <div><dt>Estado de la solicitud</dt><dd><Chip label={estado} color={COLORES[estado]} size="small" /></dd></div>
+        </Box>
+
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          Vigencia: {DIAS_VIGENCIA} días corridos desde la emisión. Valores en pesos chilenos (CLP).
+        </Typography>
+
+        <TableContainer>
+          <Table size="small" aria-label="Productos y servicios cotizados">
+            <TableHead>
+              <TableRow>
+                <TableCell scope="col">Producto o servicio</TableCell>
+                <TableCell scope="col" align="right">Cantidad</TableCell>
+                <TableCell scope="col" align="right">Valor unitario</TableCell>
+                <TableCell scope="col" align="right">Subtotal</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {cotizacion.items.map((item, indice) => (
+                <TableRow key={`${item.productoId ?? item.id ?? 'item'}:${indice}`}>
+                  <TableCell component="th" scope="row">{item.nombre}</TableCell>
+                  <TableCell align="right">{item.cantidad}</TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>{pesos(item.precioUnitario)}</TableCell>
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>{pesos(item.precioUnitario * Number(item.cantidad))}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <Typography className="total-cotizacion" sx={{ textAlign: 'right', mt: 2, fontWeight: 700 }}>
+          Total cotizado: {pesos(total(cotizacion.items))}
+        </Typography>
+
+        {typeof cotizacion.observaciones === 'string' && cotizacion.observaciones && (
+          <Box sx={{ mt: 2 }}>
+            <Typography sx={{ fontWeight: 700 }}>Observaciones</Typography>
+            <Typography className="observaciones-cotizacion" sx={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
+              {cotizacion.observaciones}
+            </Typography>
+          </Box>
+        )}
+      </Paper>
+
+      {errorImpresion && <Alert severity="warning" onClose={() => setErrorImpresion('')}>{errorImpresion}</Alert>}
+      <Button type="button" variant="outlined" onClick={handleImprimir} sx={{ alignSelf: 'flex-end' }}>
+        Imprimir / Guardar PDF
+      </Button>
+    </Stack>
+  )
+}
+
 function DetalleRuta(props) {
   const { id } = useParams()
   return <Detalle key={id} id={id} {...props} />
@@ -436,11 +673,14 @@ function Detalle({
   cotizaciones,
   errorLectura,
   onActualizar,
+  hoy,
 }) {
   const location = useLocation()
   const cotizacion = cotizaciones.find(
     (c) => String(c.id) === id
   )
+  const estado = cotizacion ? estadoVigente(cotizacion, hoy) : ''
+  const acciones = CAMBIOS[estado] ?? []
 
   const [destino, setDestino] = useState(null)
   const [mensaje, setMensaje] = useState('')
@@ -483,71 +723,35 @@ function Detalle({
               <Alert severity="error">{error}</Alert>
             )}
 
-            <Typography variant="h5">
-              Detalle de cotización
-            </Typography>
+            <DocumentoCotizacion cotizacion={cotizacion} estado={estado} />
 
-            <Chip
-              label={cotizacion.estado}
-              color={COLORES[cotizacion.estado]}
-              sx={{ alignSelf: 'flex-start' }}
-            />
+            {acciones.length > 0 && <Typography sx={{ fontWeight: 600 }}>Cambiar estado</Typography>}
 
-            <Typography>
-              Fecha de solicitud: {fecha(cotizacion.fechaSolicitud)}
-            </Typography>
-
-            {cotizacion.items.map((item) => (
-              <Typography key={item.productoId}>
-                {item.nombre} — Cantidad: {item.cantidad} —{' '}
-                {pesos(item.precioUnitario * item.cantidad)}
-              </Typography>
-            ))}
-
-            <Typography sx={{ fontWeight: 700 }}>
-              Total: {pesos(total(cotizacion.items))}
-            </Typography>
-
-            {cotizacion.observaciones && (
-              <Typography
-                sx={{
-                  whiteSpace: 'pre-wrap',
-                  overflowWrap: 'anywhere',
-                }}
-              >
-                {cotizacion.observaciones}
-              </Typography>
-            )}
-
-            <Typography sx={{ fontWeight: 600 }}>
-              Cambiar estado
-            </Typography>
-
-            {CAMBIOS[cotizacion.estado].map((estado) => (
+            {acciones.map((destinoEstado) => (
               <Button
-                key={estado}
+                key={destinoEstado}
                 variant={
-                  estado === 'Cancelada'
+                  destinoEstado === 'Cancelada'
                     ? 'outlined'
                     : 'contained'
                 }
                 color={
-                  estado === 'Cancelada'
+                  destinoEstado === 'Cancelada'
                     ? 'error'
                     : 'primary'
                 }
-                onClick={() => setDestino(estado)}
+                onClick={() => setDestino(destinoEstado)}
               >
-                {ACCIONES[estado]}
+                {ACCIONES[destinoEstado]}
               </Button>
             ))}
 
-            {!CAMBIOS[cotizacion.estado].length && (
-              <Typography>
-                Esta cotización está{' '}
-                {cotizacion.estado.toLowerCase()} y no admite
-                más cambios de estado.
-              </Typography>
+            {!acciones.length && (
+              <Alert severity={estado === 'Expirada' ? 'warning' : 'info'}>
+                {estado === 'Expirada'
+                  ? 'El plazo de 15 días terminó. Esta cotización queda disponible en el historial.'
+                  : `Esta cotización está ${estado.toLowerCase()} y no admite más cambios de estado.`}
+              </Alert>
             )}
           </Stack>
         </Paper>
@@ -574,7 +778,7 @@ function Detalle({
             Volver
           </Button>
 
-          <Button variant="contained" onClick={confirmar}>
+          <Button variant="contained" onClick={confirmar} disabled={!acciones.includes(destino)}>
             Confirmar cambio
           </Button>
         </DialogActions>
@@ -585,12 +789,34 @@ function Detalle({
 
 export default function CotizacionesPage() {
   const [datos, setDatos] = useState(cargar)
+  const [hoy, setHoy] = useState(() => diaCotizacion(new Date()))
 
-  const guardar = (cotizaciones) => {
-    if (datos.error) {
-      throw new Error(datos.error)
+  useEffect(() => {
+    const actualizarDia = () => setHoy(diaCotizacion(new Date()))
+    const actualizarHistorial = (event) => {
+      if (event.key === CLAVE || event.key === null) {
+        setDatos(cargar())
+        actualizarDia()
+      }
     }
 
+    const intervalo = window.setInterval(actualizarDia, 60_000)
+    window.addEventListener('focus', actualizarDia)
+    window.addEventListener('storage', actualizarHistorial)
+    return () => {
+      window.clearInterval(intervalo)
+      window.removeEventListener('focus', actualizarDia)
+      window.removeEventListener('storage', actualizarHistorial)
+    }
+  }, [])
+
+  const leerHistorial = () => {
+    const actual = cargar()
+    if (actual.error) throw new Error(actual.error)
+    return actual.cotizaciones
+  }
+
+  const guardar = (cotizaciones) => {
     try {
       window.localStorage.setItem(
         CLAVE,
@@ -603,106 +829,45 @@ export default function CotizacionesPage() {
     }
 
     setDatos({ cotizaciones, error: '' })
+    setHoy(diaCotizacion(new Date()))
   }
 
   const crear = (items, observaciones) => {
-    if (!items.length) {
-      throw new Error(
-        'Agrega al menos un producto o servicio a la solicitud.'
-      )
-    }
-
-    if (
-      items.some(
-        (item) =>
-          !Number.isSafeInteger(Number(item.cantidad)) ||
-          Number(item.cantidad) < 1
-      )
-    ) {
-      throw new Error(
-        'Las cantidades deben ser números enteros mayores que cero.'
-      )
-    }
-
-    if (observaciones.trim().length > 500) {
-      throw new Error(
-        'Las observaciones pueden tener hasta 500 caracteres.'
-      )
-    }
-
-    if (!Number.isSafeInteger(total(items))) {
-      throw new Error('El total supera el límite permitido.')
-    }
-
-      const nueva = {
-      id: crypto.randomUUID(),
-      estado: 'Pendiente',
-      fechaSolicitud: new Date().toISOString(),
-      observaciones: observaciones.trim(),
-      items: items.map((item) => ({
-        ...item,
-        cantidad: Number(item.cantidad),
-      })),
-    }
-
-    console.log('[Cotizaciones] Crear solicitud:', nueva)
-    guardar([nueva, ...datos.cotizaciones])
+    const cotizaciones = leerHistorial()
+    const nueva = emitirCotizacion(items, observaciones)
+    guardar([nueva, ...cotizaciones])
     return nueva
   }
 
   const actualizar = (id, estado) => {
-    const seleccionada = datos.cotizaciones.find(
-      (c) => String(c.id) === id
-    )
-
-    if (
-      !seleccionada ||
-      !CAMBIOS[seleccionada.estado].includes(estado)
-    ) {
-      throw new Error(
-        'Este cambio de estado no está permitido.'
-      )
-    }
-      console.log('[Cotizaciones] Actualizar estado:', {
-      id,
-      estadoAnterior: seleccionada.estado,
-      estadoNuevo: estado,
-    })
-
-    guardar(
-      datos.cotizaciones.map((c) =>
-        c === seleccionada
-          ? {
-              ...c,
-              estado,
-              actualizadaEn: new Date().toISOString(),
-            }
-          : c
-      )
-    )
+    const cotizaciones = leerHistorial()
+    const seleccionada = cotizaciones.find((c) => String(c.id) === id)
+    const actualizada = conEstadoActualizado(seleccionada, estado)
+    guardar(cotizaciones.map((c) => c === seleccionada ? actualizada : c))
   }
 
   return (
-  <Routes>
-    <Route index element={<Lista {...datos} />} />
+    <Routes>
+      <Route index element={<Lista {...datos} hoy={hoy} />} />
 
-    <Route
-      path="nueva"
-      element={<Solicitud onCrear={crear} errorLectura={datos.error} />}
-    />
+      <Route
+        path="nueva"
+        element={<Solicitud onCrear={crear} errorLectura={datos.error} />}
+      />
 
-    <Route
-      path=":id"
-      element={
-        <DetalleRuta
-          cotizaciones={datos.cotizaciones}
-          onActualizar={actualizar}
-          errorLectura={datos.error}
-        />
-      }
-    />
+      <Route
+        path=":id"
+        element={
+          <DetalleRuta
+            cotizaciones={datos.cotizaciones}
+            onActualizar={actualizar}
+            errorLectura={datos.error}
+            hoy={hoy}
+          />
+        }
+      />
 
-    <Route path="*" element={<Navigate to="/cotizaciones" replace />} />
-  </Routes>
-)
+      <Route path="*" element={<Navigate to="/cotizaciones" replace />} />
+    </Routes>
+  )
 }

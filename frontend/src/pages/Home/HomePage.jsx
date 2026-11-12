@@ -18,9 +18,9 @@ import TopNavBar from '../../components/organisms/TopNavBar'
 // Los destinos sin ruta registrada quedan desactivados hasta conectarlos.
 const RUTAS = {
   catalogo: '/catalogo',
-  tiendas: null,
+  tiendas: '/tiendas-que-sigo',
   categorias: '/catalogo',
-  ayuda: null,
+  ayuda: '/ayuda',
 }
 
 const COLORES = {
