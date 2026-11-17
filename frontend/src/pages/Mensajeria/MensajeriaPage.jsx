@@ -12,6 +12,18 @@ import {
 } from './mensajeria.js'
 
 const AZUL = '#008FFF'
+const SOLO_LECTORES = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '1px',
+  height: '1px',
+  m: 0,
+  p: 0,
+  overflow: 'hidden',
+  clipPath: 'inset(50%)',
+  whiteSpace: 'nowrap',
+}
 
 function FlechaVolver() {
   return (
@@ -24,7 +36,7 @@ function FlechaVolver() {
 function Bandeja({ conversaciones, seleccionadaId, visible }) {
   const ordenadas = ordenarConversaciones(conversaciones)
   return (
-    <Paper component="nav" aria-label="Conversaciones" elevation={0} sx={{ display: visible ? 'flex' : 'none', flexDirection: 'column', borderRadius: 2.5, minHeight: 0, overflow: 'hidden' }}>
+    <Paper component="nav" aria-label="Conversaciones" elevation={0} sx={{ display: visible ? 'flex' : 'none', flexDirection: 'column', borderRadius: 2.5, minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
       <Typography component="h2" sx={{ fontSize: 18, fontWeight: 700, px: 2, pt: 2, pb: 1.5 }}>Conversaciones</Typography>
       <List disablePadding sx={{ px: 2, pb: 2, overflowY: 'auto', minHeight: 0 }}>
         {ordenadas.map((conversacion, indice) => {
@@ -75,11 +87,11 @@ function Hilo({ conversacion, movil, borrador, onBorrador, onEnviar, error, onCe
 
   const alEnviar = (event) => {
     onEnviar(event)
-    campoRef.current?.focus()
+    campoRef.current?.focus({ preventScroll: true })
   }
 
   return (
-    <Paper component="section" aria-labelledby="titulo-conversacion" elevation={0} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 2.5, p: 2, minHeight: 0, overflow: 'hidden' }}>
+    <Paper component="section" aria-labelledby="titulo-conversacion" elevation={0} sx={{ display: 'flex', flexDirection: 'column', borderRadius: 2.5, p: 2, minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', pb: 1.5 }}>
         {movil && <IconButton component={RouterLink} to="/mensajeria" aria-label="Volver a las conversaciones" size="small"><FlechaVolver /></IconButton>}
         <Box sx={{ minWidth: 0 }}>
@@ -89,13 +101,13 @@ function Hilo({ conversacion, movil, borrador, onBorrador, onEnviar, error, onCe
       </Stack>
       <Divider />
 
-      <Box component="ol" role="log" aria-label={`Mensajes con ${conversacion.contacto.nombre}`} aria-live="polite" aria-relevant="additions" ref={listaRef} sx={{ listStyle: 'none', m: 0, py: 1.5, px: 0, flex: 1, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain', display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+      <Box component="ol" role="log" aria-label={`Mensajes con ${conversacion.contacto.nombre}`} aria-live="polite" aria-relevant="additions" ref={listaRef} sx={{ listStyle: 'none', m: 0, py: 1.5, px: 0, flex: 1, minWidth: 0, minHeight: 0, overflowX: 'hidden', overflowY: 'auto', overscrollBehavior: 'contain', display: 'flex', flexDirection: 'column', gap: 1.25 }}>
         {conversacion.mensajes.map((mensaje) => {
           const propio = mensaje.autor === 'yo'
           return (
             <Box component="li" key={mensaje.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: propio ? 'flex-end' : 'flex-start', flexShrink: 0 }}>
               <Box sx={{ maxWidth: '85%', bgcolor: propio ? AZUL : '#F0F1F3', color: propio ? 'white' : '#25252A', borderRadius: 3.5, px: 1.5, py: 1, overflowWrap: 'anywhere' }}>
-                <Typography component="span" sx={{ position: 'absolute', width: 1, height: 1, p: 0, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap' }}>{propio ? 'Tú: ' : `${conversacion.contacto.nombre}: `}</Typography>
+                <Typography component="span" sx={SOLO_LECTORES}>{propio ? 'Tú: ' : `${conversacion.contacto.nombre}: `}</Typography>
                 <Typography component="p" sx={{ m: 0, fontSize: 13, whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{mensaje.texto}</Typography>
               </Box>
               <Typography component="time" dateTime={mensaje.fecha} title={formatearFechaMensaje(mensaje.fecha, 'completa')} sx={{ fontSize: 10, color: '#8D99AE', mt: 0.4 }}><span>{formatearFechaMensaje(mensaje.fecha)}</span></Typography>
@@ -106,8 +118,8 @@ function Hilo({ conversacion, movil, borrador, onBorrador, onEnviar, error, onCe
       </Box>
 
       {error && <Alert severity="error" onClose={onCerrarError} sx={{ mb: 1 }}>{error}</Alert>}
-      <Box component="form" aria-label="Escribir un mensaje" onSubmit={alEnviar} sx={{ pt: 1 }}>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end' }}>
+      <Box component="form" aria-label="Escribir un mensaje" onSubmit={alEnviar} sx={{ pt: 1, minWidth: 0 }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-end', minWidth: 0 }}>
           <TextField
             inputRef={campoRef}
             fullWidth multiline minRows={1} maxRows={4} size="small"
@@ -117,9 +129,9 @@ function Hilo({ conversacion, movil, borrador, onBorrador, onEnviar, error, onCe
               if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && event.keyCode !== 229) alEnviar(event)
             }}
             slotProps={{ htmlInput: { 'aria-label': 'Mensaje', 'aria-describedby': 'ayuda-mensaje', maxLength: MAXIMO_MENSAJE } }}
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1.5, fontSize: 13 }, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#D4D9E2' } }}
+            sx={{ flex: '1 1 0px', minWidth: 0, '& .MuiOutlinedInput-root': { borderRadius: 1.5, fontSize: 13 }, '& .MuiOutlinedInput-notchedOutline': { borderColor: '#D4D9E2' } }}
           />
-          <Button type="submit" variant="contained" disableElevation disabled={!borrador.trim() || enviando} sx={{ bgcolor: AZUL, minHeight: 38, borderRadius: 1.5, textTransform: 'none', fontWeight: 700, '&:hover': { bgcolor: '#0078D6' } }}><span>{enviando ? 'Enviando…' : 'Enviar'}</span></Button>
+          <Button type="submit" variant="contained" disableElevation disabled={!borrador.trim() || enviando} sx={{ bgcolor: AZUL, flexShrink: 0, minHeight: 38, borderRadius: 1.5, textTransform: 'none', fontWeight: 700, '&:hover': { bgcolor: '#0078D6' } }}><span>{enviando ? 'Enviando…' : 'Enviar'}</span></Button>
         </Stack>
         <Typography id="ayuda-mensaje" variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, fontSize: 10 }}>
           <span>{`Enter para enviar · Shift + Enter para otra línea · ${borrador.length}/${MAXIMO_MENSAJE}`}</span>
@@ -197,20 +209,36 @@ export default function MensajeriaPage() {
   }
 
   return (
-    <Box translate="no" className="notranslate" sx={{ bgcolor: '#3026A6', height: '100dvh', minHeight: 420, display: 'flex', flexDirection: 'column' }}>
+    <Box
+      translate="no"
+      className="notranslate"
+      sx={{
+        bgcolor: '#3026A6',
+        position: 'relative',
+        width: '100%',
+        maxWidth: '100%',
+        minWidth: 0,
+        boxSizing: 'border-box',
+        overflowX: 'clip',
+        height: '100dvh',
+        minHeight: 420,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <TopNavBar showBack title="Mensajería" onBack={() => navigate('/catalogo')} />
-      <Container maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, pt: 1.5, pb: 2.5 }}>
-        <Typography component="h1" sx={{ position: 'absolute', width: 1, height: 1, p: 0, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', whiteSpace: 'nowrap' }}>Mensajería</Typography>
+      <Container maxWidth="lg" sx={{ position: 'relative', display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, minHeight: 0, pt: 1.5, pb: 2.5 }}>
+        <Typography component="h1" sx={SOLO_LECTORES}>Mensajería</Typography>
         <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.85)', display: 'block', mb: 1.5, fontSize: 11 }}>Vista de prueba · Estos contactos son ficticios y los mensajes se guardan en este navegador.</Typography>
         {datos.error ? (
           <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => setDatos(cargarMensajeria())}>Reintentar</Button>}>{datos.error}</Alert>
         ) : (
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'minmax(220px, 2fr) minmax(0, 3fr)', lg: 'minmax(270px, 3fr) minmax(0, 5fr)' }, gap: 2, flex: 1, minHeight: 0 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'minmax(0, 2fr) minmax(0, 3fr)', lg: 'minmax(0, 3fr) minmax(0, 5fr)' }, gap: 2, flex: 1, minWidth: 0, minHeight: 0 }}>
             <Bandeja conversaciones={datos.conversaciones} seleccionadaId={seleccionadaId} visible={verBandeja} />
             {verHilo && (seleccionada ? (
               <Hilo key={seleccionada.id} conversacion={seleccionada} movil={!escritorio} borrador={borradores[seleccionada.id] ?? ''} onBorrador={cambiarBorrador} onEnviar={handleEnviar} error={errorAccion} onCerrarError={() => setErrorAccion('')} enviando={enviando} />
             ) : (
-              <Paper elevation={0} sx={{ borderRadius: 2.5, p: 3, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1.5, textAlign: 'center' }}>
+              <Paper elevation={0} sx={{ borderRadius: 2.5, p: 3, minWidth: 0, minHeight: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1.5, textAlign: 'center' }}>
                 <Typography component="h2" sx={{ fontWeight: 700 }}><span>{id ? 'Conversación no encontrada' : 'Selecciona una conversación'}</span></Typography>
                 <Typography variant="body2" color="text.secondary"><span>{id ? 'El enlace no corresponde a una conversación disponible.' : 'Elige un contacto de la bandeja para ver sus mensajes.'}</span></Typography>
                 {id && <Button component={RouterLink} to="/mensajeria" variant="outlined" sx={{ textTransform: 'none' }}>Volver a la bandeja</Button>}

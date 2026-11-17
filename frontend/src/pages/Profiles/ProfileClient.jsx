@@ -39,12 +39,12 @@ import { formatearFecha } from '../../utils/formatos';
 const ACCESOS_CLIENTE = [
   { titulo: 'Mis compras', icono: ShoppingBagOutlinedIcon, ruta: '/compras' },
   { titulo: 'Carrito', icono: ShoppingCartOutlinedIcon, ruta: '/carrito' },
-  { titulo: 'Lista de deseos', icono: FavoriteBorderOutlinedIcon, ruta: '/deseos' },
+  { titulo: 'Lista de deseos', icono: FavoriteBorderOutlinedIcon, ruta: '/lista-deseos' },
   { titulo: 'Mis reseñas', icono: StarBorderOutlinedIcon, ruta: '/resenas' },
   { titulo: 'Mensajería', icono: MailOutlinedIcon, ruta: '/mensajeria' },
   { titulo: 'Mis cotizaciones', icono: RequestQuoteOutlinedIcon, ruta: '/cotizaciones' },
-  { titulo: 'Mis preguntas', icono: HelpOutlinedIcon, ruta: '/preguntas' },
-  { titulo: 'Mis direcciones', icono: PlaceOutlinedIcon, ruta: '/direcciones' },
+  { titulo: 'Mis preguntas', icono: HelpOutlinedIcon, ruta: '/mis-preguntas' },
+  { titulo: 'Mis direcciones', icono: PlaceOutlinedIcon, ruta: '/mis-direcciones' },
 ];
 
 function Pantalla({ children }) {

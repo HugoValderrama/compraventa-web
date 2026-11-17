@@ -10,7 +10,7 @@ import {
 import CampoClave from '../../molecules/CampoClave';
 import { changePassword } from '../../../mocks/usuario';
 import { REQUISITOS_PASSWORD, validarPassword } from '../../../utils/validaciones';
-
+import { Link as RouterLink } from 'react-router-dom';
 const VACIO = { actual: '', nueva: '', confirmacion: '' };
 
 export default function CambiarClaveDialog({ open, onClose, onExito }) {
@@ -86,6 +86,17 @@ export default function CambiarClaveDialog({ open, onClose, onExito }) {
             autoComplete="current-password"
             autoFocus
           />
+          <RouterLink
+            to="/recuperar-password"
+            style={{
+            display: 'block',
+            textAlign: 'right',
+            color: '#1565c0',
+            fontSize: '0.875rem',
+            }}>
+            ¿Olvidaste tu contraseña?
+          </RouterLink>
+          
           <CampoClave
             label="Nueva contraseña"
             value={form.nueva}
