@@ -32,7 +32,7 @@ function RegisterForm({ tipoUsuario }) {
   const runValido = validarRun(run);
 
   // Verificar si el RUN está completo
-  const runCompleto = run.length === 10;
+  const runCompleto = run.replace(/[^0-9K]/gi, "").length >= 8;
 
   // Validar formulario completo
   const formularioValido =
@@ -46,24 +46,42 @@ function RegisterForm({ tipoUsuario }) {
     (tipoUsuario !== "emprendedor" || emprendedorValido);
 
   // Registrar evento de creación de cuenta
-  const crearCuenta = () => {
-    if (!formularioValido) return;
+  
+const crearCuenta = () => {
+  console.log("[Registro] Intento de creación de cuenta");
 
-    console.log("[Registro] Formulario validado:", {
-      tipoUsuario,
-      formularioValido: true,
-      accion: "crear_cuenta",
+  if (!formularioValido) {
+    console.warn("[Registro] Validación fallida:", {
+      runValido,
+      nombreValido,
+      emailValido,
+      telefonoValido,
+      edadValida,
+      passwordsValidas,
+      aceptaTerminos,
+      emprendedorValido:
+        tipoUsuario !== "emprendedor" || emprendedorValido,
     });
 
-    // Navegación temporal hasta conectar el backend.
-    if (tipoUsuario === "emprendedor") {
-      console.log("[Registro] Navegación al perfil emprendedor");
-      navigate("/perfilE");
-    } else {
-      console.log("[Registro] Navegación al perfil cliente");
-      navigate("/perfil");
-    }
-  };
+    return;
+  }
+
+  console.log("[Registro] Formulario validado:", {
+    formularioValido: true,
+    tipoUsuario,
+    accion: "crear_cuenta",
+  });
+
+  // Navegación temporal hasta conectar el backend
+  if (tipoUsuario === "emprendedor") {
+    console.log("[Registro] Navegación al perfil emprendedor");
+    navigate("/perfilE");
+  } else {
+    console.log("[Registro] Navegación al perfil cliente");
+    navigate("/perfil");
+  }
+};
+
 
   return (
     <Box sx={{ width: "100%" }}>

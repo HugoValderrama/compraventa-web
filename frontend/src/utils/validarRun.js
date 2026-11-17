@@ -22,6 +22,12 @@ export function validarRun(run) {
     return false;
   }
 
+  // NUEVA VALIDACIÓN:
+  // Rechazar RUN con todos los números del cuerpo iguales
+  if (/^(\d)\1+$/.test(cuerpo)) {
+    return false;
+  }
+
   let suma = 0;
   let multiplicador = 2;
 

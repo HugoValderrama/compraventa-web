@@ -58,15 +58,34 @@ function LoginForm() {
     });
 
     setEnviando(true);
-    try {
-      const cuenta = await login({ run, password }); // TODO: conectar API
-      const usuario = guardarSesion(cuenta);
-      const modo = elegirModoInicial(usuario, leerAlmacen(claveUltimoModo(usuario)));
-      navigate(rutaInicio(modo));
-    } catch (err) {
-      setErrorPassword(err.message || "No se pudo iniciar sesión");
-      setEnviando(false);
-    }
+    
+try {
+  const cuenta = await login({ run, password });
+
+  const usuario = guardarSesion(cuenta);
+
+  const modo = elegirModoInicial(
+    usuario,
+    leerAlmacen(claveUltimoModo(usuario))
+  );
+
+  console.log("[Login] Inicio de sesión exitoso", {
+    autenticado: true,
+    modo,
+  });
+
+  navigate(rutaInicio(modo));
+
+} catch (err) {
+  console.error("[Login] Error al iniciar sesión:", {
+    autenticado: false,
+    mensaje: err.message || "No se pudo iniciar sesión",
+  });
+
+  setErrorPassword(err.message || "No se pudo iniciar sesión");
+  setEnviando(false);
+}
+
 
   };
 

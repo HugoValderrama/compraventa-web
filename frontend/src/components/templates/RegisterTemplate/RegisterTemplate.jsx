@@ -48,7 +48,10 @@ function RegisterTemplate() {
           }}
         >
           <Button
-            onClick={() => setTipoUsuario("cliente")}
+            onClick={() => {
+            setTipoUsuario("cliente");
+            console.log("[Registro] Tipo de usuario seleccionado: Cliente");
+}}
             variant={
               tipoUsuario === "cliente"
                 ? "contained"
@@ -86,7 +89,10 @@ function RegisterTemplate() {
           </Button>
 
           <Button
-            onClick={() => setTipoUsuario("emprendedor")}
+            onClick={() => {
+            setTipoUsuario("emprendedor");
+            console.log("[Registro] Tipo de usuario seleccionado: Emprendedor");
+}}
             variant={
               tipoUsuario === "emprendedor"
                 ? "contained"
