@@ -3,9 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LaguitoLibre.API.Models
 {
-	[Table("Interactua")]
-	[PrimaryKey(nameof(usuario_id), nameof(respuesta_id))]
-	public class Interactua
+	[Table("contesta")]
+	public class Contesta
 	{
 		public string usuario_id { get; set; }
 		[ForeignKey("usuario_id")]

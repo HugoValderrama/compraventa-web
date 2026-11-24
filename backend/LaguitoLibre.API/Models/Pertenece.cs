@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace LaguitoLibre.API.Models
 {
 	[Table("pertenece")]
-	[PrimaryKey(nameof(producto_id), nameof(categoria_id))]
 	public class Pertenece
 	{
 		public string producto_id { get; set; }
@@ -13,6 +12,6 @@ namespace LaguitoLibre.API.Models
 		
 		public string categoria_id { get; set; }
 		[ForeignKey("categoria_id")]
-		public Caterogia? Categoria { get; set; }
+		public Categoria? Categoria { get; set; }
 	}
 }

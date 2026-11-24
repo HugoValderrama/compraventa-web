@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace LaguitoLibre.API.Models
 {
 	[Table("quiere")]
-	[PrimaryKey(nameof(cliente_id), nameof(servicio_id))]
 	public class Quiere
 	{
 		public string cliente_id { get; set; }

@@ -12,7 +12,6 @@ namespace LaguitoLibre.API.Models
 		public string nombre { get; set; }
 
 		public int categoriapadre_id { get; set; }
-		[ForeignKey("categoriapadre_id")]
-		public Categoria? Categoria { get; set; }
+		// PONER EN EL DBCONTEXT REFERENCIA A CLAVE PRIMARIA
 	}
 }

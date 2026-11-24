@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace LaguitoLibre.API.Models
 {
 	[Table("evalua")]
-	[PrimaryKey(nameof(usuario_id), nameof(calificacion_id), nameof(venta_id), nameof(servicio_id))]
 	public class Evalua
 	{
 		public string usuario_id { get; set; }

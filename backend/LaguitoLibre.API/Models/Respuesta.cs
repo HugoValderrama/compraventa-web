@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LaguitoLibre.API.Models
 {
-	[Table("pregunta")]
-	public class Pregunta
+	[Table("respuesta")]
+	public class Respuesta
 	{
 		[Key]
 		public int idrespuesta { get; set; }
