@@ -1,21 +1,19 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Interactua
 {
-	[Table("interactua")]
-	public class Interactua
-	{
-		public string usuario_id { get; set; }
-		[ForeignKey("usuario_id")]
-		public Usuario? Usuario { get; set; }
-		
-		public int mensaje_id { get; set; }
-		[ForeignKey("mensaje_id")]
-		public Mensaje? Mensaje { get; set; }
-		
-		public int venta_id { get; set; }
-		[ForeignKey("venta_id")]
-		public Venta? Venta { get; set; }
-	}
+    public string UsuarioId { get; set; } = null!;
+
+    public int MensajeId { get; set; }
+
+    public int VentaId { get; set; }
+
+    public virtual Mensaje Mensaje { get; set; } = null!;
+
+    public virtual Usuario Usuario { get; set; } = null!;
+
+    public virtual Venta Venta { get; set; } = null!;
 }

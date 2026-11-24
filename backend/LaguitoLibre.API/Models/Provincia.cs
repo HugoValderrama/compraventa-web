@@ -1,20 +1,19 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Provincia
 {
-	[Table("provincia")]
-	public class Provincia
-	{
-		[Key]
-		public int id { get; set; }
+    public int Id { get; set; }
 
-		public string nombre { get; set; }
+    public string Nombre { get; set; } = null!;
 
-		public int superficie { get; set; }
+    public int Superficie { get; set; }
 
-		public int id_region { get; set; }
-		[ForeignKey("id_region")]
-		public Region? Region { get; set; }
-	}
+    public int IdRegion { get; set; }
+
+    public virtual ICollection<Comuna> Comuna { get; set; } = new List<Comuna>();
+
+    public virtual Region IdRegionNavigation { get; set; } = null!;
 }

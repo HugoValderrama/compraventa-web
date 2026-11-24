@@ -1,18 +1,23 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Pregunta
 {
-	[Table("pregunta")]
-	public class Pregunta
-	{
-		[Key]
-		public int idpregunta { get; set; }
-		
-		public string pregunta { get; set; }
+    public int Idpregunta { get; set; }
 
-		public bool estado { get; set; }
-		
-		public DateOnly fecha { get; set; }
-	}
+    public string Pregunta1 { get; set; } = null!;
+
+    public bool Estado { get; set; }
+
+    public DateTime Fecha { get; set; }
+
+    public virtual ICollection<Averigua> Averigua { get; set; } = new List<Averigua>();
+
+    public virtual ICollection<Consulta> Consulta { get; set; } = new List<Consulta>();
+
+    public virtual ICollection<Contesta> Contesta { get; set; } = new List<Contesta>();
+
+    public virtual ICollection<Responde> Responde { get; set; } = new List<Responde>();
 }

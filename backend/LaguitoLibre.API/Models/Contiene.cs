@@ -1,19 +1,19 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Contiene
 {
-	[Table("contiene")]
-	public class Contiene
-	{
-		public int inventario_id { get; set; }
-		[ForeignKey("inventario_id")]
-		public Inventario? Inventario { get; set; }
-		
-		public int producto_id { get; set; }
-		[ForeignKey("producto_id")]
-		public Servicio? Servicio { get; set; }
-		
-		public int stock { get; set; }
-	}
+    public int InventarioId { get; set; }
+
+    public int ProductoId { get; set; }
+
+    public int Stock { get; set; }
+
+    public virtual ICollection<Carrito> Carrito { get; set; } = new List<Carrito>();
+
+    public virtual Inventario Inventario { get; set; } = null!;
+
+    public virtual Producto Producto { get; set; } = null!;
 }

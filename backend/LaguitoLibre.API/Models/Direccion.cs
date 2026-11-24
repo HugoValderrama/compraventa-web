@@ -1,22 +1,23 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Direccion
 {
-	[Table("direccion")]
-	public class Direccion
-	{
-		[Key]
-		public int iddireccion { get; set; }
+    public int Iddireccion { get; set; }
 
-		public string calle { get; set; }
+    public string Calle { get; set; } = null!;
 
-		public int numero { get; set; }
+    public int Numero { get; set; }
 
-		public string departamento { get; set; }
+    public string? Departamento { get; set; }
 
-		public int codigopostal { get; set; }
-		[ForeignKey("codigopostal")]
-		public CodigoPostal? CodigoPostal { get; set; }
-	}
+    public int Codigopostal { get; set; }
+
+    public virtual Codigopostal CodigopostalNavigation { get; set; } = null!;
+
+    public virtual ICollection<Despacho> Despacho { get; set; } = new List<Despacho>();
+
+    public virtual ICollection<Usuario> Usuario { get; set; } = new List<Usuario>();
 }

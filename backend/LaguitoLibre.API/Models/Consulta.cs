@@ -1,21 +1,19 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Consulta
 {
-	[Table("consulta")]
-	public class Consulta
-	{
-		public string usuario_id { get; set; }
-		[ForeignKey("usuario_id")]
-		public Usuario? Usuario { get; set; }
-		
-		public int producto_id { get; set; }
-		[ForeignKey("producto_id")]
-		public Producto? Producto { get; set; }
-		
-		public int pregunta_id { get; set; }
-		[ForeignKey("pregunta_id")]
-		public Pregunta? Pregunta { get; set; }
-	}
+    public string UsuarioId { get; set; } = null!;
+
+    public int ProductoId { get; set; }
+
+    public int PreguntaId { get; set; }
+
+    public virtual Pregunta Pregunta { get; set; } = null!;
+
+    public virtual Producto Producto { get; set; } = null!;
+
+    public virtual Usuario Usuario { get; set; } = null!;
 }

@@ -1,99 +1,124 @@
 ﻿using System;
 using System.Collections.Generic;
-using LaguitoLibre.Api.Models;
+using LaguitoLibre.API.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace LaguitoLibre.Api.Data;
+namespace LaguitoLibre.API.Data;
 
 public partial class AppDbContext : DbContext
 {
+    public AppDbContext()
+    {
+    }
+
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
     {
     }
 
-    public virtual DbSet<Adquiere> Adquieres { get; set; }
+    public virtual DbSet<Administrador> Administrador { get; set; }
 
-    public virtual DbSet<Averigua> Averiguas { get; set; }
+    public virtual DbSet<Adquiere> Adquiere { get; set; }
 
-    public virtual DbSet<Calificacion> Calificacions { get; set; }
+    public virtual DbSet<Averigua> Averigua { get; set; }
 
-    public virtual DbSet<Carrito> Carritos { get; set; }
+    public virtual DbSet<Calificacion> Calificacion { get; set; }
 
-    public virtual DbSet<Categorium> Categoria { get; set; }
+    public virtual DbSet<Carrito> Carrito { get; set; }
 
-    public virtual DbSet<Cliente> Clientes { get; set; }
+    public virtual DbSet<Categoria> Categoria { get; set; }
 
-    public virtual DbSet<Codigopostal> Codigopostals { get; set; }
+    public virtual DbSet<Cliente> Cliente { get; set; }
 
-    public virtual DbSet<Compra> Compras { get; set; }
+    public virtual DbSet<Codigopostal> Codigopostal { get; set; }
 
-    public virtual DbSet<Comuna> Comunas { get; set; }
+    public virtual DbSet<Compra> Compra { get; set; }
 
-    public virtual DbSet<Consultum> Consulta { get; set; }
+    public virtual DbSet<Comuna> Comuna { get; set; }
 
-    public virtual DbSet<Contestum> Contesta { get; set; }
+    public virtual DbSet<Consulta> Consulta { get; set; }
 
-    public virtual DbSet<Contiene> Contienes { get; set; }
+    public virtual DbSet<Contesta> Contesta { get; set; }
 
-    public virtual DbSet<Correo> Correos { get; set; }
+    public virtual DbSet<Contiene> Contiene { get; set; }
 
-    public virtual DbSet<Cotizacion> Cotizacions { get; set; }
+    public virtual DbSet<Correo> Correo { get; set; }
 
-    public virtual DbSet<Descuentum> Descuenta { get; set; }
+    public virtual DbSet<Cotizacion> Cotizacion { get; set; }
 
-    public virtual DbSet<Despacho> Despachos { get; set; }
+    public virtual DbSet<Descuenta> Descuenta { get; set; }
 
-    public virtual DbSet<Devolucion> Devolucions { get; set; }
+    public virtual DbSet<Despacho> Despacho { get; set; }
 
-    public virtual DbSet<Devuelve> Devuelves { get; set; }
+    public virtual DbSet<Devolucion> Devolucion { get; set; }
 
-    public virtual DbSet<Direccion> Direccions { get; set; }
+    public virtual DbSet<Devuelve> Devuelve { get; set; }
 
-    public virtual DbSet<Emprendedor> Emprendedors { get; set; }
+    public virtual DbSet<Direccion> Direccion { get; set; }
 
-    public virtual DbSet<Empresa> Empresas { get; set; }
+    public virtual DbSet<Emprendedor> Emprendedor { get; set; }
 
-    public virtual DbSet<Empresatransporte> Empresatransportes { get; set; }
+    public virtual DbSet<Empresa> Empresa { get; set; }
 
-    public virtual DbSet<Evalua> Evaluas { get; set; }
+    public virtual DbSet<Empresatransporte> Empresatransporte { get; set; }
 
-    public virtual DbSet<Interactua> Interactuas { get; set; }
+    public virtual DbSet<Evalua> Evalua { get; set; }
 
-    public virtual DbSet<Inventario> Inventarios { get; set; }
+    public virtual DbSet<Interactua> Interactua { get; set; }
 
-    public virtual DbSet<Mensaje> Mensajes { get; set; }
+    public virtual DbSet<Inventario> Inventario { get; set; }
 
-    public virtual DbSet<Metodopago> Metodopagos { get; set; }
+    public virtual DbSet<Mensaje> Mensaje { get; set; }
 
-    public virtual DbSet<Ofertum> Oferta { get; set; }
+    public virtual DbSet<Metodopago> Metodopago { get; set; }
 
-    public virtual DbSet<Preguntum> Pregunta { get; set; }
+    public virtual DbSet<Oferta> Oferta { get; set; }
 
-    public virtual DbSet<Produce> Produces { get; set; }
+    public virtual DbSet<Pregunta> Pregunta { get; set; }
 
-    public virtual DbSet<Producto> Productos { get; set; }
+    public virtual DbSet<Produce> Produce { get; set; }
 
-    public virtual DbSet<Provincium> Provincia { get; set; }
+    public virtual DbSet<Producto> Producto { get; set; }
 
-    public virtual DbSet<Rebaja> Rebajas { get; set; }
+    public virtual DbSet<Provincia> Provincia { get; set; }
 
-    public virtual DbSet<Region> Regions { get; set; }
+    public virtual DbSet<Rebaja> Rebaja { get; set; }
 
-    public virtual DbSet<Responde> Respondes { get; set; }
+    public virtual DbSet<Region> Region { get; set; }
 
-    public virtual DbSet<Respuestum> Respuesta { get; set; }
+    public virtual DbSet<Responde> Responde { get; set; }
 
-    public virtual DbSet<Servicio> Servicios { get; set; }
+    public virtual DbSet<Respuesta> Respuesta { get; set; }
 
-    public virtual DbSet<Telefono> Telefonos { get; set; }
+    public virtual DbSet<Servicio> Servicio { get; set; }
 
-    public virtual DbSet<Usuario> Usuarios { get; set; }
+    public virtual DbSet<Telefono> Telefono { get; set; }
 
-    public virtual DbSet<Ventum> Venta { get; set; }
+    public virtual DbSet<Usuario> Usuario { get; set; }
+
+    public virtual DbSet<Venta> Venta { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=localhost;Database='proyecto web';Username=postgres;Password=123");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Administrador>(entity =>
+        {
+            entity.HasKey(e => e.UsuarioId).HasName("administrador_pkey");
+
+            entity.ToTable("administrador");
+
+            entity.Property(e => e.UsuarioId)
+                .HasMaxLength(10)
+                .HasColumnName("usuario_id");
+
+            entity.HasOne(d => d.Usuario).WithOne(p => p.Administrador)
+                .HasForeignKey<Administrador>(d => d.UsuarioId)
+                .HasConstraintName("administrador_usuario_id_fkey");
+        });
+
         modelBuilder.Entity<Adquiere>(entity =>
         {
             entity.HasKey(e => new { e.VentaId, e.ServicioId }).HasName("adquiere_pkey");
@@ -113,15 +138,15 @@ public partial class AppDbContext : DbContext
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fecha");
 
-            entity.HasOne(d => d.Cliente).WithMany(p => p.Adquieres)
+            entity.HasOne(d => d.Cliente).WithMany(p => p.Adquiere)
                 .HasForeignKey(d => d.ClienteId)
                 .HasConstraintName("adquiere_cliente_id_fkey");
 
-            entity.HasOne(d => d.Servicio).WithMany(p => p.Adquieres)
+            entity.HasOne(d => d.Servicio).WithMany(p => p.Adquiere)
                 .HasForeignKey(d => d.ServicioId)
                 .HasConstraintName("adquiere_servicio_id_fkey");
 
-            entity.HasOne(d => d.Venta).WithMany(p => p.Adquieres)
+            entity.HasOne(d => d.Venta).WithMany(p => p.Adquiere)
                 .HasForeignKey(d => d.VentaId)
                 .HasConstraintName("adquiere_venta_id_fkey");
         });
@@ -140,15 +165,15 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.PreguntaId).HasColumnName("pregunta_id");
             entity.Property(e => e.ServicioId).HasColumnName("servicio_id");
 
-            entity.HasOne(d => d.Pregunta).WithMany(p => p.Averiguas)
+            entity.HasOne(d => d.Pregunta).WithMany(p => p.Averigua)
                 .HasForeignKey(d => d.PreguntaId)
                 .HasConstraintName("averigua_pregunta_id_fkey");
 
-            entity.HasOne(d => d.Servicio).WithMany(p => p.Averiguas)
+            entity.HasOne(d => d.Servicio).WithMany(p => p.Averigua)
                 .HasForeignKey(d => d.ServicioId)
                 .HasConstraintName("averigua_servicio_id_fkey");
 
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Averiguas)
+            entity.HasOne(d => d.Usuario).WithMany(p => p.Averigua)
                 .HasForeignKey(d => d.UsuarioId)
                 .HasConstraintName("averigua_usuario_id_fkey");
         });
@@ -182,16 +207,16 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.InventarioId).HasColumnName("inventario_id");
             entity.Property(e => e.ProductoId).HasColumnName("producto_id");
 
-            entity.HasOne(d => d.Cliente).WithMany(p => p.Carritos)
+            entity.HasOne(d => d.Cliente).WithMany(p => p.Carrito)
                 .HasForeignKey(d => d.ClienteId)
                 .HasConstraintName("carrito_cliente_id_fkey");
 
-            entity.HasOne(d => d.Contiene).WithMany(p => p.Carritos)
+            entity.HasOne(d => d.Contiene).WithMany(p => p.Carrito)
                 .HasForeignKey(d => new { d.InventarioId, d.ProductoId })
                 .HasConstraintName("carrito_inventario_id_producto_id_fkey");
         });
 
-        modelBuilder.Entity<Categorium>(entity =>
+        modelBuilder.Entity<Categoria>(entity =>
         {
             entity.HasKey(e => e.Idcategoria).HasName("categoria_pkey");
 
@@ -227,7 +252,7 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey<Cliente>(d => d.UsuarioId)
                 .HasConstraintName("cliente_usuario_id_fkey");
 
-            entity.HasMany(d => d.Productos).WithMany(p => p.Clientes)
+            entity.HasMany(d => d.Producto).WithMany(p => p.Cliente)
                 .UsingEntity<Dictionary<string, object>>(
                     "Desea",
                     r => r.HasOne<Producto>().WithMany()
@@ -246,7 +271,7 @@ public partial class AppDbContext : DbContext
                         j.IndexerProperty<int>("ProductoId").HasColumnName("producto_id");
                     });
 
-            entity.HasMany(d => d.Servicios).WithMany(p => p.Clientes)
+            entity.HasMany(d => d.Servicio).WithMany(p => p.Cliente)
                 .UsingEntity<Dictionary<string, object>>(
                     "Quiere",
                     r => r.HasOne<Servicio>().WithMany()
@@ -277,7 +302,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("codigopostal");
             entity.Property(e => e.ComunaId).HasColumnName("comuna_id");
 
-            entity.HasOne(d => d.Comuna).WithMany(p => p.Codigopostals)
+            entity.HasOne(d => d.Comuna).WithMany(p => p.Codigopostal)
                 .HasForeignKey(d => d.ComunaId)
                 .HasConstraintName("codigopostal_comuna_id_fkey");
         });
@@ -305,15 +330,15 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(150)
                 .HasColumnName("nota");
 
-            entity.HasOne(d => d.Cliente).WithMany(p => p.Compras)
+            entity.HasOne(d => d.Cliente).WithMany(p => p.Compra)
                 .HasForeignKey(d => d.ClienteId)
                 .HasConstraintName("compra_cliente_id_fkey");
 
-            entity.HasOne(d => d.Producto).WithMany(p => p.Compras)
+            entity.HasOne(d => d.Producto).WithMany(p => p.Compra)
                 .HasForeignKey(d => d.ProductoId)
                 .HasConstraintName("compra_producto_id_fkey");
 
-            entity.HasOne(d => d.Venta).WithMany(p => p.Compras)
+            entity.HasOne(d => d.Venta).WithMany(p => p.Compra)
                 .HasForeignKey(d => d.VentaId)
                 .HasConstraintName("compra_venta_id_fkey");
         });
@@ -333,13 +358,13 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("nombre");
             entity.Property(e => e.Superficie).HasColumnName("superficie");
 
-            entity.HasOne(d => d.IdProvinciaNavigation).WithMany(p => p.Comunas)
+            entity.HasOne(d => d.IdProvinciaNavigation).WithMany(p => p.Comuna)
                 .HasForeignKey(d => d.IdProvincia)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("comuna_id_provincia_fkey");
         });
 
-        modelBuilder.Entity<Consultum>(entity =>
+        modelBuilder.Entity<Consulta>(entity =>
         {
             entity.HasKey(e => new { e.UsuarioId, e.ProductoId, e.PreguntaId }).HasName("consulta_pkey");
 
@@ -366,7 +391,7 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("consulta_usuario_id_fkey");
         });
 
-        modelBuilder.Entity<Contestum>(entity =>
+        modelBuilder.Entity<Contesta>(entity =>
         {
             entity.HasKey(e => new { e.UsuarioId, e.RespuestaId }).HasName("contesta_pkey");
 
@@ -401,11 +426,11 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ProductoId).HasColumnName("producto_id");
             entity.Property(e => e.Stock).HasColumnName("stock");
 
-            entity.HasOne(d => d.Inventario).WithMany(p => p.Contienes)
+            entity.HasOne(d => d.Inventario).WithMany(p => p.Contiene)
                 .HasForeignKey(d => d.InventarioId)
                 .HasConstraintName("contiene_inventario_id_fkey");
 
-            entity.HasOne(d => d.Producto).WithMany(p => p.Contienes)
+            entity.HasOne(d => d.Producto).WithMany(p => p.Contiene)
                 .HasForeignKey(d => d.ProductoId)
                 .HasConstraintName("contiene_producto_id_fkey");
         });
@@ -425,7 +450,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(10)
                 .HasColumnName("usuario_id");
 
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Correos)
+            entity.HasOne(d => d.Usuario).WithMany(p => p.Correo)
                 .HasForeignKey(d => d.UsuarioId)
                 .HasConstraintName("correo_usuario_id_fkey");
         });
@@ -453,16 +478,16 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Validez).HasColumnName("validez");
             entity.Property(e => e.VentaId).HasColumnName("venta_id");
 
-            entity.HasOne(d => d.Cliente).WithMany(p => p.Cotizacions)
+            entity.HasOne(d => d.Cliente).WithMany(p => p.Cotizacion)
                 .HasForeignKey(d => d.ClienteId)
                 .HasConstraintName("cotizacion_cliente_id_fkey");
 
-            entity.HasOne(d => d.Venta).WithMany(p => p.Cotizacions)
+            entity.HasOne(d => d.Venta).WithMany(p => p.Cotizacion)
                 .HasForeignKey(d => d.VentaId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("cotizacion_venta_id_fkey");
 
-            entity.HasMany(d => d.Productos).WithMany(p => p.Cotizacions)
+            entity.HasMany(d => d.Producto).WithMany(p => p.Cotizacion)
                 .UsingEntity<Dictionary<string, object>>(
                     "Cotiza",
                     r => r.HasOne<Producto>().WithMany()
@@ -479,9 +504,9 @@ public partial class AppDbContext : DbContext
                         j.IndexerProperty<int>("ProductoId").HasColumnName("producto_id");
                     });
 
-            entity.HasMany(d => d.Servicios).WithMany(p => p.Cotizacions)
+            entity.HasMany(d => d.Servicio).WithMany(p => p.Cotizacion)
                 .UsingEntity<Dictionary<string, object>>(
-                    "Presupuestum",
+                    "Presupuesta",
                     r => r.HasOne<Servicio>().WithMany()
                         .HasForeignKey("ServicioId")
                         .HasConstraintName("presupuesta_servicio_id_fkey"),
@@ -497,7 +522,7 @@ public partial class AppDbContext : DbContext
                     });
         });
 
-        modelBuilder.Entity<Descuentum>(entity =>
+        modelBuilder.Entity<Descuenta>(entity =>
         {
             entity.HasKey(e => new { e.OfertaId, e.ServicioId }).HasName("descuenta_pkey");
 
@@ -540,11 +565,11 @@ public partial class AppDbContext : DbContext
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fechasalida");
 
-            entity.HasOne(d => d.Direccion).WithMany(p => p.Despachos)
+            entity.HasOne(d => d.Direccion).WithMany(p => p.Despacho)
                 .HasForeignKey(d => d.DireccionId)
                 .HasConstraintName("despacho_direccion_id_fkey");
 
-            entity.HasOne(d => d.Empresatransporte).WithMany(p => p.Despachos)
+            entity.HasOne(d => d.Empresatransporte).WithMany(p => p.Despacho)
                 .HasForeignKey(d => d.EmpresatransporteId)
                 .HasConstraintName("despacho_empresatransporte_id_fkey");
         });
@@ -577,19 +602,19 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Fecha).HasColumnName("fecha");
             entity.Property(e => e.VentaId).HasColumnName("venta_id");
 
-            entity.HasOne(d => d.Cliente).WithMany(p => p.Devuelves)
+            entity.HasOne(d => d.Cliente).WithMany(p => p.Devuelve)
                 .HasForeignKey(d => d.ClienteId)
                 .HasConstraintName("devuelve_cliente_id_fkey");
 
-            entity.HasOne(d => d.Devolucion).WithMany(p => p.Devuelves)
+            entity.HasOne(d => d.Devolucion).WithMany(p => p.Devuelve)
                 .HasForeignKey(d => d.DevolucionId)
                 .HasConstraintName("devuelve_devolucion_id_fkey");
 
-            entity.HasOne(d => d.Producto).WithMany(p => p.Devuelves)
+            entity.HasOne(d => d.Producto).WithMany(p => p.Devuelve)
                 .HasForeignKey(d => d.ProductoId)
                 .HasConstraintName("devuelve_producto_id_fkey");
 
-            entity.HasOne(d => d.Venta).WithMany(p => p.Devuelves)
+            entity.HasOne(d => d.Venta).WithMany(p => p.Devuelve)
                 .HasForeignKey(d => d.VentaId)
                 .HasConstraintName("devuelve_venta_id_fkey");
         });
@@ -610,7 +635,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("departamento");
             entity.Property(e => e.Numero).HasColumnName("numero");
 
-            entity.HasOne(d => d.CodigopostalNavigation).WithMany(p => p.Direccions)
+            entity.HasOne(d => d.CodigopostalNavigation).WithMany(p => p.Direccion)
                 .HasForeignKey(d => d.Codigopostal)
                 .HasConstraintName("direccion_codigopostal_fkey");
         });
@@ -631,7 +656,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("paginaweb");
 
-            entity.HasOne(d => d.Empresa).WithMany(p => p.Emprendedors)
+            entity.HasOne(d => d.Empresa).WithMany(p => p.Emprendedor)
                 .HasForeignKey(d => d.EmpresaId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("emprendedor_empresa_id_fkey");
@@ -678,9 +703,9 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("razonsocial");
             entity.Property(e => e.Telefonocontacto).HasColumnName("telefonocontacto");
 
-            entity.HasMany(d => d.Empresas).WithMany(p => p.Empresatransportes)
+            entity.HasMany(d => d.Empresa).WithMany(p => p.Empresatransporte)
                 .UsingEntity<Dictionary<string, object>>(
-                    "Contratum",
+                    "Contrata",
                     r => r.HasOne<Empresa>().WithMany()
                         .HasForeignKey("EmpresaId")
                         .HasConstraintName("contrata_empresa_id_fkey"),
@@ -715,19 +740,19 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.VentaId).HasColumnName("venta_id");
             entity.Property(e => e.ServicioId).HasColumnName("servicio_id");
 
-            entity.HasOne(d => d.Calificacion).WithMany(p => p.Evaluas)
+            entity.HasOne(d => d.Calificacion).WithMany(p => p.Evalua)
                 .HasForeignKey(d => d.CalificacionId)
                 .HasConstraintName("evalua_calificacion_id_fkey");
 
-            entity.HasOne(d => d.Servicio).WithMany(p => p.Evaluas)
+            entity.HasOne(d => d.Servicio).WithMany(p => p.Evalua)
                 .HasForeignKey(d => d.ServicioId)
                 .HasConstraintName("evalua_servicio_id_fkey");
 
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Evaluas)
+            entity.HasOne(d => d.Usuario).WithMany(p => p.Evalua)
                 .HasForeignKey(d => d.UsuarioId)
                 .HasConstraintName("evalua_usuario_id_fkey");
 
-            entity.HasOne(d => d.Venta).WithMany(p => p.Evaluas)
+            entity.HasOne(d => d.Venta).WithMany(p => p.Evalua)
                 .HasForeignKey(d => d.VentaId)
                 .HasConstraintName("evalua_venta_id_fkey");
         });
@@ -746,15 +771,15 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.MensajeId).HasColumnName("mensaje_id");
             entity.Property(e => e.VentaId).HasColumnName("venta_id");
 
-            entity.HasOne(d => d.Mensaje).WithMany(p => p.Interactuas)
+            entity.HasOne(d => d.Mensaje).WithMany(p => p.Interactua)
                 .HasForeignKey(d => d.MensajeId)
                 .HasConstraintName("interactua_mensaje_id_fkey");
 
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Interactuas)
+            entity.HasOne(d => d.Usuario).WithMany(p => p.Interactua)
                 .HasForeignKey(d => d.UsuarioId)
                 .HasConstraintName("interactua_usuario_id_fkey");
 
-            entity.HasOne(d => d.Venta).WithMany(p => p.Interactuas)
+            entity.HasOne(d => d.Venta).WithMany(p => p.Interactua)
                 .HasForeignKey(d => d.VentaId)
                 .HasConstraintName("interactua_venta_id_fkey");
         });
@@ -803,7 +828,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Ultimosdigitos).HasColumnName("ultimosdigitos");
         });
 
-        modelBuilder.Entity<Ofertum>(entity =>
+        modelBuilder.Entity<Oferta>(entity =>
         {
             entity.HasKey(e => e.Idoferta).HasName("oferta_pkey");
 
@@ -816,7 +841,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Fechainicio).HasColumnName("fechainicio");
         });
 
-        modelBuilder.Entity<Preguntum>(entity =>
+        modelBuilder.Entity<Pregunta>(entity =>
         {
             entity.HasKey(e => e.Idpregunta).HasName("pregunta_pkey");
 
@@ -827,7 +852,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Fecha)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fecha");
-            entity.Property(e => e.Pregunta)
+            entity.Property(e => e.Pregunta1)
                 .HasMaxLength(300)
                 .HasColumnName("pregunta");
         });
@@ -847,19 +872,19 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ProductoId).HasColumnName("producto_id");
             entity.Property(e => e.CalificacionId).HasColumnName("calificacion_id");
 
-            entity.HasOne(d => d.Calificacion).WithMany(p => p.Produces)
+            entity.HasOne(d => d.Calificacion).WithMany(p => p.Produce)
                 .HasForeignKey(d => d.CalificacionId)
                 .HasConstraintName("produce_calificacion_id_fkey");
 
-            entity.HasOne(d => d.Cliente).WithMany(p => p.Produces)
+            entity.HasOne(d => d.Cliente).WithMany(p => p.Produce)
                 .HasForeignKey(d => d.ClienteId)
                 .HasConstraintName("produce_cliente_id_fkey");
 
-            entity.HasOne(d => d.Producto).WithMany(p => p.Produces)
+            entity.HasOne(d => d.Producto).WithMany(p => p.Produce)
                 .HasForeignKey(d => d.ProductoId)
                 .HasConstraintName("produce_producto_id_fkey");
 
-            entity.HasOne(d => d.Venta).WithMany(p => p.Produces)
+            entity.HasOne(d => d.Venta).WithMany(p => p.Produce)
                 .HasForeignKey(d => d.VentaId)
                 .HasConstraintName("produce_venta_id_fkey");
         });
@@ -896,14 +921,14 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("nombre");
             entity.Property(e => e.Restriccionedad).HasColumnName("restriccionedad");
 
-            entity.HasOne(d => d.Emprendedor).WithMany(p => p.Productos)
+            entity.HasOne(d => d.Emprendedor).WithMany(p => p.Producto)
                 .HasForeignKey(d => d.EmprendedorId)
                 .HasConstraintName("producto_emprendedor_id_fkey");
 
-            entity.HasMany(d => d.Categoria).WithMany(p => p.Productos)
+            entity.HasMany(d => d.Categoria).WithMany(p => p.Producto)
                 .UsingEntity<Dictionary<string, object>>(
                     "Pertenece",
-                    r => r.HasOne<Categorium>().WithMany()
+                    r => r.HasOne<Categoria>().WithMany()
                         .HasForeignKey("CategoriaId")
                         .HasConstraintName("pertenece_categoria_id_fkey"),
                     l => l.HasOne<Producto>().WithMany()
@@ -919,7 +944,7 @@ public partial class AppDbContext : DbContext
                     });
         });
 
-        modelBuilder.Entity<Provincium>(entity =>
+        modelBuilder.Entity<Provincia>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("provincia_pkey");
 
@@ -953,11 +978,11 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("activo");
             entity.Property(e => e.Precio).HasColumnName("precio");
 
-            entity.HasOne(d => d.Oferta).WithMany(p => p.Rebajas)
+            entity.HasOne(d => d.Oferta).WithMany(p => p.Rebaja)
                 .HasForeignKey(d => d.OfertaId)
                 .HasConstraintName("rebaja_oferta_id_fkey");
 
-            entity.HasOne(d => d.Producto).WithMany(p => p.Rebajas)
+            entity.HasOne(d => d.Producto).WithMany(p => p.Rebaja)
                 .HasForeignKey(d => d.ProductoId)
                 .HasConstraintName("rebaja_producto_id_fkey");
         });
@@ -989,20 +1014,20 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.RespuestaId).HasColumnName("respuesta_id");
             entity.Property(e => e.PreguntaId).HasColumnName("pregunta_id");
 
-            entity.HasOne(d => d.Pregunta).WithMany(p => p.Respondes)
+            entity.HasOne(d => d.Pregunta).WithMany(p => p.Responde)
                 .HasForeignKey(d => d.PreguntaId)
                 .HasConstraintName("responde_pregunta_id_fkey");
 
-            entity.HasOne(d => d.Respuesta).WithMany(p => p.Respondes)
+            entity.HasOne(d => d.Respuesta).WithMany(p => p.Responde)
                 .HasForeignKey(d => d.RespuestaId)
                 .HasConstraintName("responde_respuesta_id_fkey");
 
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Respondes)
+            entity.HasOne(d => d.Usuario).WithMany(p => p.Responde)
                 .HasForeignKey(d => d.UsuarioId)
                 .HasConstraintName("responde_usuario_id_fkey");
         });
 
-        modelBuilder.Entity<Respuestum>(entity =>
+        modelBuilder.Entity<Respuesta>(entity =>
         {
             entity.HasKey(e => e.Idrespuesta).HasName("respuesta_pkey");
 
@@ -1013,7 +1038,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Fecha)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("fecha");
-            entity.Property(e => e.Respuesta)
+            entity.Property(e => e.Respuesta1)
                 .HasMaxLength(300)
                 .HasColumnName("respuesta");
         });
@@ -1050,14 +1075,14 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("nombre");
             entity.Property(e => e.Restriccionedad).HasColumnName("restriccionedad");
 
-            entity.HasOne(d => d.Emprendedor).WithMany(p => p.Servicios)
+            entity.HasOne(d => d.Emprendedor).WithMany(p => p.Servicio)
                 .HasForeignKey(d => d.EmprendedorId)
                 .HasConstraintName("servicio_emprendedor_id_fkey");
 
-            entity.HasMany(d => d.Categoria).WithMany(p => p.Servicios)
+            entity.HasMany(d => d.Categoria).WithMany(p => p.Servicio)
                 .UsingEntity<Dictionary<string, object>>(
                     "Corresponde",
-                    r => r.HasOne<Categorium>().WithMany()
+                    r => r.HasOne<Categoria>().WithMany()
                         .HasForeignKey("CategoriaId")
                         .HasConstraintName("corresponde_categoria_id_fkey"),
                     l => l.HasOne<Servicio>().WithMany()
@@ -1086,7 +1111,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(10)
                 .HasColumnName("usuario_id");
 
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Telefonos)
+            entity.HasOne(d => d.Usuario).WithMany(p => p.Telefono)
                 .HasForeignKey(d => d.UsuarioId)
                 .HasConstraintName("telefono_usuario_id_fkey");
         });
@@ -1122,7 +1147,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(20)
                 .HasColumnName("nombre2");
 
-            entity.HasMany(d => d.Direccions).WithMany(p => p.Usuarios)
+            entity.HasMany(d => d.Direccion).WithMany(p => p.Usuario)
                 .UsingEntity<Dictionary<string, object>>(
                     "Posee",
                     r => r.HasOne<Direccion>().WithMany()
@@ -1142,7 +1167,7 @@ public partial class AppDbContext : DbContext
                     });
         });
 
-        modelBuilder.Entity<Ventum>(entity =>
+        modelBuilder.Entity<Venta>(entity =>
         {
             entity.HasKey(e => e.Idventa).HasName("venta_pkey");
 
@@ -1167,13 +1192,13 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.MetodopagoId)
                 .HasConstraintName("venta_metodopago_id_fkey");
 
-            entity.HasMany(d => d.Despachos).WithMany(p => p.Venta)
+            entity.HasMany(d => d.Despacho).WithMany(p => p.Venta)
                 .UsingEntity<Dictionary<string, object>>(
                     "Requiere",
                     r => r.HasOne<Despacho>().WithMany()
                         .HasForeignKey("DespachoId")
                         .HasConstraintName("requiere_despacho_id_fkey"),
-                    l => l.HasOne<Ventum>().WithMany()
+                    l => l.HasOne<Venta>().WithMany()
                         .HasForeignKey("VentaId")
                         .HasConstraintName("requiere_venta_id_fkey"),
                     j =>

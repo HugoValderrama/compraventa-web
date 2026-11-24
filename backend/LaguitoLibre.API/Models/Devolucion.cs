@@ -1,18 +1,17 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Devolucion
 {
-	[Table("devolucion")]
-	public class Devolucion
-	{
-		[Key]
-		public int iddevolucion { get; set; }
-		
-		public string motivo { get; set; }
+    public int Iddevolucion { get; set; }
 
-		public bool estado { get; set; }
-		
-		public int montoreembolso { get; set; }
-	}
+    public string Motivo { get; set; } = null!;
+
+    public bool? Estado { get; set; }
+
+    public int Montoreembolso { get; set; }
+
+    public virtual ICollection<Devuelve> Devuelve { get; set; } = new List<Devuelve>();
 }

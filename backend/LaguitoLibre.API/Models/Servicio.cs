@@ -1,30 +1,41 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Servicio
 {
-	[Table("servicio")]
-	public class Servicio
-	{
-		[Key]
-		public int idbien { get; set; }
+    public int Idbien { get; set; }
 
-		public string nombre { get; set; }
+    public string Nombre { get; set; } = null!;
 
-		public string descripcion { get; set; }
+    public string? Descripcion { get; set; }
 
-		public bool restriccionedad { get; set; }
-		
-		public string emprendedor_id { get; set; }
-		[ForeignKey("emprendedor_id")]
-		public Emprendedor? Emprendedor { get; set; }
+    public bool? Restriccionedad { get; set; }
 
-		public DateOnly fechainicio { get; set; }
+    public string EmprendedorId { get; set; } = null!;
 
-		public DateOnly fechafin { get; set; }
-		
-		public string caracteristicas { get; set; }
-		
-		public bool activo { get; set; }
-	}
+    public DateOnly Fechainicio { get; set; }
+
+    public DateOnly? Fechafin { get; set; }
+
+    public string Caracteristicas { get; set; } = null!;
+
+    public bool Activo { get; set; }
+
+    public virtual ICollection<Adquiere> Adquiere { get; set; } = new List<Adquiere>();
+
+    public virtual ICollection<Averigua> Averigua { get; set; } = new List<Averigua>();
+
+    public virtual ICollection<Descuenta> Descuenta { get; set; } = new List<Descuenta>();
+
+    public virtual Emprendedor Emprendedor { get; set; } = null!;
+
+    public virtual ICollection<Evalua> Evalua { get; set; } = new List<Evalua>();
+
+    public virtual ICollection<Categoria> Categoria { get; set; } = new List<Categoria>();
+
+    public virtual ICollection<Cliente> Cliente { get; set; } = new List<Cliente>();
+
+    public virtual ICollection<Cotizacion> Cotizacion { get; set; } = new List<Cotizacion>();
 }

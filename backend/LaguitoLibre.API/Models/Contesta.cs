@@ -1,21 +1,19 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Contesta
 {
-	[Table("contesta")]
-	public class Contesta
-	{
-		public string usuario_id { get; set; }
-		[ForeignKey("usuario_id")]
-		public Usuario? Usuario { get; set; }
-		
-		public int respuesta_id { get; set; }
-		[ForeignKey("respuesta_id")]
-		public Respuesta? Respuesta { get; set; }
-		
-		public int pregunta_id { get; set; }
-		[ForeignKey("pregunta_id")]
-		public Pregunta? Pregunta { get; set; }
-	}
+    public string UsuarioId { get; set; } = null!;
+
+    public int RespuestaId { get; set; }
+
+    public int PreguntaId { get; set; }
+
+    public virtual Pregunta Pregunta { get; set; } = null!;
+
+    public virtual Respuesta Respuesta { get; set; } = null!;
+
+    public virtual Usuario Usuario { get; set; } = null!;
 }

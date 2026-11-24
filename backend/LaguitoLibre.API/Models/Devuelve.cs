@@ -1,25 +1,25 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Devuelve
 {
-	[Table("devuelve")]
-	public class Devuelve
-	{
-		public int producto_id { get; set; }
-		[ForeignKey("producto_id")]
-		public Producto? Producto { get; set; }
-		
-		public int devolucion_id { get; set; }
-		[ForeignKey("devolucion_id")]
-		public Devolucion? Devolucion { get; set; }
-		
-		public int venta_id { get; set; }
-		[ForeignKey("venta_id")]
-		public Venta? Venta { get; set; }
-		
-		public string cliente_id { get; set; }
-		[ForeignKey("cliente_id")]
-		public Cliente? Cliente { get; set; }
-	}
+    public int ProductoId { get; set; }
+
+    public int DevolucionId { get; set; }
+
+    public int VentaId { get; set; }
+
+    public string ClienteId { get; set; } = null!;
+
+    public DateOnly Fecha { get; set; }
+
+    public virtual Cliente Cliente { get; set; } = null!;
+
+    public virtual Devolucion Devolucion { get; set; } = null!;
+
+    public virtual Producto Producto { get; set; } = null!;
+
+    public virtual Venta Venta { get; set; } = null!;
 }

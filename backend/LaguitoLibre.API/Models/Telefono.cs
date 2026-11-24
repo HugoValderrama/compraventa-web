@@ -1,16 +1,13 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Telefono
 {
-	[Table("telefono")]
-	public class Telefono
-	{
-		[Key]
-		public int telefono { get; set; }
+    public int Telefono1 { get; set; }
 
-		public string usuario_id { get; set; }
-		[ForeignKey("usuario_id")]
-		public Usuario? Usuario { get; set; }
-	}
+    public string UsuarioId { get; set; } = null!;
+
+    public virtual Usuario Usuario { get; set; } = null!;
 }

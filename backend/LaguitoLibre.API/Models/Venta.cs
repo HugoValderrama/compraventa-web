@@ -1,26 +1,41 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Venta
 {
-	[Table("venta")]
-	public class Venta
-	{
-		[Key]
-		public int idventa { get; set; }
+    public int Idventa { get; set; }
 
-		public int totalsiniva { get; set; }
+    public int Totalsiniva { get; set; }
 
-		public int totalconiva { get; set; }
-		
-		public int iva { get; set; }
-		
-		public int descuento { get; set; }
+    public int Iva { get; set; }
 
-		public int metodopago_id { get; set; }
-		[ForeignKey("metodopago_id")]
-		public MetodoPago? MetodoPago { get; set; }
-		
-		public string estadopago { get; set; }
-	}
+    public int Descuento { get; set; }
+
+    public int Totalconiva { get; set; }
+
+    public int MetodopagoId { get; set; }
+
+    public string? Estadopago { get; set; }
+
+    public DateTime? Fechaventa { get; set; }
+
+    public virtual ICollection<Adquiere> Adquiere { get; set; } = new List<Adquiere>();
+
+    public virtual ICollection<Compra> Compra { get; set; } = new List<Compra>();
+
+    public virtual ICollection<Cotizacion> Cotizacion { get; set; } = new List<Cotizacion>();
+
+    public virtual ICollection<Devuelve> Devuelve { get; set; } = new List<Devuelve>();
+
+    public virtual ICollection<Evalua> Evalua { get; set; } = new List<Evalua>();
+
+    public virtual ICollection<Interactua> Interactua { get; set; } = new List<Interactua>();
+
+    public virtual Metodopago Metodopago { get; set; } = null!;
+
+    public virtual ICollection<Produce> Produce { get; set; } = new List<Produce>();
+
+    public virtual ICollection<Despacho> Despacho { get; set; } = new List<Despacho>();
 }

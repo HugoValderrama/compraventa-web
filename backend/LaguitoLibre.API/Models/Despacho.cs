@@ -1,28 +1,27 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Despacho
 {
-	[Table("despacho")]
-	public class Despacho
-	{
-		[Key]
-		public int idseguimiento { get; set; }
+    public int Idseguimiento { get; set; }
 
-		public int empresatransporte_id { get; set; }
-		[ForeignKey("empresatransporte_id")]
-		public EmpresaTransporte? EmpresaTransporte { get; set; }
+    public string EmpresatransporteId { get; set; } = null!;
 
-		public int direccion_id { get; set; }
-		[ForeignKey("direccion_id")]
-		public Direccion? Direccion { get; set; }
-		
-		public string estadoenvio { get; set; }
-		
-		public DateOnly fechasalida { get; set; }
+    public int DireccionId { get; set; }
 
-		public DateOnly fechallegada { get; set; }
-		
-		public int costoenvioproyectado { get; set; }
-	}
+    public string Estadoenvio { get; set; } = null!;
+
+    public DateTime? Fechasalida { get; set; }
+
+    public DateTime? Fechallegada { get; set; }
+
+    public int? Costoenvioproyectado { get; set; }
+
+    public virtual Direccion Direccion { get; set; } = null!;
+
+    public virtual Empresatransporte Empresatransporte { get; set; } = null!;
+
+    public virtual ICollection<Venta> Venta { get; set; } = new List<Venta>();
 }

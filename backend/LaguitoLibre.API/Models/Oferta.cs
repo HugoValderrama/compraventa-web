@@ -1,16 +1,17 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Oferta
 {
-	[Table("oferta")]
-	public class Oferta
-	{
-		[Key]
-		public int idoferta { get; set; }
+    public int Idoferta { get; set; }
 
-		public DateOnly fechainicio { get; set; }
-		
-		public DateOnly fechafin { get; set; }
-	}
+    public DateOnly Fechainicio { get; set; }
+
+    public DateOnly Fechafin { get; set; }
+
+    public virtual ICollection<Descuenta> Descuenta { get; set; } = new List<Descuenta>();
+
+    public virtual ICollection<Rebaja> Rebaja { get; set; } = new List<Rebaja>();
 }

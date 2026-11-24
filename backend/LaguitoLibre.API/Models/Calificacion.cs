@@ -1,16 +1,17 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Calificacion
 {
-	[Table("calificacion")]
-	public class Calificacion
-	{
-		[Key]
-		public int idcalificacion { get; set; }
-		
-		public string comentario { get; set; }
-		
-		public int puntuacion { get; set; }
-	}
+    public int Idcalificacion { get; set; }
+
+    public string? Comentario { get; set; }
+
+    public int Puntuacion { get; set; }
+
+    public virtual ICollection<Evalua> Evalua { get; set; } = new List<Evalua>();
+
+    public virtual ICollection<Produce> Produce { get; set; } = new List<Produce>();
 }

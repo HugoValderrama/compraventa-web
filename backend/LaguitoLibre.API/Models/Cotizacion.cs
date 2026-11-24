@@ -1,28 +1,31 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Cotizacion
 {
-	[Table("cotizacion")]
-	public class Cotizacion
-	{
-		[Key]
-		public int idcotizacion { get; set; }
-		
-		public DateOnly validez { get; set; }
-		
-		public string estado { get; set; }
+    public int Idcotizacion { get; set; }
 
-		public int venta_id { get; set; }
-		[ForeignKey("venta_id")]
-		public Venta? Venta { get; set; }
+    public DateOnly Validez { get; set; }
 
-		public int cliente_id { get; set; }
-		[ForeignKey("cliente_id")]
-		public Cliente? Cliente { get; set; }
+    public string Estado { get; set; } = null!;
 
-		public DateOnly fecha { get; set; }
-		
-		public int precio { get; set; }
-	}
+    public int? VentaId { get; set; }
+
+    public string ClienteId { get; set; } = null!;
+
+    public DateOnly Fecha { get; set; }
+
+    public int Precio { get; set; }
+
+    public DateOnly? FechaUltimoAjuste { get; set; }
+
+    public virtual Cliente Cliente { get; set; } = null!;
+
+    public virtual Venta? Venta { get; set; }
+
+    public virtual ICollection<Producto> Producto { get; set; } = new List<Producto>();
+
+    public virtual ICollection<Servicio> Servicio { get; set; } = new List<Servicio>();
 }

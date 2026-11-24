@@ -1,21 +1,19 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Rebaja
 {
-	[Table("rebaja")]
-	public class Rebaja
-	{
-		public int oferta_id { get; set; }
-		[ForeignKey("oferta_id")]
-		public Oferta? Oferta { get; set; }
-		
-		public int producto_id { get; set; }
-		[ForeignKey("producto_id")]
-		public Producto? Producto { get; set; }
-		
-		public int precio { get; set; }
-		
-		public bool activo { get; set; }
-	}
+    public int OfertaId { get; set; }
+
+    public int ProductoId { get; set; }
+
+    public int Precio { get; set; }
+
+    public bool Activo { get; set; }
+
+    public virtual Oferta Oferta { get; set; } = null!;
+
+    public virtual Producto Producto { get; set; } = null!;
 }

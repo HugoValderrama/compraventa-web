@@ -1,18 +1,17 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Mensaje
 {
-	[Table("mensaje")]
-	public class Mensaje
-	{
-		[Key]
-		public int idmensaje { get; set; }
-		
-		public string contenido { get; set; }
+    public int Idmensaje { get; set; }
 
-		public DateTime fechaenvio { get; set; }
-		
-		public bool leido { get; set; }
-	}
+    public string Contenido { get; set; } = null!;
+
+    public DateTime Fechaenvio { get; set; }
+
+    public bool Leido { get; set; }
+
+    public virtual ICollection<Interactua> Interactua { get; set; } = new List<Interactua>();
 }

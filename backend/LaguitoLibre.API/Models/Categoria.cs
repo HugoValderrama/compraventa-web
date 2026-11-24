@@ -1,17 +1,21 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace LaguitoLibre.API.Models
+namespace LaguitoLibre.API.Models;
+
+public partial class Categoria
 {
-	[Table("categoria")]
-	public class Categoria
-	{
-		[Key]
-		public int idcategoria { get; set; }
+    public int Idcategoria { get; set; }
 
-		public string nombre { get; set; }
+    public string Nombre { get; set; } = null!;
 
-		public int categoriapadre_id { get; set; }
-		// PONER EN EL DBCONTEXT REFERENCIA A CLAVE PRIMARIA
-	}
+    public int? CategoriapadreId { get; set; }
+
+    public virtual Categoria? Categoriapadre { get; set; }
+
+    public virtual ICollection<Categoria> InverseCategoriapadre { get; set; } = new List<Categoria>();
+
+    public virtual ICollection<Producto> Producto { get; set; } = new List<Producto>();
+
+    public virtual ICollection<Servicio> Servicio { get; set; } = new List<Servicio>();
 }
