@@ -23,6 +23,7 @@ obj/
 # Secretos y configuración local (cada quien tiene la suya)
 .env
 appsettings.Development.json
+appsettings.json
 
 # Editores y sistema
 .vscode/*
