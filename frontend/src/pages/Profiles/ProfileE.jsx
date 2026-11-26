@@ -23,7 +23,8 @@ import TelefonosDialog from '../../components/organisms/perfil/TelefonosDialog';
 import CorreosDialog from '../../components/organisms/perfil/CorreosDialog';
 import CambiarClaveDialog from '../../components/organisms/perfil/CambiarClaveDialog';
 import TiendaDialog from '../../components/organisms/perfil/TiendaDialog';
-import { getEmpresa, getMe } from '../../mocks/usuario';
+//import { getEmpresa, getMe } from '../../mocks/usuario';
+import { getMe } from "../../services/api";
 import { esCliente, esEmprendedor, tieneAmbosRoles } from '../../utils/roles';
 
 // Accesos del emprendedor según el diagrama de navegación.
@@ -86,6 +87,7 @@ export default function ProfileE() {
   const cargar = useCallback(async () => {
     setCargando(true);
     setError('');
+    /*
     try {
       const [datos, datosEmpresa] = await Promise.all([getMe(), getEmpresa()]);
       if (esCliente(datos)) {
@@ -94,6 +96,15 @@ export default function ProfileE() {
       }
       setUsuario(datos);
       setEmpresa(datosEmpresa);
+    }*/
+    try {
+      const datos = await getMe();
+      if (!esEmprendedor(datos)) {
+        setDestino(esCliente(datos) ? '/perfil' : '/');
+        return;
+      }
+      setUsuario(datos);
+      setEmpresa(datos.empresa || { razonSocial: '', rut: '', giro: '', paginaWeb: '', direccionLocal: '' });
     } catch (err) {
       if (err.codigo === 401) setDestino('/login');
       else setError('No pudimos cargar tu perfil. Inténtalo de nuevo.');

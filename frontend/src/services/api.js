@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:7173/api";
+const API_URL = "http://localhost:7173/api"; // Verifica que sea el puerto exacto de tu backend
 
 export async function apiFetch(endpoint, options = {}) {
     const token = localStorage.getItem("token");
@@ -14,17 +14,18 @@ export async function apiFetch(endpoint, options = {}) {
         headers,
     });
 
-    const data = await response.json().catch(() => ({}));
+    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
-        throw new Error(data.mensaje || "Ocurrió un error en la petición");
+        const error = new Error(data?.mensaje || `Error HTTP ${response.status}`);
+        error.codigo = response.status;
+        throw error;
     }
 
-    return data;
+    return data; // <-- Esta línea es clave para que 'data' no sea undefined
 }
 
 export async function login({ run, password }) {
-    // Quitamos los puntos por si el campo de texto formatea el RUN como "11.222.333-9"
     const runSinPuntos = String(run ?? "").replace(/\./g, "").trim();
 
     const data = await apiFetch("/Auth/login", {
@@ -32,9 +33,14 @@ export async function login({ run, password }) {
         body: JSON.stringify({ run: runSinPuntos, clave: password }),
     });
 
-    // Guardamos el token JWT para futuras peticiones protegidas
-    localStorage.setItem("token", data.token);
+    if (!data?.token) {
+        throw new Error("El servidor no devolvió un token válido.");
+    }
 
-    // Devolvemos { id, nombre, roles } tal como lo espera AuthContext
+    localStorage.setItem("token", data.token);
     return data.usuario;
+}
+
+export async function getMe() {
+    return apiFetch("/Users/me");
 }
