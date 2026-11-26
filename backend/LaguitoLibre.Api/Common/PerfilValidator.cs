@@ -72,4 +72,58 @@ public static class PerfilValidator
             @"^[\p{L}]+(?:[ '\-][\p{L}]+)*$"
         );
     }
+    public static string NormalizarTelefono(string? telefono)
+{
+    if (string.IsNullOrWhiteSpace(telefono))
+        return "";
+
+    string limpio = Regex.Replace(telefono, @"[\s-]", "");
+
+    if (Regex.IsMatch(limpio, @"^9[0-9]{8}$"))
+    {
+        limpio = "+56" + limpio;
+    }
+
+    return limpio;
+}
+public static List<string> ValidarTelefonos(
+    ActualizarTelefonosRequest request)
+{
+    var errores = new List<string>();
+
+    // Mantener al menos un teléfono
+    if (request.Telefonos == null ||
+        request.Telefonos.Count == 0)
+    {
+        errores.Add("Debes mantener al menos un teléfono.");
+        return errores;
+    }
+
+    var telefonosRegistrados = new HashSet<string>();
+
+    foreach (var telefono in request.Telefonos)
+    {
+        string normalizado = NormalizarTelefono(telefono);
+
+        // Validar formato chileno
+        if (!Regex.IsMatch(normalizado, @"^\+569[0-9]{8}$"))
+        {
+            errores.Add(
+                "Ingresa un teléfono chileno válido (+56 9XXXXXXXX)."
+            );
+
+            continue;
+        }
+
+        // Validar teléfonos duplicados
+        if (!telefonosRegistrados.Add(normalizado))
+        {
+            errores.Add(
+                "No puedes ingresar teléfonos duplicados."
+            );
+        }
+    }
+
+    return errores;
+}
 }

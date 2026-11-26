@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LaguitoLibre.Api.DTOs.Perfil;
+using LaguitoLibre.Api.Models;
+using Npgsql;
 
 namespace LaguitoLibre.Api.Controllers;
 
@@ -40,8 +42,9 @@ public async Task<IActionResult> ObtenerPerfil()
                 .ToList(),
 
             telefonos = u.Telefonos
-                .Select(t => t.Telefono1)
-                .ToList(),
+    .OrderBy(t => t.Telefono1)
+    .Select(t => "+56" + t.Telefono1.ToString())
+    .ToList(),
 
             esCliente = u.Cliente != null,
             esEmprendedor = u.Emprendedor != null
@@ -114,6 +117,107 @@ public async Task<IActionResult> ActualizarPerfil(
     }
 
     // Devolver el perfil actualizado
+    return await ObtenerPerfil();
+}
+[HttpPut("telefonos")]
+public async Task<IActionResult> ActualizarTelefonos(
+    [FromBody] ActualizarTelefonosRequest request)
+{
+    // Validar los teléfonos ingresados
+    var errores = PerfilValidator.ValidarTelefonos(request);
+
+    if (errores.Count > 0)
+    {
+        return BadReq(
+            "Los teléfonos ingresados no son válidos.",
+            errores.ToArray()
+        );
+    }
+
+    // Obtener RUN desde el token JWT
+    string run = CurrentRun;
+
+    // Comprobar que el usuario existe
+    bool existeUsuario = await _context.Usuarios
+        .AnyAsync(u => u.Run == run);
+
+    if (!existeUsuario)
+    {
+        return NotFoundMsg("Usuario no encontrado.");
+    }
+
+    // Normalizar y convertir los teléfonos a enteros
+    var nuevosTelefonos = request.Telefonos
+        .Select(t => int.Parse(
+            PerfilValidator.NormalizarTelefono(t).Substring(3)
+        ))
+        .ToList();
+
+    // Comprobar si pertenecen a otro usuario
+    bool telefonoOcupado = await _context.Telefonos
+        .AnyAsync(t =>
+            nuevosTelefonos.Contains(t.Telefono1) &&
+            t.UsuarioId != run
+        );
+
+    if (telefonoOcupado)
+    {
+        return ConflictMsg(
+            "Uno o más teléfonos ya están registrados por otro usuario."
+        );
+    }
+
+    // Obtener los teléfonos actuales del usuario
+    var telefonosActuales = await _context.Telefonos
+        .Where(t => t.UsuarioId == run)
+        .ToListAsync();
+
+    // Identificar teléfonos que deben eliminarse
+    var telefonosEliminar = telefonosActuales
+        .Where(t => !nuevosTelefonos.Contains(t.Telefono1))
+        .ToList();
+
+    _context.Telefonos.RemoveRange(telefonosEliminar);
+
+    // Agregar solamente los teléfonos nuevos
+    foreach (int numero in nuevosTelefonos)
+    {
+        bool existe = telefonosActuales
+            .Any(t => t.Telefono1 == numero);
+
+        if (!existe)
+        {
+            _context.Telefonos.Add(new Telefono
+            {
+                Telefono1 = numero,
+                UsuarioId = run
+            });
+        }
+    }
+
+    // Guardar los cambios
+    try
+    {
+        await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateException ex)
+        when (ex.InnerException is PostgresException pg &&
+              pg.SqlState == PostgresErrorCodes.UniqueViolation)
+    {
+        return ConflictMsg(
+            "Uno o más teléfonos ya están registrados."
+        );
+    }
+    catch (DbUpdateException)
+    {
+        return StatusCode(
+            500,
+            ApiResponse.Fail(
+                "No se pudieron actualizar los teléfonos."
+            )
+        );
+    }
+
     return await ObtenerPerfil();
 }
 }
