@@ -53,6 +53,8 @@ export function AuthProvider({ children }) {
   const cerrarSesion = useCallback(() => {
     borrarAlmacen(CLAVE_SESION)
     setEstado({ usuario: null, modo: null })
+    localStorage.removeItem('token')
+    borrarAlmacen(CLAVE_SESION)
   }, [])
 
   const valor = useMemo(
