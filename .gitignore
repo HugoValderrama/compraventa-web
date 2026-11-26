@@ -14,7 +14,6 @@ dist-ssr
 *.local
 
 # Backend (.NET)
-bin/
 obj/
 .vs/
 *.user
