@@ -1,5 +1,5 @@
 import { useAuth } from "../../../context/AuthContext";
-import { login } from "../../../mocks/usuario";
+import { login } from "../../../services/api";
 import { claveUltimoModo, elegirModoInicial, leerAlmacen, rutaInicio } from "../../../utils/sesion";
 import { useState } from "react";
 import Box from "@mui/material/Box";
