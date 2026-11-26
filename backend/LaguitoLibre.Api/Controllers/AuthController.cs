@@ -5,6 +5,10 @@ using LaguitoLibre.Api.Data;
 using LaguitoLibre.Api.DTOs.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LaguitoLibre.Api.Controllers;
 
@@ -12,11 +16,15 @@ namespace LaguitoLibre.Api.Controllers;
 public class AuthController : ApiControllerBase
 {
     private readonly AppDbContext _context;
+private readonly IConfiguration _configuration;
 
-    public AuthController(AppDbContext context)
-    {
-        _context = context;
-    }
+public AuthController(
+    AppDbContext context,
+    IConfiguration configuration)
+{
+    _context = context;
+    _configuration = configuration;
+}
 
     [HttpPost("registro")]
     public async Task<IActionResult> Registro(
@@ -155,4 +163,177 @@ return CreatedOk(
     "Usuario registrado correctamente."
 );
     }
+[HttpPost("login")]
+public async Task<IActionResult> Login(
+    [FromBody] LoginRequest request)
+{
+    // Validar RUN
+    if (!RunValidator.EsValido(request.Run))
+    {
+        return BadReq("El RUN ingresado no es válido.");
+    }
+
+    // Validar contraseña
+    if (string.IsNullOrWhiteSpace(request.Clave))
+    {
+        return BadReq("Debes ingresar una contraseña.");
+    }
+
+    // Validar rol
+    if (request.Rol != "Cliente" &&
+        request.Rol != "Emprendedor")
+    {
+        return BadReq("El rol seleccionado no es válido.");
+    }
+
+    // Normalizar RUN
+    string run = request.Run.Trim().ToUpperInvariant();
+
+    // Buscar usuario en PostgreSQL
+    var usuario = await _context.Usuarios
+        .AsNoTracking()
+        .FirstOrDefaultAsync(u => u.Run == run);
+
+    if (usuario == null)
+    {
+        return Unauthorized401("RUN o contraseña incorrectos.");
+    }
+
+    // Verificar contraseña mediante BCrypt
+bool claveValida;
+
+try
+{
+    claveValida = BCrypt.Net.BCrypt.Verify(
+        request.Clave,
+        usuario.Clave
+    );
+}
+catch (BCrypt.Net.SaltParseException)
+{
+    return Unauthorized401("RUN o contraseña incorrectos.");
+}
+catch (ArgumentException)
+{
+    return Unauthorized401("RUN o contraseña incorrectos.");
+}
+catch (FormatException)
+{
+    return Unauthorized401("RUN o contraseña incorrectos.");
+}
+
+if (!claveValida)
+{
+    return Unauthorized401("RUN o contraseña incorrectos.");
+}
+
+    // Comprobar rol Cliente
+    if (request.Rol == "Cliente")
+    {
+        bool esCliente = await _context.Clientes
+            .AnyAsync(c => c.UsuarioId == run);
+
+        if (!esCliente)
+        {
+            return Forbidden403(
+                "El usuario no posee el rol de Cliente."
+            );
+        }
+    }
+
+    // Comprobar rol Emprendedor
+    if (request.Rol == "Emprendedor")
+    {
+        bool esEmprendedor = await _context.Emprendedors
+            .AnyAsync(e => e.UsuarioId == run);
+
+        if (!esEmprendedor)
+        {
+            return Forbidden403(
+                "El usuario no posee el rol de Emprendedor."
+            );
+        }
+    }
+
+    // Generar token JWT
+string token = GenerarToken(usuario.Run, request.Rol);
+
+// Respuesta exitosa
+return Success(
+    new
+    {
+        run = usuario.Run,
+        nombre = usuario.Nombre1,
+        apellido = usuario.Apellido1,
+        rol = request.Rol,
+        token = token
+    },
+    "Inicio de sesión exitoso."
+);
+}
+private string GenerarToken(string run, string rol)
+{
+    var jwtKey = _configuration["Jwt:Key"]
+        ?? throw new InvalidOperationException(
+            "No se ha configurado la clave JWT."
+        );
+
+    var key = new SymmetricSecurityKey(
+        Convert.FromBase64String(jwtKey)
+    );
+
+    var credenciales = new SigningCredentials(
+        key,
+        SecurityAlgorithms.HmacSha256
+    );
+
+    var claims = new[]
+    {
+        new Claim(ClaimTypes.NameIdentifier, run),
+        new Claim(ClaimTypes.Role, rol),
+        new Claim(
+            JwtRegisteredClaimNames.Jti,
+            Guid.NewGuid().ToString()
+        )
+    };
+
+    var token = new JwtSecurityToken(
+        issuer: _configuration["Jwt:Issuer"],
+        audience: _configuration["Jwt:Audience"],
+        claims: claims,
+        expires: DateTime.UtcNow.AddMinutes(
+            _configuration.GetValue<int>("Jwt:ExpiraMinutos")
+        ),
+        signingCredentials: credenciales
+    );
+
+    return new JwtSecurityTokenHandler().WriteToken(token);
+}
+[Authorize]
+[HttpGet("verificar")]
+public IActionResult VerificarToken()
+
+{
+    return Success(
+        new
+        {
+            run = CurrentRun,
+            rol = User.FindFirstValue(ClaimTypes.Role)
+        },
+        "Token válido."
+    );
+} 
+[Authorize(Roles = "Emprendedor")]
+[HttpGet("verificar-emprendedor")]
+public IActionResult VerificarEmprendedor()
+{
+    return Success(
+        new
+        {
+            run = CurrentRun,
+            rol = User.FindFirstValue(ClaimTypes.Role)
+        },
+        "Acceso autorizado como emprendedor."
+    );
+}   
 }
