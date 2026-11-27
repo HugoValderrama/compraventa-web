@@ -522,4 +522,94 @@ public async Task<IActionResult> RegistrarEmpresa(
         direccionLocal = empresa.Direccionlocal
     }, "Empresa registrada correctamente.");
 }
+[Authorize(Roles = "Emprendedor")]
+[HttpPut("empresa")]
+public async Task<IActionResult> ActualizarEmpresa(
+    [FromBody] ActualizarEmpresaRequest request)
+{
+    // Validar los datos ingresados
+    var errores = PerfilValidator.ValidarActualizacionEmpresa(request);
+
+    if (errores.Count > 0)
+    {
+        return BadReq(
+            "Los datos ingresados no son válidos.",
+            errores.ToArray()
+        );
+    }
+
+    string run = CurrentRun;
+
+    // Buscar al emprendedor y su empresa
+    var emprendedor = await _context.Emprendedors
+        .Include(e => e.Empresa)
+        .FirstOrDefaultAsync(e => e.UsuarioId == run);
+
+    if (emprendedor == null)
+    {
+        return NotFoundMsg("Emprendedor no encontrado.");
+    }
+
+    if (emprendedor.Empresa == null)
+    {
+        return NotFoundMsg(
+            "El emprendedor no tiene una empresa asociada."
+        );
+    }
+
+    var empresa = emprendedor.Empresa;
+
+    // Impedir la modificación del RUT
+    string rut = PerfilValidator.NormalizarRutEmpresa(request.Rut);
+
+    if (rut != empresa.Rut)
+    {
+        return BadReq("No se permite modificar el RUT de la empresa.");
+    }
+
+    // Comprobar si la empresa está compartida
+    bool empresaCompartida = await _context.Emprendedors
+        .AnyAsync(e => e.EmpresaId == empresa.Rut &&
+                       e.UsuarioId != run);
+
+    if (empresaCompartida)
+    {
+        return Forbidden403(
+            "No se permite modificar una empresa compartida."
+        );
+    }
+
+    // Actualizar los datos
+    empresa.Razonsocial = request.RazonSocial.Trim();
+    empresa.Giro = request.Giro.Trim();
+
+    empresa.Paginaweb = string.IsNullOrWhiteSpace(request.PaginaWeb)
+        ? null
+        : request.PaginaWeb.Trim();
+
+    empresa.Direccionlocal = string.IsNullOrWhiteSpace(request.DireccionLocal)
+        ? null
+        : request.DireccionLocal.Trim();
+
+    try
+    {
+        await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateException)
+    {
+        return StatusCode(
+            500,
+            ApiResponse.Fail("No se pudo actualizar la empresa.")
+        );
+    }
+
+    return Success(new
+    {
+        rut = empresa.Rut,
+        razonSocial = empresa.Razonsocial,
+        giro = empresa.Giro,
+        paginaWeb = empresa.Paginaweb,
+        direccionLocal = empresa.Direccionlocal
+    }, "Empresa actualizada correctamente.");
+}
 }

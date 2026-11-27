@@ -281,4 +281,16 @@ public static List<string> ValidarRegistroEmpresa(
 
     return errores;
 }
+public static List<string> ValidarActualizacionEmpresa(
+    ActualizarEmpresaRequest request)
+{
+    return ValidarRegistroEmpresa(new RegistrarEmpresaRequest
+    {
+        Rut = request.Rut,
+        RazonSocial = request.RazonSocial,
+        Giro = request.Giro,
+        PaginaWeb = request.PaginaWeb,
+        DireccionLocal = request.DireccionLocal
+    });
+}
 }
