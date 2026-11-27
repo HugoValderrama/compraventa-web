@@ -319,4 +319,78 @@ public async Task<IActionResult> ActualizarCorreos(
 
     return await ObtenerPerfil();
 }
+[HttpPut("password")]
+public async Task<IActionResult> CambiarClave(
+    [FromBody] CambiarClaveRequest request)
+{
+    // Validar los datos ingresados
+    var errores = PerfilValidator.ValidarCambioClave(request);
+
+    if (errores.Count > 0)
+        return BadReq(
+            "Los datos ingresados no son válidos.",
+            errores.ToArray()
+        );
+
+    // Obtener el RUN desde el token
+    string run = CurrentRun;
+
+    // Buscar al usuario
+    var usuario = await _context.Usuarios
+        .FirstOrDefaultAsync(u => u.Run == run);
+
+    if (usuario == null)
+        return NotFoundMsg("Usuario no encontrado.");
+
+    // Comprobar el límite de BCrypt
+    if (System.Text.Encoding.UTF8.GetByteCount(request.Actual) > 72)
+        return BadReq("La contraseña actual es incorrecta.");
+
+    // Verificar la contraseña actual
+    bool claveValida;
+
+    try
+    {
+        claveValida = BCrypt.Net.BCrypt.Verify(
+            request.Actual,
+            usuario.Clave
+        );
+    }
+    catch (BCrypt.Net.SaltParseException)
+    {
+        return BadReq("No se pudo verificar la contraseña actual.");
+    }
+    catch (ArgumentException)
+    {
+        return BadReq("No se pudo verificar la contraseña actual.");
+    }
+    catch (FormatException)
+    {
+        return BadReq("No se pudo verificar la contraseña actual.");
+    }
+
+    if (!claveValida)
+        return BadReq("La contraseña actual es incorrecta.");
+
+    // Generar el hash de la nueva contraseña
+    usuario.Clave = BCrypt.Net.BCrypt.HashPassword(request.Nueva);
+
+    // Guardar los cambios
+    try
+    {
+        await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateException)
+    {
+        return StatusCode(
+            500,
+            ApiResponse.Fail("No se pudo actualizar la contraseña.")
+        );
+    }
+
+    return Success(
+        new { run = usuario.Run },
+        "Contraseña actualizada correctamente."
+    );
+}
 }

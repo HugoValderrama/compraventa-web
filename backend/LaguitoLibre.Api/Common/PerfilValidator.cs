@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using LaguitoLibre.Api.DTOs.Perfil;
 using System.Net.Mail;
+using System.Text;
 
 namespace LaguitoLibre.Api.Common;
 
@@ -170,6 +171,45 @@ public static List<string> ValidarCorreos(
             errores.Add("No puedes ingresar correos duplicados.");
         }
     }
+
+    return errores;
+}
+public static List<string> ValidarCambioClave(CambiarClaveRequest request)
+{
+    var errores = new List<string>();
+
+    // Validar contraseña actual
+    if (string.IsNullOrWhiteSpace(request.Actual))
+        errores.Add("Ingresa tu contraseña actual.");
+
+    // Validar nueva contraseña
+    if (string.IsNullOrWhiteSpace(request.Nueva))
+    {
+        errores.Add("Ingresa tu nueva contraseña.");
+    }
+    else
+    {
+        if (request.Nueva.Length < 8)
+            errores.Add("La contraseña debe tener al menos 8 caracteres.");
+
+        if (!Regex.IsMatch(request.Nueva, @"[a-zA-Z]"))
+            errores.Add("La contraseña debe contener al menos una letra.");
+
+        if (!Regex.IsMatch(request.Nueva, @"[0-9]"))
+            errores.Add("La contraseña debe contener al menos un número.");
+
+        if (Encoding.UTF8.GetByteCount(request.Nueva) > 72)
+            errores.Add("La contraseña no puede superar los 72 bytes.");
+
+        if (request.Nueva == request.Actual)
+            errores.Add("La nueva contraseña debe ser distinta de la actual.");
+    }
+
+    // Validar confirmación
+    if (string.IsNullOrWhiteSpace(request.Confirmacion))
+        errores.Add("Confirma tu nueva contraseña.");
+    else if (request.Confirmacion != request.Nueva)
+        errores.Add("Las contraseñas no coinciden.");
 
     return errores;
 }
