@@ -213,4 +213,72 @@ public static List<string> ValidarCambioClave(CambiarClaveRequest request)
 
     return errores;
 }
+public static string NormalizarRutEmpresa(string? rut)
+{
+    return (rut ?? "")
+        .Trim()
+        .Replace(".", "")
+        .ToUpperInvariant();
+}
+
+public static List<string> ValidarRegistroEmpresa(
+    RegistrarEmpresaRequest request)
+{
+    var errores = new List<string>();
+
+    string rut = NormalizarRutEmpresa(request.Rut);
+    string razonSocial = (request.RazonSocial ?? "").Trim();
+    string giro = (request.Giro ?? "").Trim();
+    string paginaWeb = (request.PaginaWeb ?? "").Trim();
+    string direccionLocal = (request.DireccionLocal ?? "").Trim();
+
+    // Validar RUT
+    if (!RunValidator.EsValido(rut))
+    {
+        errores.Add("El RUT de la empresa no es válido.");
+    }
+
+    // Validar razón social
+    if (string.IsNullOrWhiteSpace(razonSocial))
+    {
+        errores.Add("La razón social es obligatoria.");
+    }
+    else if (razonSocial.Length > 50)
+    {
+        errores.Add("La razón social no puede superar los 50 caracteres.");
+    }
+
+    // Validar giro
+    if (string.IsNullOrWhiteSpace(giro))
+    {
+        errores.Add("El giro es obligatorio.");
+    }
+    else if (giro.Length > 50)
+    {
+        errores.Add("El giro no puede superar los 50 caracteres.");
+    }
+
+    // Validar página web (opcional)
+    if (!string.IsNullOrEmpty(paginaWeb))
+    {
+        if (paginaWeb.Length > 30)
+        {
+            errores.Add("La página web no puede superar los 30 caracteres.");
+        }
+        else if (!Regex.IsMatch(
+            paginaWeb,
+            @"^(https?://)?([\p{L}\d-]+\.)+[\p{L}]{2,}(/\S*)?$"))
+        {
+            errores.Add("Ingresa una página web válida.");
+        }
+    }
+
+    // Validar dirección del local (opcional)
+    if (direccionLocal.Length > 30)
+    {
+        errores.Add("La dirección del local no puede superar los 30 caracteres.");
+    }
+
+    return errores;
+}
 }

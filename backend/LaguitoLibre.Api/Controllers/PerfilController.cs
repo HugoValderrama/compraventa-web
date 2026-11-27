@@ -428,4 +428,98 @@ public async Task<IActionResult> ObtenerEmpresa()
         direccionLocal = empresa.Direccionlocal
     }, "Empresa obtenida correctamente.");
 }
+[Authorize(Roles = "Emprendedor")]
+[HttpPost("empresa")]
+public async Task<IActionResult> RegistrarEmpresa(
+    [FromBody] RegistrarEmpresaRequest request)
+{
+    // Validar los datos ingresados
+    var errores = PerfilValidator.ValidarRegistroEmpresa(request);
+
+    if (errores.Count > 0)
+    {
+        return BadReq(
+            "Los datos ingresados no son válidos.",
+            errores.ToArray()
+        );
+    }
+
+    string run = CurrentRun;
+    string rut = PerfilValidator.NormalizarRutEmpresa(request.Rut);
+
+    // Buscar al emprendedor autenticado
+    var emprendedor = await _context.Emprendedors
+        .FirstOrDefaultAsync(e => e.UsuarioId == run);
+
+    if (emprendedor == null)
+    {
+        return NotFoundMsg("Emprendedor no encontrado.");
+    }
+
+    // Verificar si ya tiene una empresa
+    if (emprendedor.EmpresaId != null)
+    {
+        return ConflictMsg(
+            "El emprendedor ya tiene una empresa asociada."
+        );
+    }
+
+    // Verificar si el RUT ya está registrado
+    bool existeEmpresa = await _context.Empresas
+        .AnyAsync(e => e.Rut == rut);
+
+    if (existeEmpresa)
+    {
+        return ConflictMsg(
+            "El RUT de la empresa ya está registrado."
+        );
+    }
+
+    // Crear la empresa
+    var empresa = new Empresa
+    {
+        Rut = rut,
+        Razonsocial = request.RazonSocial.Trim(),
+        Giro = request.Giro.Trim(),
+
+        Paginaweb = string.IsNullOrWhiteSpace(request.PaginaWeb)
+            ? null
+            : request.PaginaWeb.Trim(),
+
+        Direccionlocal = string.IsNullOrWhiteSpace(request.DireccionLocal)
+            ? null
+            : request.DireccionLocal.Trim()
+    };
+
+    // Registrar y asociar la empresa
+    _context.Empresas.Add(empresa);
+    emprendedor.EmpresaId = empresa.Rut;
+
+    try
+    {
+        await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateException ex)
+        when (ex.InnerException is PostgresException pg &&
+              pg.SqlState == PostgresErrorCodes.UniqueViolation)
+    {
+        return ConflictMsg("La empresa ya está registrada.");
+    }
+    catch (DbUpdateException)
+    {
+        return StatusCode(
+            500,
+            ApiResponse.Fail("No se pudo registrar la empresa.")
+        );
+    }
+
+    return CreatedOk(new
+    {
+        rut = empresa.Rut,
+        razonSocial = empresa.Razonsocial,
+        giro = empresa.Giro,
+        paginaWeb = empresa.Paginaweb,
+        direccionLocal = empresa.Direccionlocal
+    }, "Empresa registrada correctamente.");
+}
 }
