@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using LaguitoLibre.Api.DTOs.Perfil;
+using System.Net.Mail;
 
 namespace LaguitoLibre.Api.Common;
 
@@ -121,6 +122,52 @@ public static List<string> ValidarTelefonos(
             errores.Add(
                 "No puedes ingresar teléfonos duplicados."
             );
+        }
+    }
+
+    return errores;
+}
+public static string NormalizarCorreo(string? correo)
+{
+    if (string.IsNullOrWhiteSpace(correo))
+    {
+        return "";
+    }
+
+    return correo.Trim().ToLowerInvariant();
+}
+public static List<string> ValidarCorreos(
+    ActualizarCorreosRequest request)
+{
+    var errores = new List<string>();
+
+    // Comprobar que exista al menos un correo
+    if (request.Correos == null || request.Correos.Count == 0)
+    {
+        errores.Add("Debes mantener al menos un correo.");
+        return errores;
+    }
+
+    var correosRegistrados = new HashSet<string>();
+
+    foreach (var correo in request.Correos)
+    {
+        string normalizado = NormalizarCorreo(correo);
+
+        // Validar formato y longitud
+        if (string.IsNullOrWhiteSpace(normalizado) ||
+            normalizado.Length > 50 ||
+            !MailAddress.TryCreate(normalizado, out var direccion) ||
+            direccion.Address != normalizado)
+        {
+            errores.Add("Ingresa un correo electrónico válido.");
+            continue;
+        }
+
+        // Comprobar correos duplicados
+        if (!correosRegistrados.Add(normalizado))
+        {
+            errores.Add("No puedes ingresar correos duplicados.");
         }
     }
 

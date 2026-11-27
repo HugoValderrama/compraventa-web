@@ -220,4 +220,103 @@ public async Task<IActionResult> ActualizarTelefonos(
 
     return await ObtenerPerfil();
 }
+[HttpPut("correos")]
+public async Task<IActionResult> ActualizarCorreos(
+    [FromBody] ActualizarCorreosRequest request)
+{
+    // Validar los correos ingresados
+    var errores = PerfilValidator.ValidarCorreos(request);
+
+    if (errores.Count > 0)
+    {
+        return BadReq(
+            "Los correos ingresados no son válidos.",
+            errores.ToArray()
+        );
+    }
+
+    // Obtener RUN desde el token JWT
+    string run = CurrentRun;
+
+    // Comprobar que el usuario existe
+    bool existeUsuario = await _context.Usuarios
+        .AnyAsync(u => u.Run == run);
+
+    if (!existeUsuario)
+    {
+        return NotFoundMsg("Usuario no encontrado.");
+    }
+
+    // Normalizar los correos ingresados
+    var nuevosCorreos = request.Correos
+        .Select(c => PerfilValidator.NormalizarCorreo(c))
+        .ToList();
+
+    // Comprobar si pertenecen a otro usuario
+    bool correoOcupado = await _context.Correos
+        .AnyAsync(c =>
+            nuevosCorreos.Contains(c.Correo1.ToLower()) &&
+            c.UsuarioId != run
+        );
+
+    if (correoOcupado)
+    {
+        return ConflictMsg(
+            "Uno o más correos ya están registrados por otro usuario."
+        );
+    }
+
+    // Obtener los correos actuales del usuario
+    var correosActuales = await _context.Correos
+        .Where(c => c.UsuarioId == run)
+        .ToListAsync();
+
+    // Identificar correos que deben eliminarse
+    var correosEliminar = correosActuales
+        .Where(c => !nuevosCorreos.Contains(c.Correo1))
+        .ToList();
+
+    _context.Correos.RemoveRange(correosEliminar);
+
+    // Agregar solamente los correos nuevos
+    foreach (string correo in nuevosCorreos)
+    {
+        bool existe = correosActuales
+            .Any(c => c.Correo1 == correo);
+
+        if (!existe)
+        {
+            _context.Correos.Add(new Correo
+            {
+                Correo1 = correo,
+                UsuarioId = run
+            });
+        }
+    }
+
+    // Guardar los cambios
+    try
+    {
+        await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateException ex)
+        when (ex.InnerException is PostgresException pg &&
+              pg.SqlState == PostgresErrorCodes.UniqueViolation)
+    {
+        return ConflictMsg(
+            "Uno o más correos ya están registrados."
+        );
+    }
+    catch (DbUpdateException)
+    {
+        return StatusCode(
+            500,
+            ApiResponse.Fail(
+                "No se pudieron actualizar los correos."
+            )
+        );
+    }
+
+    return await ObtenerPerfil();
+}
 }
