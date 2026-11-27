@@ -1,108 +1,93 @@
-export const CLAVE_MENSAJERIA = 'laguito-libre.mensajeria-demo.v1'
-export const EVENTO_MENSAJERIA = 'laguito-libre:mensajeria-demo-actualizada'
-export const MAXIMO_MENSAJE = 2000
+const API_BASE = 'http://localhost:7173/api'
+export const CLAVE_MENSAJERIA = 'laguito-libre.mensajeria.v1'
+export const EVENTO_MENSAJERIA = 'laguito-libre:mensajeria-actualizada'
+// En PostgreSQL la columna mensaje.contenido es varchar(500)
+export const MAXIMO_MENSAJE = 500
 
-function fechaDeEjemplo(ahora, dias, hora, minuto) {
-  const fecha = new Date(ahora)
-  fecha.setUTCDate(fecha.getUTCDate() - dias)
-  fecha.setUTCHours(hora, minuto, 0, 0)
-  return fecha.toISOString()
+function obtenerToken() {
+  return (
+    window.localStorage.getItem('token') ||
+    window.localStorage.getItem('jwt') ||
+    window.localStorage.getItem('accessToken') ||
+    ''
+  )
 }
 
-// Estos contactos y mensajes son ficticios. No se envían a otras personas.
-export function conversacionesDeEjemplo(ahora = new Date()) {
-  return [
-    {
-      id: 'vendedor-1',
-      contacto: { nombre: 'Vendedor1', rol: 'emprendedor' },
-      leidoHasta: null,
-      mensajes: [
-        { id: 'ejemplo-1', autor: 'contacto', texto: 'Hola! Tu pedido ha sido despachado.', fecha: fechaDeEjemplo(ahora, 2, 13, 15) },
-        { id: 'ejemplo-2', autor: 'contacto', texto: 'El número de seguimiento es: 583191', fecha: fechaDeEjemplo(ahora, 2, 13, 16) },
-        { id: 'ejemplo-3', autor: 'yo', texto: '¡Gracias! Quedo atento', fecha: fechaDeEjemplo(ahora, 2, 14, 30) },
-      ],
-    },
-    {
-      id: 'vendedor-2',
-      contacto: { nombre: 'Vendedor2', rol: 'emprendedor' },
-      leidoHasta: null,
-      mensajes: [
-        { id: 'ejemplo-4', autor: 'contacto', texto: 'Gracias por tu compra, el producto estará listo esta semana.', fecha: fechaDeEjemplo(ahora, 3, 15, 0) },
-      ],
-    },
-    {
-      id: 'comprador-1',
-      contacto: { nombre: 'Comprador1', rol: 'cliente' },
-      leidoHasta: 'ejemplo-5',
-      mensajes: [
-        { id: 'ejemplo-5', autor: 'contacto', texto: 'He enviado el producto en el horario acordado. ¡Muchas gracias!', fecha: fechaDeEjemplo(ahora, 4, 16, 20) },
-      ],
-    },
-  ]
+function headersAuth() {
+  return {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${obtenerToken()}`,
+  }
 }
 
-function validarConversaciones(registros) {
-  if (!Array.isArray(registros)) throw new Error('Conversaciones inválidas')
-  const ids = new Set()
-  return registros.map((registro) => {
-    if (!registro || typeof registro.id !== 'string' || !registro.id.trim() || ids.has(registro.id)) {
-      throw new Error('Conversación inválida')
-    }
-    ids.add(registro.id)
-    const contacto = registro.contacto
-    if (!contacto || typeof contacto.nombre !== 'string' || !contacto.nombre.trim() ||
-        !['emprendedor', 'cliente'].includes(contacto.rol) || !Array.isArray(registro.mensajes)) {
-      throw new Error('Contacto inválido')
-    }
-    const idsMensajes = new Set()
-    let anterior = -Infinity
-    const mensajes = registro.mensajes.map((mensaje) => {
-      const instante = typeof mensaje?.fecha === 'string' ? Date.parse(mensaje.fecha) : NaN
-      if (!mensaje || typeof mensaje.id !== 'string' || !mensaje.id.trim() || idsMensajes.has(mensaje.id) ||
-          !['yo', 'contacto'].includes(mensaje.autor) || typeof mensaje.texto !== 'string' ||
-          !mensaje.texto.trim() || mensaje.texto.length > MAXIMO_MENSAJE ||
-          !Number.isFinite(instante) || instante < anterior) {
-        throw new Error('Mensaje inválido')
-      }
-      idsMensajes.add(mensaje.id)
-      anterior = instante
-      return { id: mensaje.id, autor: mensaje.autor, texto: mensaje.texto, fecha: new Date(instante).toISOString() }
-    })
-    if (registro.leidoHasta !== null && !idsMensajes.has(registro.leidoHasta)) {
-      throw new Error('Lectura inválida')
-    }
-    return {
-      id: registro.id,
-      contacto: { nombre: contacto.nombre.trim(), rol: contacto.rol },
-      leidoHasta: registro.leidoHasta,
-      mensajes,
-    }
+function extraerVentaId(conversacionId) {
+  const str = String(conversacionId ?? '').trim()
+  return str.startsWith('venta-') ? Number(str.replace('venta-', '')) : Number(str)
+}
+
+export async function obtenerConversacionesApi() {
+  const res = await fetch(`${API_BASE}/mensajeria`, {
+    headers: headersAuth(),
   })
+  if (res.status === 401) {
+    throw new Error('Tu sesión expiró o no has iniciado sesión.')
+  }
+  if (!res.ok) {
+    throw new Error('No se pudieron cargar tus conversaciones desde el servidor.')
+  }
+  const conversaciones = await res.json()
+
+  try {
+    window.localStorage.setItem(CLAVE_MENSAJERIA, JSON.stringify(conversaciones))
+    window.dispatchEvent(new Event(EVENTO_MENSAJERIA))
+  } catch {}
+
+  return conversaciones
 }
 
-export function cargarMensajeria(almacenamiento, ahora = new Date()) {
+export async function enviarMensajeApi(conversacionId, texto) {
+  if (typeof texto !== 'string' || !texto.trim()) {
+    throw new Error('Escribe un mensaje antes de enviarlo.')
+  }
+  if (texto.trim().length > MAXIMO_MENSAJE) {
+    throw new Error(`El mensaje puede tener hasta ${MAXIMO_MENSAJE} caracteres.`)
+  }
+
+  const ventaId = extraerVentaId(conversacionId)
+  const res = await fetch(`${API_BASE}/mensajeria/ventas/${ventaId}/mensajes`, {
+    method: 'POST',
+    headers: headersAuth(),
+    body: JSON.stringify({ texto: texto.trim() }),
+  })
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.mensaje || 'No se pudo enviar el mensaje.')
+  }
+
+  return await res.json()
+}
+
+export async function marcarConversacionLeidaApi(conversacionId) {
+  const ventaId = extraerVentaId(conversacionId)
+  const res = await fetch(`${API_BASE}/mensajeria/ventas/${ventaId}/leer`, {
+    method: 'PUT',
+    headers: headersAuth(),
+  })
+  if (!res.ok) {
+    throw new Error('No se pudo actualizar el estado de lectura.')
+  }
+}
+
+export function cargarMensajeria(almacenamiento) {
   try {
     const storage = almacenamiento ?? window.localStorage
     const texto = storage.getItem(CLAVE_MENSAJERIA)
-    if (texto === null) return { conversaciones: conversacionesDeEjemplo(ahora), error: '' }
-    const datos = JSON.parse(texto)
-    if (datos?.version !== 1) throw new Error('Formato inválido')
-    return { conversaciones: validarConversaciones(datos.conversaciones), error: '' }
+    const conversaciones = texto ? JSON.parse(texto) : []
+    return { conversaciones: Array.isArray(conversaciones) ? conversaciones : [], error: '' }
   } catch {
-    return { conversaciones: [], error: 'No se pudieron cargar las conversaciones. Intenta nuevamente.' }
+    return { conversaciones: [], error: 'No se pudieron cargar las conversaciones.' }
   }
-}
-
-function guardar(conversaciones, almacenamiento) {
-  const validadas = validarConversaciones(conversaciones)
-  try {
-    const storage = almacenamiento ?? window.localStorage
-    storage.setItem(CLAVE_MENSAJERIA, JSON.stringify({ version: 1, conversaciones: validadas }))
-  } catch {
-    throw new Error('No se pudo guardar el mensaje o su lectura. Revisa el almacenamiento del navegador e intenta nuevamente.')
-  }
-  if (typeof window !== 'undefined') window.dispatchEvent(new Event(EVENTO_MENSAJERIA))
-  return { conversaciones: validadas, error: '' }
 }
 
 export function contarNoLeidos(conversacion) {
@@ -112,45 +97,11 @@ export function contarNoLeidos(conversacion) {
   return conversacion.mensajes.filter((mensaje, posicion) => posicion > indice && mensaje.autor === 'contacto').length
 }
 
-export function marcarConversacionLeida(id, almacenamiento, ahora = new Date()) {
-  const datos = cargarMensajeria(almacenamiento, ahora)
-  if (datos.error) throw new Error(datos.error)
-  const conversacion = datos.conversaciones.find((item) => item.id === id)
-  if (!conversacion) throw new Error('Esta conversación no está disponible.')
-  const ultimoId = conversacion.mensajes.at(-1)?.id ?? null
-  if (conversacion.leidoHasta === ultimoId) return datos
-  return guardar(datos.conversaciones.map((item) => item.id === id ? { ...item, leidoHasta: ultimoId } : item), almacenamiento)
-}
-
-function idMensaje() {
-  return globalThis.crypto?.randomUUID?.() ?? `mensaje-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
-}
-
-export function enviarMensaje(id, texto, almacenamiento, ahora = new Date()) {
-  if (typeof texto !== 'string' || !texto.trim()) throw new Error('Escribe un mensaje antes de enviarlo.')
-  if (texto.length > MAXIMO_MENSAJE) throw new Error(`El mensaje puede tener hasta ${MAXIMO_MENSAJE} caracteres.`)
-  const datos = cargarMensajeria(almacenamiento, ahora)
-  if (datos.error) throw new Error(datos.error)
-  const conversacion = datos.conversaciones.find((item) => item.id === id)
-  if (!conversacion) throw new Error('Esta conversación no está disponible.')
-  const instante = new Date(ahora).getTime()
-  if (!Number.isFinite(instante)) throw new Error('No se pudo determinar la fecha del mensaje.')
-  // Conserva el orden aunque se atrase el reloj del equipo.
-  const ultimoInstante = Date.parse(conversacion.mensajes.at(-1)?.fecha ?? '')
-  const mensaje = {
-    id: idMensaje(), autor: 'yo', texto: texto.trim(),
-    fecha: new Date(Math.max(instante, Number.isFinite(ultimoInstante) ? ultimoInstante : instante)).toISOString(),
-  }
-  return guardar(datos.conversaciones.map((item) => item.id === id
-    ? { ...item, mensajes: [...item.mensajes, mensaje], leidoHasta: mensaje.id }
-    : item), almacenamiento)
-}
-
 export function ordenarConversaciones(conversaciones) {
   return [...conversaciones].sort((a, b) => {
     const fechaA = Date.parse(a.mensajes.at(-1)?.fecha ?? '') || 0
     const fechaB = Date.parse(b.mensajes.at(-1)?.fecha ?? '') || 0
-    return fechaB - fechaA || a.id.localeCompare(b.id)
+    return fechaB - fechaA || String(a.id).localeCompare(String(b.id))
   })
 }
 

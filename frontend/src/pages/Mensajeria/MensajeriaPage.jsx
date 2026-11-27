@@ -1,14 +1,14 @@
 import * as React from 'react'
 import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom'
 import {
-  Alert, Box, Button, Container, Divider, IconButton, List, ListItem,
+  Alert, Box, Button, CircularProgress, Container, Divider, IconButton, List, ListItem,
   ListItemButton, Paper, Stack, TextField, Typography, useMediaQuery, useTheme,
 } from '@mui/material'
 import TopNavBar from '../../components/organisms/TopNavBar'
 import {
-  MAXIMO_MENSAJE, cargarMensajeria, contarNoLeidos, enviarMensaje,
-  estadoConversacion, formatearFechaMensaje, marcarConversacionLeida,
-  ordenarConversaciones, suscribirMensajeria,
+  MAXIMO_MENSAJE, contarNoLeidos, enviarMensajeApi,
+  estadoConversacion, formatearFechaMensaje, marcarConversacionLeidaApi,
+  obtenerConversacionesApi, ordenarConversaciones,
 } from './mensajeria.js'
 
 const AZUL = '#008FFF'
@@ -146,30 +146,46 @@ export default function MensajeriaPage() {
   const navigate = useNavigate()
   const theme = useTheme()
   const escritorio = useMediaQuery(theme.breakpoints.up('sm'))
-  const [datos, setDatos] = React.useState(() => cargarMensajeria())
+  const [conversaciones, setConversaciones] = React.useState([])
+  const [cargando, setCargando] = React.useState(true)
+  const [errorCarga, setErrorCarga] = React.useState('')
   const [borradores, setBorradores] = React.useState({})
   const [errorAccion, setErrorAccion] = React.useState('')
   const [enviando, setEnviando] = React.useState(false)
   const procesando = React.useRef(false)
   const [primeraId, setPrimeraId] = React.useState(null)
 
-  React.useEffect(() => {
-    const actualizar = () => setDatos(cargarMensajeria())
-    const cancelar = suscribirMensajeria(actualizar)
-    window.addEventListener('focus', actualizar)
-    return () => {
-      cancelar()
-      window.removeEventListener('focus', actualizar)
+  const cargarDesdeApi = React.useCallback(async () => {
+    setCargando(true)
+    setErrorCarga('')
+    try {
+      const lista = await obtenerConversacionesApi()
+      setConversaciones(lista)
+    } catch (error) {
+      setErrorCarga(error.message)
+    } finally {
+      setCargando(false)
     }
   }, [])
 
   React.useEffect(() => {
-    if (!datos.error && datos.conversaciones.length && !primeraId) setPrimeraId(datos.conversaciones[0].id)
-  }, [datos.conversaciones, datos.error, primeraId])
+    cargarDesdeApi()
+    // Sondeo ligero cada 10s para recibir mensajes nuevos sin recargar
+    const intervalo = window.setInterval(() => {
+      obtenerConversacionesApi().then(setConversaciones).catch(() => {})
+    }, 10000)
+    return () => window.clearInterval(intervalo)
+  }, [cargarDesdeApi])
 
-  // En escritorio se muestra un hilo inicial; en móvil se abre al tocar un contacto.
+  React.useEffect(() => {
+    if (!errorCarga && conversaciones.length && !primeraId) {
+      const ordenadas = ordenarConversaciones(conversaciones)
+      setPrimeraId(ordenadas[0].id)
+    }
+  }, [conversaciones, errorCarga, primeraId])
+
   const seleccionadaId = id || (escritorio ? primeraId : null)
-  const seleccionada = datos.conversaciones.find((item) => item.id === seleccionadaId) ?? null
+  const seleccionada = conversaciones.find((item) => item.id === seleccionadaId) ?? null
   const verHilo = escritorio || Boolean(id)
   const verBandeja = escritorio || !id
 
@@ -178,19 +194,19 @@ export default function MensajeriaPage() {
   }, [seleccionadaId])
 
   React.useEffect(() => {
-    if (!verHilo || !seleccionada || datos.error || contarNoLeidos(seleccionada) === 0) return
-    try {
-      setDatos(marcarConversacionLeida(seleccionada.id))
-    } catch (error) {
-      setErrorAccion(error.message)
-    }
-  }, [seleccionada, verHilo, datos.error])
+    if (!verHilo || !seleccionada || errorCarga || contarNoLeidos(seleccionada) === 0) return
+    const ultimoId = seleccionada.mensajes.at(-1)?.id ?? null
+    setConversaciones((prev) =>
+      prev.map((c) => (c.id === seleccionada.id ? { ...c, leidoHasta: ultimoId } : c))
+    )
+    marcarConversacionLeidaApi(seleccionada.id).catch((err) => setErrorAccion(err.message))
+  }, [seleccionada, verHilo, errorCarga])
 
   const cambiarBorrador = (texto) => {
     if (seleccionadaId) setBorradores((actuales) => ({ ...actuales, [seleccionadaId]: texto }))
   }
 
-  const handleEnviar = (event) => {
+  const handleEnviar = async (event) => {
     event.preventDefault()
     const texto = borradores[seleccionadaId] ?? ''
     if (!seleccionada || !texto.trim() || procesando.current) return
@@ -198,7 +214,14 @@ export default function MensajeriaPage() {
     setEnviando(true)
     setErrorAccion('')
     try {
-      setDatos(enviarMensaje(seleccionada.id, texto))
+      const nuevoMensaje = await enviarMensajeApi(seleccionada.id, texto)
+      setConversaciones((prev) =>
+        prev.map((c) =>
+          c.id === seleccionada.id
+            ? { ...c, mensajes: [...c.mensajes, nuevoMensaje], leidoHasta: nuevoMensaje.id }
+            : c
+        )
+      )
       setBorradores((actuales) => ({ ...actuales, [seleccionada.id]: '' }))
     } catch (error) {
       setErrorAccion(error.message)
@@ -229,12 +252,15 @@ export default function MensajeriaPage() {
       <TopNavBar showBack title="Mensajería" onBack={() => navigate('/catalogo')} />
       <Container maxWidth="lg" sx={{ position: 'relative', display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0, minHeight: 0, pt: 1.5, pb: 2.5 }}>
         <Typography component="h1" sx={SOLO_LECTORES}>Mensajería</Typography>
-        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.85)', display: 'block', mb: 1.5, fontSize: 11 }}>Vista de prueba · Estos contactos son ficticios y los mensajes se guardan en este navegador.</Typography>
-        {datos.error ? (
-          <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => setDatos(cargarMensajeria())}>Reintentar</Button>}>{datos.error}</Alert>
+        {cargando ? (
+          <Box sx={{ display: 'grid', placeItems: 'center', flex: 1 }}>
+            <CircularProgress sx={{ color: 'white' }} />
+          </Box>
+        ) : errorCarga ? (
+          <Alert severity="error" action={<Button color="inherit" size="small" onClick={cargarDesdeApi}>Reintentar</Button>}>{errorCarga}</Alert>
         ) : (
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'minmax(0, 2fr) minmax(0, 3fr)', lg: 'minmax(0, 3fr) minmax(0, 5fr)' }, gap: 2, flex: 1, minWidth: 0, minHeight: 0 }}>
-            <Bandeja conversaciones={datos.conversaciones} seleccionadaId={seleccionadaId} visible={verBandeja} />
+            <Bandeja conversaciones={conversaciones} seleccionadaId={seleccionadaId} visible={verBandeja} />
             {verHilo && (seleccionada ? (
               <Hilo key={seleccionada.id} conversacion={seleccionada} movil={!escritorio} borrador={borradores[seleccionada.id] ?? ''} onBorrador={cambiarBorrador} onEnviar={handleEnviar} error={errorAccion} onCerrarError={() => setErrorAccion('')} enviando={enviando} />
             ) : (

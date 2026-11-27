@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Container,
   Dialog,
   DialogActions,
@@ -22,15 +23,12 @@ import TopNavBar from '../../components/organisms/TopNavBar'
 import { CLAVE_PRODUCTOS, cargarCatalogo, pesos } from '../Catalogo/catalogo.js'
 import {
   anadirALista,
-  cargarDeseos,
+  obtenerDeseosApi,
   obtenerNombresListas,
   quitarDeLista,
-  quitarDeseo,
-  suscribirDeseos,
+  quitarDeseoApi,
 } from './listaDeseos.js'
 
-// Ubicación: src/pages/ListaDeseos/ListaDeseosPage.jsx.
-// Mantén listaDeseos.js en esta misma carpeta.
 const AZUL = '#62A7F5'
 
 function IconoAccion({ eliminar = false }) {
@@ -73,6 +71,7 @@ function FilaDeseo({ item, producto, onAnadir, onQuitar, onQuitarLista }) {
     ? Math.round((1 - producto.precio / producto.precioAnterior) * 100)
     : 0
   const envio = producto?.precioEnvio
+  const tienePrecio = typeof producto?.precio === 'number'
 
   return (
     <Paper
@@ -93,11 +92,18 @@ function FilaDeseo({ item, producto, onAnadir, onQuitar, onQuitarLista }) {
     >
       <ImagenDeseo producto={producto} />
       <Box sx={{ gridArea: 'info', minWidth: 0, overflowWrap: 'anywhere' }}>
-        <Typography component="h2" sx={{ fontWeight: 700, fontSize: 18 }}>
-          {producto?.nombre ?? 'Producto no disponible'}
-        </Typography>
+        <Stack direction="row" spacing={1} alignItems="center" sx={{ flexWrap: 'wrap' }}>
+          <Typography component="h2" sx={{ fontWeight: 700, fontSize: 18 }}>
+            {producto?.nombre ?? 'Elemento no disponible'}
+          </Typography>
+          <Chip
+            label={item.tipo === 'servicio' ? 'Servicio' : 'Producto'}
+            size="small"
+            variant="outlined"
+            sx={{ fontWeight: 600, fontSize: 11 }}
+          />
+        </Stack>
         {producto?.vendedor && <Typography variant="body2" sx={{ fontWeight: 600, mt: 0.5 }}>{producto.vendedor}</Typography>}
-        {!producto && <Typography variant="body2" color="text.secondary">La información de este producto no está disponible.</Typography>}
         {producto?.stock === 0 && <Chip label="Sin stock" size="small" color="warning" sx={{ mt: 1 }} />}
         {item.listas.length > 0 && (
           <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.5, mt: 1 }}>
@@ -109,22 +115,24 @@ function FilaDeseo({ item, producto, onAnadir, onQuitar, onQuitarLista }) {
       </Box>
 
       <Stack spacing={0.5} sx={{ gridArea: 'precios' }}>
-        <Typography sx={{ fontWeight: 700 }}>{producto ? pesos(producto.precio) : 'Precio no disponible'}</Typography>
+        <Typography sx={{ fontWeight: 700 }}>{tienePrecio ? pesos(producto.precio) : 'Precio por confirmar'}</Typography>
         {descuento > 0 && (
           <Typography variant="body2" sx={{ fontWeight: 600, color: '#1F66AE' }}>
             Oferta: {descuento}% de descuento
           </Typography>
         )}
-        <Typography variant="body2" color="text.secondary">
-          {envio === 0 ? 'Envío gratis' : Number.isSafeInteger(envio) && envio > 0 ? 'Envío: ' + pesos(envio) : 'Envío por confirmar'}
-        </Typography>
+        {item.tipo === 'producto' && (
+          <Typography variant="body2" color="text.secondary">
+            {envio === 0 ? 'Envío gratis' : Number.isSafeInteger(envio) && envio > 0 ? 'Envío: ' + pesos(envio) : 'Envío por confirmar'}
+          </Typography>
+        )}
       </Stack>
 
       <Stack direction={{ xs: 'row', md: 'column' }} spacing={0.5} sx={{ gridArea: 'acciones', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        <Button startIcon={<IconoAccion />} disabled={!producto} onClick={() => onAnadir(item.id)} sx={{ color: '#111', textTransform: 'none', fontWeight: 700 }}>
+        <Button startIcon={<IconoAccion />} onClick={() => onAnadir(item.id)} sx={{ color: '#111', textTransform: 'none', fontWeight: 700 }}>
           Añadir a lista
         </Button>
-        <Button startIcon={<IconoAccion eliminar />} onClick={() => onQuitar(item.id)} sx={{ color: '#111', textTransform: 'none', fontWeight: 700 }}>
+        <Button startIcon={<IconoAccion eliminar />} onClick={() => onQuitar(item)} sx={{ color: '#111', textTransform: 'none', fontWeight: 700 }}>
           Eliminar
         </Button>
       </Stack>
@@ -133,37 +141,56 @@ function FilaDeseo({ item, producto, onAnadir, onQuitar, onQuitarLista }) {
 }
 
 export default function ListaDeseosPage() {
-  const [deseos, setDeseos] = React.useState(() => cargarDeseos())
+  const [items, setItems] = React.useState([])
+  const [cargando, setCargando] = React.useState(true)
+  const [errorCarga, setErrorCarga] = React.useState('')
+
   const [catalogo, setCatalogo] = React.useState(() => cargarCatalogo())
   const [listaSeleccionada, setListaSeleccionada] = React.useState('')
-  const [productoId, setProductoId] = React.useState('')
+  const [itemActivoId, setItemActivoId] = React.useState('')
   const [nombreLista, setNombreLista] = React.useState('')
   const [errorLista, setErrorLista] = React.useState('')
   const [aviso, setAviso] = React.useState(null)
 
+  const cargarDesdeApi = React.useCallback(async () => {
+    setCargando(true)
+    setErrorCarga('')
+    try {
+      const lista = await obtenerDeseosApi()
+      setItems(lista)
+    } catch (err) {
+      setErrorCarga(err.message)
+    } finally {
+      setCargando(false)
+    }
+  }, [])
+
   React.useEffect(() => {
-    const dejarDeEscuchar = suscribirDeseos(() => setDeseos(cargarDeseos()))
+    cargarDesdeApi()
     const sincronizarProductos = (event) => {
       if (event.key === CLAVE_PRODUCTOS || event.key === null) setCatalogo(cargarCatalogo())
     }
     window.addEventListener('storage', sincronizarProductos)
     return () => {
-      dejarDeEscuchar()
       window.removeEventListener('storage', sincronizarProductos)
     }
-  }, [])
+  }, [cargarDesdeApi])
 
-  const listas = obtenerNombresListas(deseos.items)
+  const listas = obtenerNombresListas(items)
   const opcionesLista = listaSeleccionada && !listas.includes(listaSeleccionada)
     ? [listaSeleccionada, ...listas]
     : listas
-  const visibles = deseos.items.filter((item) => !listaSeleccionada || item.listas.includes(listaSeleccionada))
-  const productosPorId = new Map(catalogo.productos.map((producto) => [producto.id, producto]))
+  const visibles = items.filter((item) => !listaSeleccionada || item.listas.includes(listaSeleccionada))
+  const productosPorId = new Map(catalogo.productos.map((producto) => [String(producto.id), producto]))
 
-  const quitar = (id) => {
+  const quitar = async (item) => {
     try {
-      setDeseos(quitarDeseo(id))
-      setAviso({ mensaje: 'Producto eliminado de tus deseos.', severidad: 'success' })
+      await quitarDeseoApi(item.idBien, item.tipo)
+      setItems((prev) => prev.filter((x) => x.id !== item.id))
+      setAviso({
+        mensaje: `${item.tipo === 'servicio' ? 'Servicio' : 'Producto'} eliminado de tus deseos.`,
+        severidad: 'success',
+      })
     } catch (error) {
       setAviso({ mensaje: error.message, severidad: 'error' })
     }
@@ -171,15 +198,16 @@ export default function ListaDeseosPage() {
 
   const quitarLista = (id, nombre) => {
     try {
-      setDeseos(quitarDeLista(id, nombre))
-      setAviso({ mensaje: 'Producto retirado de la lista ' + nombre + '.', severidad: 'success' })
+      const res = quitarDeLista(id, nombre)
+      setItems(res.items)
+      setAviso({ mensaje: 'Retirado de la lista ' + nombre + '.', severidad: 'success' })
     } catch (error) {
       setAviso({ mensaje: error.message, severidad: 'error' })
     }
   }
 
   const abrirLista = (id) => {
-    setProductoId(id)
+    setItemActivoId(id)
     setNombreLista('')
     setErrorLista('')
   }
@@ -187,9 +215,10 @@ export default function ListaDeseosPage() {
   const guardarEnLista = (event) => {
     event.preventDefault()
     try {
-      setDeseos(anadirALista(productoId, nombreLista))
-      setProductoId('')
-      setAviso({ mensaje: 'Producto añadido a la lista.', severidad: 'success' })
+      const res = anadirALista(itemActivoId, nombreLista)
+      setItems(res.items)
+      setItemActivoId('')
+      setAviso({ mensaje: 'Añadido a la lista.', severidad: 'success' })
     } catch (error) {
       setErrorLista(error.message)
     }
@@ -202,22 +231,25 @@ export default function ListaDeseosPage() {
         <Stack direction={{ xs: 'column', sm: 'row' }} sx={{ alignItems: { sm: 'center' }, justifyContent: 'space-between', gap: 2, mb: 3 }}>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <Typography component="h1" variant="h5" sx={{ color: 'white', fontWeight: 700 }}>Lista de deseos</Typography>
-            {!deseos.error && <Chip label={deseos.items.length} size="small" sx={{ bgcolor: 'white', fontWeight: 700 }} />}
+            {!cargando && !errorCarga && <Chip label={items.length} size="small" sx={{ bgcolor: 'white', fontWeight: 700 }} />}
           </Stack>
           <Button component={RouterLink} to="/catalogo" variant="contained" sx={{ bgcolor: AZUL, color: '#111', textTransform: 'none' }}>Explorar catálogo</Button>
         </Stack>
 
-        {deseos.error ? (
-          <Alert severity="error" action={<Button color="inherit" onClick={() => setDeseos(cargarDeseos())}>Reintentar</Button>}>{deseos.error}</Alert>
-        ) : deseos.items.length === 0 ? (
+        {cargando ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+            <CircularProgress sx={{ color: 'white' }} />
+          </Box>
+        ) : errorCarga ? (
+          <Alert severity="error" action={<Button color="inherit" onClick={cargarDesdeApi}>Reintentar</Button>}>{errorCarga}</Alert>
+        ) : items.length === 0 ? (
           <Paper elevation={0} sx={{ p: 4, textAlign: 'center' }}>
             <Typography variant="h6" sx={{ mb: 1 }}>Tu lista de deseos está vacía</Typography>
-            <Typography color="text.secondary" sx={{ mb: 2 }}>Guarda los productos que te gusten desde el catálogo.</Typography>
+            <Typography color="text.secondary" sx={{ mb: 2 }}>Guarda los productos y servicios que te gusten desde el catálogo.</Typography>
             <Button component={RouterLink} to="/catalogo" variant="contained">Ver productos</Button>
           </Paper>
         ) : (
           <>
-            {catalogo.error && <Alert severity="warning" sx={{ mb: 2 }} action={<Button color="inherit" onClick={() => setCatalogo(cargarCatalogo())}>Reintentar</Button>}>{catalogo.error}</Alert>}
             {opcionesLista.length > 0 && (
               <Paper elevation={0} sx={{ p: 1.5, mb: 2 }}>
                 <TextField select label="Ver lista" size="small" value={listaSeleccionada} onChange={(event) => setListaSeleccionada(event.target.value)} sx={{ minWidth: 220, maxWidth: '100%', width: { xs: '100%', sm: 280 } }}>
@@ -227,12 +259,24 @@ export default function ListaDeseosPage() {
               </Paper>
             )}
             <Stack spacing={1.5}>
-              {visibles.map((item) => (
-                <FilaDeseo key={item.id} item={item} producto={productosPorId.get(item.id) ?? null} onAnadir={abrirLista} onQuitar={quitar} onQuitarLista={quitarLista} />
-              ))}
+              {visibles.map((item) => {
+                // Combina datos frescos de PostgreSQL con cualquier dato extra del catálogo local
+                const enCatalogo = productosPorId.get(String(item.idBien)) || productosPorId.get(item.id)
+                const combinado = { ...enCatalogo, ...item, precio: item.precio ?? enCatalogo?.precio }
+                return (
+                  <FilaDeseo
+                    key={item.id}
+                    item={item}
+                    producto={combinado}
+                    onAnadir={abrirLista}
+                    onQuitar={quitar}
+                    onQuitarLista={quitarLista}
+                  />
+                )
+              })}
               {visibles.length === 0 && (
                 <Paper elevation={0} sx={{ p: 3 }}>
-                  <Typography sx={{ mb: 1 }}>Esta lista no tiene productos.</Typography>
+                  <Typography sx={{ mb: 1 }}>Esta lista no tiene elementos.</Typography>
                   <Button onClick={() => setListaSeleccionada('')}>Ver todos mis deseos</Button>
                 </Paper>
               )}
@@ -241,7 +285,7 @@ export default function ListaDeseosPage() {
         )}
       </Container>
 
-      <Dialog open={Boolean(productoId)} onClose={() => setProductoId('')} fullWidth maxWidth="xs" aria-labelledby="deseos-lista-titulo">
+      <Dialog open={Boolean(itemActivoId)} onClose={() => setItemActivoId('')} fullWidth maxWidth="xs" aria-labelledby="deseos-lista-titulo">
         <Box component="form" onSubmit={guardarEnLista}>
           <DialogTitle id="deseos-lista-titulo">Añadir a lista</DialogTitle>
           <DialogContent>
@@ -254,7 +298,7 @@ export default function ListaDeseosPage() {
             )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setProductoId('')}>Cancelar</Button>
+            <Button onClick={() => setItemActivoId('')}>Cancelar</Button>
             <Button type="submit" variant="contained">Añadir</Button>
           </DialogActions>
         </Box>

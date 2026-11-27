@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LaguitoLibre.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d83f7b1ece69f964d22db5bcfd05f98b081cdc22")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+00285c3586f9479fcc052573399f59ec15221d75")]
 [assembly: System.Reflection.AssemblyProductAttribute("LaguitoLibre.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LaguitoLibre.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
