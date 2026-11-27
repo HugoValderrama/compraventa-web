@@ -393,4 +393,39 @@ public async Task<IActionResult> CambiarClave(
         "Contraseña actualizada correctamente."
     );
 }
+[Authorize(Roles = "Emprendedor")]
+[HttpGet("empresa")]
+public async Task<IActionResult> ObtenerEmpresa()
+{
+    string run = CurrentRun;
+
+    var emprendedor = await _context.Emprendedors
+        .AsNoTracking()
+        .Include(e => e.Empresa)
+        .FirstOrDefaultAsync(e => e.UsuarioId == run);
+
+    if (emprendedor == null)
+    {
+        return NotFoundMsg("Emprendedor no encontrado.");
+    }
+
+    if (emprendedor.Empresa == null)
+    {
+        return Success<object?>(
+            null,
+            "El emprendedor no tiene una empresa asociada."
+        );
+    }
+
+    var empresa = emprendedor.Empresa;
+
+    return Success(new
+    {
+        rut = empresa.Rut,
+        razonSocial = empresa.Razonsocial,
+        giro = empresa.Giro,
+        paginaWeb = empresa.Paginaweb,
+        direccionLocal = empresa.Direccionlocal
+    }, "Empresa obtenida correctamente.");
+}
 }
