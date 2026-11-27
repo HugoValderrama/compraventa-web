@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:7173/api"; // Verifica que sea el puerto exacto de tu backend
+const API_URL = "http://localhost:7173/api";
 
 export async function apiFetch(endpoint, options = {}) {
     const token = localStorage.getItem("token");
@@ -14,31 +14,38 @@ export async function apiFetch(endpoint, options = {}) {
         headers,
     });
 
-    const data = await response.json().catch(() => null);
+    const body = await response.json().catch(() => null);
 
     if (!response.ok) {
-        const error = new Error(data?.mensaje || `Error HTTP ${response.status}`);
+        const error = new Error(body?.message || body?.mensaje || `Error HTTP ${response.status}`);
         error.codigo = response.status;
         throw error;
     }
 
-    return data; // <-- Esta línea es clave para que 'data' no sea undefined
+    return body;
 }
 
 export async function login({ run, password }) {
     const runSinPuntos = String(run ?? "").replace(/\./g, "").trim();
 
-    const data = await apiFetch("/Auth/login", {
+    const respuesta = await apiFetch("/Auth/login", {
         method: "POST",
         body: JSON.stringify({ run: runSinPuntos, clave: password }),
     });
 
-    if (!data?.token) {
+    const payload = respuesta?.data ?? respuesta;
+
+    if (!payload?.token) {
         throw new Error("El servidor no devolvió un token válido.");
     }
 
-    localStorage.setItem("token", data.token);
-    return data.usuario;
+    localStorage.setItem("token", payload.token);
+
+    return {
+        id: payload.run,
+        nombre: `${payload.nombre ?? ""} ${payload.apellido ?? ""}`.trim(),
+        rol: String(payload.rol ?? "").toLowerCase(),
+    };
 }
 
 export async function getMe() {
